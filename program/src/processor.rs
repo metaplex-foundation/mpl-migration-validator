@@ -1,6 +1,6 @@
 use crate::{
     error::MigrateError,
-    instruction::{InitiateArgs, MigrateInstruction},
+    instruction::{IntializeArgs, MigrateInstruction},
     state::{MigrationState, MIGRATION_STATE_SIZE, MIGRATION_WAIT_PERIOD},
 };
 use borsh::{BorshDeserialize, BorshSerialize};
@@ -28,7 +28,7 @@ impl Processor {
         match instruction {
             MigrateInstruction::Initiate(args) => {
                 // handle instruction
-                initiate_migration(program_id, accounts, args)
+                intialize_migration(program_id, accounts, args)
             }
             MigrateInstruction::Start => {
                 // handle instruction
@@ -46,12 +46,17 @@ impl Processor {
     }
 }
 
-pub fn initiate_migration(
+pub fn intialize_migration(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
-    args: InitiateArgs,
+    args: IntializeArgs,
 ) -> ProgramResult {
     msg!("Initiate Migration");
+    let IntializeArgs {
+        rule_set,
+        migration_type,
+    } = args;
+
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let payer_info = next_account_info(account_info_iter)?;
@@ -71,11 +76,8 @@ pub fn initiate_migration(
     // Ensure that these accounts all belong together
     // * Metadata must be derived from the mint address
     // * Authority must be the update_authority on the metadata struct
-    let metadata = Metadata::from_account_info(collection_metadata_info)
-        .map_err(|_| MigrateError::InvalidMetadata)?;
 
-    msg!("metadata: {:?}", metadata);
-
+    // Properly derived Metadata account
     assert_derivation(
         &mpl_token_metadata::ID,
         collection_metadata_info,
@@ -87,6 +89,11 @@ pub fn initiate_migration(
         MigrateError::MetadataMintMistmatch,
     )?;
 
+    // This ensures the account isn't empty as the deserialization fails if the account doesn't have the correct size.
+    let metadata = Metadata::from_account_info(collection_metadata_info)
+        .map_err(|_| MigrateError::InvalidMetadata)?;
+
+    // Ensure that the authority is the update authority on the metadata
     if metadata.update_authority != *authority_info.key {
         return Err(MigrateError::InvalidAuthority.into());
     }
@@ -109,12 +116,15 @@ pub fn initiate_migration(
     let start_time = Clock::get()?.unix_timestamp;
     let end_time = start_time + MIGRATION_WAIT_PERIOD;
 
-    let migrate_state = MigrationState::new(
-        *collection_mint_info.key,
-        args.rule_set,
+    let migrate_state = MigrationState {
+        collection_mint: *collection_mint_info.key,
+        rule_set: rule_set.unwrap_or_default(),
         start_time,
         end_time,
-    );
+        migration_type,
+        migration_eligible: false,
+        collection_delegate: Pubkey::default(),
+    };
 
     mpl_utils::create_or_allocate_account_raw(
         *program_id,

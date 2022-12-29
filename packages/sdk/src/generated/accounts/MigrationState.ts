@@ -8,6 +8,7 @@
 import * as web3 from '@solana/web3.js';
 import * as beet from '@metaplex-foundation/beet';
 import * as beetSolana from '@metaplex-foundation/beet-solana';
+import { MigrationType, migrationTypeBeet } from '../types/MigrationType';
 
 /**
  * Arguments used to create {@link MigrationState}
@@ -17,8 +18,10 @@ import * as beetSolana from '@metaplex-foundation/beet-solana';
 export type MigrationStateArgs = {
   collectionMint: web3.PublicKey;
   ruleSet: web3.PublicKey;
+  collectionDelegate: web3.PublicKey;
   startTime: beet.bignum;
   endTime: beet.bignum;
+  migrationType: MigrationType;
   migrationEligible: boolean;
 };
 /**
@@ -32,8 +35,10 @@ export class MigrationState implements MigrationStateArgs {
   private constructor(
     readonly collectionMint: web3.PublicKey,
     readonly ruleSet: web3.PublicKey,
+    readonly collectionDelegate: web3.PublicKey,
     readonly startTime: beet.bignum,
     readonly endTime: beet.bignum,
+    readonly migrationType: MigrationType,
     readonly migrationEligible: boolean,
   ) {}
 
@@ -44,8 +49,10 @@ export class MigrationState implements MigrationStateArgs {
     return new MigrationState(
       args.collectionMint,
       args.ruleSet,
+      args.collectionDelegate,
       args.startTime,
       args.endTime,
+      args.migrationType,
       args.migrationEligible,
     );
   }
@@ -144,6 +151,7 @@ export class MigrationState implements MigrationStateArgs {
     return {
       collectionMint: this.collectionMint.toBase58(),
       ruleSet: this.ruleSet.toBase58(),
+      collectionDelegate: this.collectionDelegate.toBase58(),
       startTime: (() => {
         const x = <{ toNumber: () => number }>this.startTime;
         if (typeof x.toNumber === 'function') {
@@ -166,6 +174,7 @@ export class MigrationState implements MigrationStateArgs {
         }
         return x;
       })(),
+      migrationType: 'MigrationType.' + MigrationType[this.migrationType],
       migrationEligible: this.migrationEligible,
     };
   }
@@ -179,8 +188,10 @@ export const migrationStateBeet = new beet.BeetStruct<MigrationState, MigrationS
   [
     ['collectionMint', beetSolana.publicKey],
     ['ruleSet', beetSolana.publicKey],
+    ['collectionDelegate', beetSolana.publicKey],
     ['startTime', beet.i64],
     ['endTime', beet.i64],
+    ['migrationType', migrationTypeBeet],
     ['migrationEligible', beet.bool],
   ],
   MigrationState.fromArgs,

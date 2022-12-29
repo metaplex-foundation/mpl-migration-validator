@@ -7,7 +7,7 @@
 
 import * as beet from '@metaplex-foundation/beet';
 import * as web3 from '@solana/web3.js';
-import { InitiateArgs, initiateArgsBeet } from '../types/InitiateArgs';
+import { IntializeArgs, intializeArgsBeet } from '../types/IntializeArgs';
 
 /**
  * @category Instructions
@@ -15,21 +15,21 @@ import { InitiateArgs, initiateArgsBeet } from '../types/InitiateArgs';
  * @category generated
  */
 export type InitiateInstructionArgs = {
-  initiateArgs: InitiateArgs;
+  intializeArgs: IntializeArgs;
 };
 /**
  * @category Instructions
  * @category Initiate
  * @category generated
  */
-export const InitiateStruct = new beet.BeetArgsStruct<
+export const InitiateStruct = new beet.FixableBeetArgsStruct<
   InitiateInstructionArgs & {
     instructionDiscriminator: number;
   }
 >(
   [
     ['instructionDiscriminator', beet.u8],
-    ['initiateArgs', initiateArgsBeet],
+    ['intializeArgs', intializeArgsBeet],
   ],
   'InitiateInstructionArgs',
 );

@@ -12,24 +12,84 @@ const createErrorFromCodeLookup: Map<number, () => ErrorWithCode> = new Map();
 const createErrorFromNameLookup: Map<string, () => ErrorWithCode> = new Map();
 
 /**
- * ErrorName: 'Error message'
+ * MetadataMintMistmatch: 'Metadata does not match mint account'
  *
  * @category Errors
  * @category generated
  */
-export class ErrorNameError extends Error {
+export class MetadataMintMistmatchError extends Error {
   readonly code: number = 0x0;
-  readonly name: string = 'ErrorName';
+  readonly name: string = 'MetadataMintMistmatch';
   constructor() {
-    super('Error message');
+    super('Metadata does not match mint account');
     if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, ErrorNameError);
+      Error.captureStackTrace(this, MetadataMintMistmatchError);
     }
   }
 }
 
-createErrorFromCodeLookup.set(0x0, () => new ErrorNameError());
-createErrorFromNameLookup.set('ErrorName', () => new ErrorNameError());
+createErrorFromCodeLookup.set(0x0, () => new MetadataMintMistmatchError());
+createErrorFromNameLookup.set('MetadataMintMistmatch', () => new MetadataMintMistmatchError());
+
+/**
+ * InvalidMetadata: 'Metadata did not deserialize correctly'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidMetadataError extends Error {
+  readonly code: number = 0x1;
+  readonly name: string = 'InvalidMetadata';
+  constructor() {
+    super('Metadata did not deserialize correctly');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidMetadataError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x1, () => new InvalidMetadataError());
+createErrorFromNameLookup.set('InvalidMetadata', () => new InvalidMetadataError());
+
+/**
+ * InvalidAuthority: 'Authority does not match update authority on metadata'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidAuthorityError extends Error {
+  readonly code: number = 0x2;
+  readonly name: string = 'InvalidAuthority';
+  constructor() {
+    super('Authority does not match update authority on metadata');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidAuthorityError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x2, () => new InvalidAuthorityError());
+createErrorFromNameLookup.set('InvalidAuthority', () => new InvalidAuthorityError());
+
+/**
+ * InvalidStateAccount: 'Migration state account derivation is in correct'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidStateAccountError extends Error {
+  readonly code: number = 0x3;
+  readonly name: string = 'InvalidStateAccount';
+  constructor() {
+    super('Migration state account derivation is in correct');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidStateAccountError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x3, () => new InvalidStateAccountError());
+createErrorFromNameLookup.set('InvalidStateAccount', () => new InvalidStateAccountError());
 
 /**
  * Attempts to resolve a custom program error from the provided error code.

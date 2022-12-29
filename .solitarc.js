@@ -5,10 +5,10 @@ const sdkDir = path.join(__dirname, 'packages', 'sdk', 'src', 'generated');
 const binaryInstallDir = path.join(__dirname, '.crates');
 
 module.exports = {
-    idlGenerator: 'shank',
-    programName: 'my_program_name',
-    idlDir,
-    sdkDir,
-    binaryInstallDir,
-    programDir,
+  idlGenerator: 'shank',
+  programName: 'mpl_migration_validator',
+  idlDir,
+  sdkDir,
+  binaryInstallDir,
+  programDir,
 };

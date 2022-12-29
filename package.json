@@ -8,13 +8,13 @@
   "private": true,
   "scripts": {
     "build:rust": "(cd program; cargo build-bpf)",
-    "build:docs": "yarn workspace my-program-name build:docs",
-    "build": "yarn build:rust && yarn solita && yarn fix:format && yarn build:sdk && yarn build:docs",
+    "build:docs": "yarn workspace mpl-migration-validator build:docs",
+    "build": "yarn build:rust && yarn solita && yarn fix:format && yarn build:docs",
     "update-sol-deps": "./scripts/update-solana-dependencies.sh",
     "rename": "./scripts/rename.sh",
     "amman": "./scripts/amman.sh",
-    "fix:format": "(cd program; cargo fmt) && yarn workspace my-program-name fix:prettier",
-    "lint": "(cd program; cargo clippy) && yarn workspace my-program-name lint"
+    "fix:format": "(cd program; cargo fmt) && yarn workspace mpl-migration-validator fix:prettier",
+    "lint": "(cd program; cargo clippy) && yarn workspace mpl-migration-validator lint"
   },
   "workspaces": [
     "packages/*"

@@ -3,7 +3,60 @@
   "name": "mpl_migration_validator",
   "instructions": [
     {
-      "name": "InstructionThing",
+      "name": "Initiate",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Paying account for initiate migration"
+        },
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The collection authority"
+        },
+        {
+          "name": "collectionMint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The mint account of the collection parent NFT"
+        },
+        {
+          "name": "collectionMetadata",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The metadata account of the collection parent NFT"
+        },
+        {
+          "name": "migrationState",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The migration state account"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ],
+      "args": [
+        {
+          "name": "initiateArgs",
+          "type": {
+            "defined": "InitiateArgs"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      }
+    },
+    {
+      "name": "Cancel",
       "accounts": [
         {
           "name": "signedWritableAccount",
@@ -36,29 +89,118 @@
           "desc": "Rent sysvar"
         }
       ],
-      "args": [
-        {
-          "name": "instructionThingArgs",
-          "type": {
-            "defined": "InstructionThingArgs"
-          }
-        }
-      ],
+      "args": [],
       "discriminant": {
         "type": "u8",
-        "value": 0
+        "value": 1
+      }
+    },
+    {
+      "name": "Start",
+      "accounts": [
+        {
+          "name": "signedWritableAccount",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "signed, writable account description"
+        },
+        {
+          "name": "writableAccount",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "writable, non signed account description"
+        },
+        {
+          "name": "nonWritableAccount",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "non signed, non writable account description"
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token program"
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Rent sysvar"
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      }
+    },
+    {
+      "name": "Migrate",
+      "accounts": [
+        {
+          "name": "signedWritableAccount",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "signed, writable account description"
+        },
+        {
+          "name": "writableAccount",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "writable, non signed account description"
+        },
+        {
+          "name": "nonWritableAccount",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "non signed, non writable account description"
+        },
+        {
+          "name": "tokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token program"
+        },
+        {
+          "name": "rent",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Rent sysvar"
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 3
       }
     }
   ],
   "accounts": [
     {
-      "name": "AccountThingy",
+      "name": "MigrationState",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "thing",
-            "type": "u8"
+            "name": "collectionMint",
+            "type": "publicKey"
+          },
+          {
+            "name": "ruleSet",
+            "type": "publicKey"
+          },
+          {
+            "name": "startTime",
+            "type": "i64"
+          },
+          {
+            "name": "endTime",
+            "type": "i64"
+          },
+          {
+            "name": "migrationEligible",
+            "type": "bool"
           }
         ]
       }
@@ -66,13 +208,13 @@
   ],
   "types": [
     {
-      "name": "InstructionThingArgs",
+      "name": "InitiateArgs",
       "type": {
         "kind": "struct",
         "fields": [
           {
-            "name": "value",
-            "type": "u64"
+            "name": "ruleSet",
+            "type": "publicKey"
           }
         ]
       }
@@ -81,13 +223,28 @@
   "errors": [
     {
       "code": 0,
-      "name": "ErrorName",
-      "msg": "Error message"
+      "name": "MetadataMintMistmatch",
+      "msg": "Metadata does not match mint account"
+    },
+    {
+      "code": 1,
+      "name": "InvalidMetadata",
+      "msg": "Metadata did not deserialize correctly"
+    },
+    {
+      "code": 2,
+      "name": "InvalidAuthority",
+      "msg": "Authority does not match update authority on metadata"
+    },
+    {
+      "code": 3,
+      "name": "InvalidStateAccount",
+      "msg": "Migration state account derivation is in correct"
     }
   ],
   "metadata": {
     "origin": "shank",
-    "address": "MyProgram1111111111111111111111111111111111",
+    "address": "migrxZFChTqicHpNa1CAjPcF29Mui2JU2q4Ym7qQUTi",
     "binaryVersion": "0.0.10",
     "libVersion": "0.0.10"
   }

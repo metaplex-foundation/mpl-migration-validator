@@ -1,5 +1,5 @@
-export * from './AccountThingy';
+export * from './MigrationState';
 
-import { AccountThingy } from './AccountThingy';
+import { MigrationState } from './MigrationState';
 
-export const accountProviders = { AccountThingy };
+export const accountProviders = { MigrationState };

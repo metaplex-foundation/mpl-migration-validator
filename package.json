@@ -1,5 +1,5 @@
 {
-  "name": "@metaplex-foundation/mpl-migration-validator",
+  "name": "mpl-migration-validator-workspace",
   "packageManager": "yarn@3.2.0-rc.12",
   "version": "0.0.0",
   "description": "",
@@ -8,13 +8,14 @@
   "private": true,
   "scripts": {
     "build:rust": "(cd program; cargo build-bpf)",
-    "build:docs": "yarn workspace mpl-migration-validator build:docs",
-    "build": "yarn build:rust && yarn solita && yarn fix:format && yarn build:docs",
+    "build:docs": "yarn workspace @metaplex-foundation/mpl-migration-validator build:docs",
+    "build:sdk": "yarn workspace @metaplex-foundation/mpl-migration-validator build",
+    "build": "yarn build:rust && yarn solita && yarn fix:format && yarn build:sdk && yarn build:docs",
     "update-sol-deps": "./scripts/update-solana-dependencies.sh",
     "rename": "./scripts/rename.sh",
     "amman": "./scripts/amman.sh",
-    "fix:format": "(cd program; cargo fmt) && yarn workspace mpl-migration-validator fix:prettier",
-    "lint": "(cd program; cargo clippy) && yarn workspace mpl-migration-validator lint"
+    "fix:format": "(cd program; cargo fmt) && yarn workspace @metaplex-foundation/mpl-migration-validator fix:prettier",
+    "lint": "(cd program; cargo clippy) && yarn workspace @metaplex-foundation/mpl-migration-validator lint"
   },
   "workspaces": [
     "packages/*"

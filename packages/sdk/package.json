@@ -1,5 +1,5 @@
 {
-  "name": "mpl-migration-validator",
+  "name": "@metaplex-foundation/mpl-migration-validator",
   "version": "0.1.0",
   "description": "",
   "main": "dist/src/mpl-migration-validator.js",

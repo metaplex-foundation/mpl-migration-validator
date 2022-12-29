@@ -7,26 +7,35 @@ use solana_program::{
 use thiserror::Error;
 
 #[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
-pub enum ErrorThingy {
-    /// Error description
-    #[error("Error message")]
-    ErrorName,
+pub enum MigrateError {
+    /// 0
+    #[error("Metadata does not match mint account")]
+    MetadataMintMistmatch,
+    /// 1
+    #[error("Metadata did not deserialize correctly")]
+    InvalidMetadata,
+    /// 2
+    #[error("Authority does not match update authority on metadata")]
+    InvalidAuthority,
+    /// 3
+    #[error("Migration state account derivation is in correct")]
+    InvalidStateAccount,
 }
 
-impl PrintProgramError for ErrorThingy {
+impl PrintProgramError for MigrateError {
     fn print<E>(&self) {
         msg!(&self.to_string());
     }
 }
 
-impl From<ErrorThingy> for ProgramError {
-    fn from(e: ErrorThingy) -> Self {
+impl From<MigrateError> for ProgramError {
+    fn from(e: MigrateError) -> Self {
         ProgramError::Custom(e as u32)
     }
 }
 
-impl<T> DecodeError<T> for ErrorThingy {
+impl<T> DecodeError<T> for MigrateError {
     fn type_of() -> &'static str {
-        "Error Thingy"
+        "Migrate Error"
     }
 }

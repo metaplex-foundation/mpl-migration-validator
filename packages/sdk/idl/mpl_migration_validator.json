@@ -1,6 +1,6 @@
 {
   "version": "0.1.0",
-  "name": "my_program_name",
+  "name": "mpl_migration_validator",
   "instructions": [
     {
       "name": "InstructionThing",

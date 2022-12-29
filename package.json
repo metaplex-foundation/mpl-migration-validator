@@ -1,14 +1,14 @@
 {
-  "name": "my-program-name-workspace",
+  "name": "@metaplex-foundation/mpl-migration-validator",
   "packageManager": "yarn@3.2.0-rc.12",
   "version": "0.0.0",
   "description": "",
-  "author": "Sammy Harris <sammy@stegabob.com>",
+  "author": "Metaplex Maintainers <contact@metaplex.com>",
   "license": "Apache-2.0",
   "private": true,
   "scripts": {
     "build:rust": "(cd program; cargo build-bpf)",
-p    "build:docs": "yarn workspace my-program-name build:docs",
+    "build:docs": "yarn workspace my-program-name build:docs",
     "build": "yarn build:rust && yarn solita && yarn fix:format && yarn build:sdk && yarn build:docs",
     "update-sol-deps": "./scripts/update-solana-dependencies.sh",
     "rename": "./scripts/rename.sh",

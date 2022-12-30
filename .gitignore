@@ -25,7 +25,6 @@ packages/sdk/docs/
 .amman
 
 .pnp.*
-.yarn
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

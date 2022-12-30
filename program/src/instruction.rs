@@ -27,12 +27,10 @@ pub enum MigrateInstruction {
     Initialize(InitializeArgs),
 
     /// Description of this instruction
-    #[account(0, writable, signer, name="signed_writable_account", desc="signed, writable account description")]
-    #[account(1, writable, name="writable_account", desc = "writable, non signed account description")]
-    #[account(2, name="non_writable_account", desc = "non signed, non writable account description")]
-    #[account(3, name="token_program", desc = "Token program")]
-    #[account(4, name="rent", desc = "Rent sysvar")]
-    Cancel,
+    #[account(0, writable, signer, name="authority", desc="The collection authority")]
+    #[account(1, writable, name="migration_state", desc = "The migration state account")]
+    #[account(2, name="system_program", desc = "System program")]
+    Close,
 
     /// Description of this instruction
     #[account(0, writable, signer, name="signed_writable_account", desc="signed, writable account description")]
@@ -68,6 +66,19 @@ pub fn initialize(
             AccountMeta::new(authority, true),
             AccountMeta::new_readonly(collection_mint, false),
             AccountMeta::new_readonly(collection_metadata, false),
+            AccountMeta::new(migration_state, false),
+            AccountMeta::new_readonly(solana_program::system_program::ID, false),
+        ],
+        data,
+    }
+}
+
+pub fn close(authority: Pubkey, migration_state: Pubkey) -> Instruction {
+    let data = MigrateInstruction::Close.try_to_vec().unwrap();
+    Instruction {
+        program_id: crate::ID,
+        accounts: vec![
+            AccountMeta::new(authority, true),
             AccountMeta::new(migration_state, false),
             AccountMeta::new_readonly(solana_program::system_program::ID, false),
         ],

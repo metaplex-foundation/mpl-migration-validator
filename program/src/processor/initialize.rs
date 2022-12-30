@@ -59,7 +59,7 @@ pub fn initialize_migration(
         program_id,
         migration_state_info,
         &[b"migration", collection_mint_info.key.as_ref()],
-        MigrateError::InvalidStateAccount,
+        MigrateError::InvalidStateDerivation,
     )?;
     let state_seeds = &[b"migration", collection_mint_info.key.as_ref(), &[bump]];
 
@@ -79,7 +79,9 @@ pub fn initialize_migration(
         start_time,
         end_time,
         migration_type,
-        migration_eligible: false,
+        migration_size: 0,
+        is_eligible: false,
+        in_progress: false,
         collection_delegate: Pubkey::default(),
     };
 

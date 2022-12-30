@@ -15,7 +15,9 @@ pub struct MigrationState {
     pub start_time: i64,
     pub end_time: i64,
     pub migration_type: MigrationType,
-    pub migration_eligible: bool,
+    pub migration_size: u32,
+    pub in_progress: bool,
+    pub is_eligible: bool,
 }
 
 impl MigrationState {

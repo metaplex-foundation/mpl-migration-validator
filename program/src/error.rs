@@ -19,7 +19,13 @@ pub enum MigrateError {
     InvalidAuthority,
     /// 3
     #[error("Migration state account derivation is in correct")]
-    InvalidStateAccount,
+    InvalidStateDerivation,
+    /// 4
+    #[error("Migration state did not deserialize correctly")]
+    InvalidStateDeserialization,
+    /// 5
+    #[error("Cannot close while migration is in progress")]
+    MigrationInProgress,
 }
 
 impl PrintProgramError for MigrateError {

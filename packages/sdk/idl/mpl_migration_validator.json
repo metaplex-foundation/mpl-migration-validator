@@ -201,7 +201,15 @@
             }
           },
           {
-            "name": "migrationEligible",
+            "name": "migrationSize",
+            "type": "u32"
+          },
+          {
+            "name": "inProgress",
+            "type": "bool"
+          },
+          {
+            "name": "isEligible",
             "type": "bool"
           }
         ]
@@ -262,8 +270,18 @@
     },
     {
       "code": 3,
-      "name": "InvalidStateAccount",
+      "name": "InvalidStateDerivation",
       "msg": "Migration state account derivation is in correct"
+    },
+    {
+      "code": 4,
+      "name": "InvalidStateDeserialization",
+      "msg": "Migration state did not deserialize correctly"
+    },
+    {
+      "code": 5,
+      "name": "MigrationInProgress",
+      "msg": "Cannot close while migration is in progress"
     }
   ],
   "metadata": {

@@ -36,7 +36,9 @@ test('Initialize: successfully create migration state', async (t) => {
     ruleSet: defaultKey,
     collectionDelegate: defaultKey,
     migrationType: args.migrationType,
-    migrationEligible: false,
+    migrationSize: 0,
+    inProgress: false,
+    isEligible: false,
   });
 });
 
@@ -69,7 +71,7 @@ test('Initialize: Cannot initialize twice', async (t) => {
     ruleSet: defaultKey,
     collectionDelegate: defaultKey,
     migrationType: args.migrationType,
-    migrationEligible: false,
+    isEligible: false,
   });
 
   const args2: InitializeArgs = {

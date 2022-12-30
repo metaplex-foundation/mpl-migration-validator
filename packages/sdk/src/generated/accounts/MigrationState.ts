@@ -23,7 +23,9 @@ export type MigrationStateArgs = {
   startTime: beet.bignum;
   endTime: beet.bignum;
   migrationType: MigrationType;
-  migrationEligible: boolean;
+  migrationSize: number;
+  inProgress: boolean;
+  isEligible: boolean;
 };
 /**
  * Holds the data for the {@link MigrationState} Account and provides de/serialization
@@ -41,7 +43,9 @@ export class MigrationState implements MigrationStateArgs {
     readonly startTime: beet.bignum,
     readonly endTime: beet.bignum,
     readonly migrationType: MigrationType,
-    readonly migrationEligible: boolean,
+    readonly migrationSize: number,
+    readonly inProgress: boolean,
+    readonly isEligible: boolean,
   ) {}
 
   /**
@@ -56,7 +60,9 @@ export class MigrationState implements MigrationStateArgs {
       args.startTime,
       args.endTime,
       args.migrationType,
-      args.migrationEligible,
+      args.migrationSize,
+      args.inProgress,
+      args.isEligible,
     );
   }
 
@@ -179,7 +185,9 @@ export class MigrationState implements MigrationStateArgs {
         return x;
       })(),
       migrationType: 'MigrationType.' + MigrationType[this.migrationType],
-      migrationEligible: this.migrationEligible,
+      migrationSize: this.migrationSize,
+      inProgress: this.inProgress,
+      isEligible: this.isEligible,
     };
   }
 }
@@ -197,7 +205,9 @@ export const migrationStateBeet = new beet.BeetStruct<MigrationState, MigrationS
     ['startTime', beet.i64],
     ['endTime', beet.i64],
     ['migrationType', migrationTypeBeet],
-    ['migrationEligible', beet.bool],
+    ['migrationSize', beet.u32],
+    ['inProgress', beet.bool],
+    ['isEligible', beet.bool],
   ],
   MigrationState.fromArgs,
   'MigrationState',

@@ -72,24 +72,67 @@ createErrorFromCodeLookup.set(0x2, () => new InvalidAuthorityError());
 createErrorFromNameLookup.set('InvalidAuthority', () => new InvalidAuthorityError());
 
 /**
- * InvalidStateAccount: 'Migration state account derivation is in correct'
+ * InvalidStateDerivation: 'Migration state account derivation is in correct'
  *
  * @category Errors
  * @category generated
  */
-export class InvalidStateAccountError extends Error {
+export class InvalidStateDerivationError extends Error {
   readonly code: number = 0x3;
-  readonly name: string = 'InvalidStateAccount';
+  readonly name: string = 'InvalidStateDerivation';
   constructor() {
     super('Migration state account derivation is in correct');
     if (typeof Error.captureStackTrace === 'function') {
-      Error.captureStackTrace(this, InvalidStateAccountError);
+      Error.captureStackTrace(this, InvalidStateDerivationError);
     }
   }
 }
 
-createErrorFromCodeLookup.set(0x3, () => new InvalidStateAccountError());
-createErrorFromNameLookup.set('InvalidStateAccount', () => new InvalidStateAccountError());
+createErrorFromCodeLookup.set(0x3, () => new InvalidStateDerivationError());
+createErrorFromNameLookup.set('InvalidStateDerivation', () => new InvalidStateDerivationError());
+
+/**
+ * InvalidStateDeserialization: 'Migration state did not deserialize correctly'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidStateDeserializationError extends Error {
+  readonly code: number = 0x4;
+  readonly name: string = 'InvalidStateDeserialization';
+  constructor() {
+    super('Migration state did not deserialize correctly');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidStateDeserializationError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x4, () => new InvalidStateDeserializationError());
+createErrorFromNameLookup.set(
+  'InvalidStateDeserialization',
+  () => new InvalidStateDeserializationError(),
+);
+
+/**
+ * MigrationInProgress: 'Cannot close while migration is in progress'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class MigrationInProgressError extends Error {
+  readonly code: number = 0x5;
+  readonly name: string = 'MigrationInProgress';
+  constructor() {
+    super('Cannot close while migration is in progress');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, MigrationInProgressError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x5, () => new MigrationInProgressError());
+createErrorFromNameLookup.set('MigrationInProgress', () => new MigrationInProgressError());
 
 /**
  * Attempts to resolve a custom program error from the provided error code.

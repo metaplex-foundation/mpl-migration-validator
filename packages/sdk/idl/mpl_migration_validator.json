@@ -56,37 +56,25 @@
       }
     },
     {
-      "name": "Cancel",
+      "name": "Close",
       "accounts": [
         {
-          "name": "signedWritableAccount",
+          "name": "authority",
           "isMut": true,
           "isSigner": true,
-          "desc": "signed, writable account description"
+          "desc": "The collection authority"
         },
         {
-          "name": "writableAccount",
+          "name": "migrationState",
           "isMut": true,
           "isSigner": false,
-          "desc": "writable, non signed account description"
+          "desc": "The migration state account"
         },
         {
-          "name": "nonWritableAccount",
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false,
-          "desc": "non signed, non writable account description"
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "Token program"
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "Rent sysvar"
+          "desc": "System program"
         }
       ],
       "args": [],
@@ -182,6 +170,10 @@
       "type": {
         "kind": "struct",
         "fields": [
+          {
+            "name": "collectionAuthority",
+            "type": "publicKey"
+          },
           {
             "name": "collectionMint",
             "type": "publicKey"

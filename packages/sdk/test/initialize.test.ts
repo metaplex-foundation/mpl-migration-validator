@@ -31,6 +31,7 @@ test('Initialize: successfully create migration state', async (t) => {
 
   const state = await MigrationState.fromAccountAddress(connection, migrationState);
   spok(t, state, {
+    collectionAuthority: payer.publicKey,
     collectionMint: mint,
     ruleSet: defaultKey,
     collectionDelegate: defaultKey,

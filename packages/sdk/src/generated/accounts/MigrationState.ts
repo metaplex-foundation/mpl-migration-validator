@@ -16,6 +16,7 @@ import { MigrationType, migrationTypeBeet } from '../types/MigrationType';
  * @category generated
  */
 export type MigrationStateArgs = {
+  collectionAuthority: web3.PublicKey;
   collectionMint: web3.PublicKey;
   ruleSet: web3.PublicKey;
   collectionDelegate: web3.PublicKey;
@@ -33,6 +34,7 @@ export type MigrationStateArgs = {
  */
 export class MigrationState implements MigrationStateArgs {
   private constructor(
+    readonly collectionAuthority: web3.PublicKey,
     readonly collectionMint: web3.PublicKey,
     readonly ruleSet: web3.PublicKey,
     readonly collectionDelegate: web3.PublicKey,
@@ -47,6 +49,7 @@ export class MigrationState implements MigrationStateArgs {
    */
   static fromArgs(args: MigrationStateArgs) {
     return new MigrationState(
+      args.collectionAuthority,
       args.collectionMint,
       args.ruleSet,
       args.collectionDelegate,
@@ -149,6 +152,7 @@ export class MigrationState implements MigrationStateArgs {
    */
   pretty() {
     return {
+      collectionAuthority: this.collectionAuthority.toBase58(),
       collectionMint: this.collectionMint.toBase58(),
       ruleSet: this.ruleSet.toBase58(),
       collectionDelegate: this.collectionDelegate.toBase58(),
@@ -186,6 +190,7 @@ export class MigrationState implements MigrationStateArgs {
  */
 export const migrationStateBeet = new beet.BeetStruct<MigrationState, MigrationStateArgs>(
   [
+    ['collectionAuthority', beetSolana.publicKey],
     ['collectionMint', beetSolana.publicKey],
     ['ruleSet', beetSolana.publicKey],
     ['collectionDelegate', beetSolana.publicKey],

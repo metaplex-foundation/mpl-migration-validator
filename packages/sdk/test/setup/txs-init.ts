@@ -86,7 +86,7 @@ export class InitTransactions {
     const initializeIx = createInitializeInstruction(accounts, ixArgs);
 
     const tx = new Transaction().add(initializeIx);
-    const signers = [payer, authority];
+    const signers = [payer];
 
     return {
       tx: handler.sendAndConfirmTransaction(tx, signers, 'tx: Initialize'),
@@ -126,14 +126,14 @@ export class InitTransactions {
     const initMintIx = createInitializeMintInstruction(
       mint.publicKey,
       0,
-      payer.publicKey,
-      payer.publicKey,
+      authority.publicKey,
+      authority.publicKey,
       TOKEN_PROGRAM_ID,
     );
 
     const ata = await getAssociatedTokenAddress(
       mint.publicKey,
-      payer.publicKey,
+      authority.publicKey,
       false,
       TOKEN_PROGRAM_ID,
       ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -143,7 +143,7 @@ export class InitTransactions {
     const assoc = createAssociatedTokenAccountInstruction(
       payer.publicKey,
       ata,
-      payer.publicKey,
+      authority.publicKey,
       mint.publicKey,
       TOKEN_PROGRAM_ID,
       ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -153,7 +153,7 @@ export class InitTransactions {
     const mintToIx = createMintToInstruction(
       mint.publicKey,
       ata,
-      payer.publicKey, // Mint authority
+      authority.publicKey, // Mint authority
       1,
       [], // No multi-sign signers
       TOKEN_PROGRAM_ID,
@@ -166,9 +166,9 @@ export class InitTransactions {
     const accounts: CreateMetadataAccountV3InstructionAccounts = {
       metadata,
       mint: mint.publicKey,
-      mintAuthority: payer.publicKey,
+      mintAuthority: authority.publicKey,
       payer: payer.publicKey,
-      updateAuthority: payer.publicKey,
+      updateAuthority: authority.publicKey,
       systemProgram: SystemProgram.programId,
     };
 
@@ -181,7 +181,7 @@ export class InitTransactions {
           sellerFeeBasisPoints: 0,
           creators: [
             {
-              address: payer.publicKey,
+              address: authority.publicKey,
               verified: true,
               share: 100,
             },
@@ -200,9 +200,9 @@ export class InitTransactions {
       metadata,
       edition: masterEdition,
       mint: mint.publicKey,
-      mintAuthority: payer.publicKey,
+      mintAuthority: authority.publicKey,
       payer: payer.publicKey,
-      updateAuthority: payer.publicKey,
+      updateAuthority: authority.publicKey,
       systemProgram: SystemProgram.programId,
     };
 

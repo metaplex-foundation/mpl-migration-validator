@@ -5,7 +5,6 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from '@solana/spl-token';
 import * as beet from '@metaplex-foundation/beet';
 import * as web3 from '@solana/web3.js';
 
@@ -21,22 +20,23 @@ export const StartStruct = new beet.BeetArgsStruct<{ instructionDiscriminator: n
 /**
  * Accounts required by the _Start_ instruction
  *
- * @property [_writable_, **signer**] signedWritableAccount signed, writable account description
- * @property [_writable_] writableAccount writable, non signed account description
- * @property [] nonWritableAccount non signed, non writable account description
+ * @property [**signer**] authority The collection authority
+ * @property [] collectionMint The mint account of the collection parent NFT
+ * @property [] collectionMetadata The metadata account of the collection parent NFT
+ * @property [_writable_] migrationState The migration state account
  * @category Instructions
  * @category Start
  * @category generated
  */
 export type StartInstructionAccounts = {
-  signedWritableAccount: web3.PublicKey;
-  writableAccount: web3.PublicKey;
-  nonWritableAccount: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  rent?: web3.PublicKey;
+  authority: web3.PublicKey;
+  collectionMint: web3.PublicKey;
+  collectionMetadata: web3.PublicKey;
+  migrationState: web3.PublicKey;
+  systemProgram?: web3.PublicKey;
 };
 
-export const startInstructionDiscriminator = 2;
+export const startInstructionDiscriminator = 3;
 
 /**
  * Creates a _Start_ instruction.
@@ -55,27 +55,27 @@ export function createStartInstruction(
   });
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: accounts.signedWritableAccount,
-      isWritable: true,
+      pubkey: accounts.authority,
+      isWritable: false,
       isSigner: true,
     },
     {
-      pubkey: accounts.writableAccount,
+      pubkey: accounts.collectionMint,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.collectionMetadata,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.migrationState,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.nonWritableAccount,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.rent ?? web3.SYSVAR_RENT_PUBKEY,
+      pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
       isWritable: false,
       isSigner: false,
     },

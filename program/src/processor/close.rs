@@ -13,16 +13,16 @@ pub fn close_migration_state(_program_id: &Pubkey, accounts: &[AccountInfo]) -> 
         // Deserialize the migration state
         let buffer = migration_state_info.try_borrow_data()?;
         let migration_state = MigrationState::deserialize(&mut buffer.as_ref())
-            .map_err(|_| MigrateError::InvalidStateDeserialization)?;
+            .map_err(|_| MigrationError::InvalidStateDeserialization)?;
 
         // Ensure the authority matches
         if migration_state.collection_authority != *authority_info.key {
-            return Err(MigrateError::InvalidAuthority.into());
+            return Err(MigrationError::InvalidAuthority.into());
         }
 
         // Ensure the migration isn't in progress
         if migration_state.in_progress {
-            return Err(MigrateError::MigrationInProgress.into());
+            return Err(MigrationError::MigrationInProgress.into());
         }
     }
 

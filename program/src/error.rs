@@ -7,7 +7,7 @@ use solana_program::{
 use thiserror::Error;
 
 #[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
-pub enum MigrateError {
+pub enum MigrationError {
     /// 0
     #[error("Metadata does not match mint account")]
     MetadataMintMistmatch,
@@ -26,21 +26,24 @@ pub enum MigrateError {
     /// 5
     #[error("Cannot close while migration is in progress")]
     MigrationInProgress,
+    /// 6
+    #[error("Incorrect program owner for migration state account")]
+    IncorrectProgramOwner,
 }
 
-impl PrintProgramError for MigrateError {
+impl PrintProgramError for MigrationError {
     fn print<E>(&self) {
         msg!(&self.to_string());
     }
 }
 
-impl From<MigrateError> for ProgramError {
-    fn from(e: MigrateError) -> Self {
+impl From<MigrationError> for ProgramError {
+    fn from(e: MigrationError) -> Self {
         ProgramError::Custom(e as u32)
     }
 }
 
-impl<T> DecodeError<T> for MigrateError {
+impl<T> DecodeError<T> for MigrationError {
     fn type_of() -> &'static str {
         "Migrate Error"
     }

@@ -1,6 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use shank::ShankAccount;
-use solana_program::pubkey::Pubkey;
+use solana_program::{account_info::AccountInfo, program_error::ProgramError, pubkey::Pubkey};
+
+use crate::error::MigrationError;
 
 pub(crate) const MIGRATION_WAIT_PERIOD: i64 = 60 * 60 * 24 * 14; // 14 days
 
@@ -13,7 +15,6 @@ pub struct MigrationState {
     pub rule_set: Pubkey,
     pub collection_delegate: Pubkey,
     pub start_time: i64,
-    pub end_time: i64,
     pub migration_type: MigrationType,
     pub migration_size: u32,
     pub in_progress: bool,
@@ -21,30 +22,18 @@ pub struct MigrationState {
 }
 
 impl MigrationState {
-    pub fn collection(&self) -> Pubkey {
-        self.collection_mint
-    }
+    pub fn from_account_info(a: &AccountInfo) -> Result<Self, ProgramError> {
+        let data = a.try_borrow_data()?;
+        let ua = Self::deserialize(&mut data.as_ref())
+            .map_err(|_| MigrationError::InvalidStateDerivation)?;
 
-    pub fn rule_set(&self) -> Pubkey {
-        self.rule_set
-    }
-
-    pub fn collection_delegate(&self) -> Pubkey {
-        self.collection_delegate
-    }
-
-    pub fn start_time(&self) -> i64 {
-        self.start_time
-    }
-
-    pub fn end_time(&self) -> i64 {
-        self.end_time
+        Ok(ua)
     }
 }
 
 #[repr(C)]
 #[derive(Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug)]
 pub enum MigrationType {
-    WaitPeriod,
+    Timed,
     Vote,
 }

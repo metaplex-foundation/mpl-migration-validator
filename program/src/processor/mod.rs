@@ -1,11 +1,13 @@
+use crate::state::MigrationType;
 use crate::{
-    error::MigrateError,
-    instruction::{InitializeArgs, MigrateInstruction},
+    error::MigrationError,
+    instruction::{InitializeArgs, MigrationInstruction, UpdateArgs},
     state::{MigrationState, MIGRATION_WAIT_PERIOD},
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_token_metadata::state::{Metadata, TokenMetadataAccount};
-use mpl_utils::{assert_derivation, assert_signer};
+use mpl_utils::{assert_derivation, assert_owned_by, assert_signer};
+use solana_program::program_memory::sol_memcpy;
 use solana_program::{
     account_info::{next_account_info, AccountInfo},
     clock::Clock,
@@ -18,9 +20,11 @@ use solana_program::{
 
 mod close;
 mod initialize;
+mod update;
 
 use close::close_migration_state;
 use initialize::initialize_migration;
+use update::update_state;
 
 pub struct Processor;
 impl Processor {
@@ -29,22 +33,27 @@ impl Processor {
         accounts: &[AccountInfo],
         instruction_data: &[u8],
     ) -> ProgramResult {
-        let instruction: MigrateInstruction = MigrateInstruction::try_from_slice(instruction_data)?;
+        let instruction: MigrationInstruction =
+            MigrationInstruction::try_from_slice(instruction_data)?;
 
         match instruction {
-            MigrateInstruction::Initialize(args) => {
+            MigrationInstruction::Initialize(args) => {
                 // handle instruction
                 initialize_migration(program_id, accounts, args)
             }
-            MigrateInstruction::Start => {
+            MigrationInstruction::Update(args) => {
                 // handle instruction
-                Ok(())
+                update_state(program_id, accounts, args)
             }
-            MigrateInstruction::Close => {
+            MigrationInstruction::Close => {
                 // handle instruction
                 close_migration_state(program_id, accounts)
             }
-            MigrateInstruction::Migrate => {
+            MigrationInstruction::Start => {
+                // handle instruction
+                Ok(())
+            }
+            MigrationInstruction::Migrate => {
                 // handle instruction
                 Ok(())
             }

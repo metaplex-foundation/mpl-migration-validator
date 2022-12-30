@@ -1,12 +1,12 @@
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import spok from 'spok';
 import test from 'tape';
-import { InitializeArgs, MigrationState, MigrationType } from '../src/generated';
+import { InitializeArgs, UpdateArgs, MigrationState, MigrationType } from '../src/generated';
 import { InitTransactions, killStuckProcess } from './setup';
 
 killStuckProcess();
 
-test('Close: successfully close migration state account', async (t) => {
+test('Update: successfully update state account', async (t) => {
   const API = new InitTransactions();
   const { fstTxHandler: handler, payerPair: payer, connection } = await API.payer();
 
@@ -41,9 +41,26 @@ test('Close: successfully close migration state account', async (t) => {
     isEligible: false,
   });
 
-  const { tx: closeTx } = await API.close(handler, payer, migrationState);
-  await closeTx.assertSuccess(t);
+  const newRuleSet = new Keypair().publicKey;
 
-  const account = await connection.getAccountInfo(migrationState);
-  t.equal(account, null, 'account is null');
+  console.log('newRuleSet', newRuleSet.toBase58());
+
+  const updateArgs: UpdateArgs = {
+    ruleSet: newRuleSet,
+  };
+
+  const { tx: updateTx } = await API.update(handler, payer, migrationState, updateArgs);
+  await updateTx.assertSuccess(t);
+
+  const newState = await MigrationState.fromAccountAddress(connection, migrationState);
+  spok(t, newState, {
+    collectionAuthority: payer.publicKey,
+    collectionMint: mint,
+    ruleSet: newRuleSet,
+    collectionDelegate: defaultKey,
+    migrationType: args.migrationType,
+    migrationSize: 0,
+    inProgress: false,
+    isEligible: false,
+  });
 });

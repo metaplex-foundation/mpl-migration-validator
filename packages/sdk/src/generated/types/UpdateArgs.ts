@@ -5,21 +5,18 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
+import * as web3 from '@solana/web3.js';
 import * as beet from '@metaplex-foundation/beet';
-/**
- * @category enums
- * @category generated
- */
-export enum MigrationType {
-  Timed,
-  Vote,
-}
+import * as beetSolana from '@metaplex-foundation/beet-solana';
+export type UpdateArgs = {
+  ruleSet: beet.COption<web3.PublicKey>;
+};
 
 /**
  * @category userTypes
  * @category generated
  */
-export const migrationTypeBeet = beet.fixedScalarEnum(MigrationType) as beet.FixedSizeBeet<
-  MigrationType,
-  MigrationType
->;
+export const updateArgsBeet = new beet.FixableBeetArgsStruct<UpdateArgs>(
+  [['ruleSet', beet.coption(beetSolana.publicKey)]],
+  'UpdateArgs',
+);

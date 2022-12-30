@@ -20,6 +20,10 @@ import {
   InitializeInstructionAccounts,
   CloseInstructionAccounts,
   createCloseInstruction,
+  UpdateArgs,
+  UpdateInstructionAccounts,
+  createUpdateInstruction,
+  UpdateInstructionArgs,
 } from '../../src/generated';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -120,6 +124,38 @@ export class InitTransactions {
 
     return {
       tx: handler.sendAndConfirmTransaction(tx, signers, 'tx: Close'),
+      migrationState,
+    };
+  }
+
+  async update(
+    handler: PayerTransactionHandler,
+    authority: Keypair,
+    migrationState: PublicKey,
+    args: UpdateArgs,
+  ): Promise<{
+    tx: ConfirmedTransactionAssertablePromise;
+    migrationState: PublicKey;
+  }> {
+    amman.addr.addLabel('Authority', authority.publicKey);
+    amman.addr.addLabel('Migration State', migrationState);
+
+    const accounts: UpdateInstructionAccounts = {
+      authority: authority.publicKey,
+      migrationState,
+    };
+
+    const ixArgs: UpdateInstructionArgs = {
+      updateArgs: args,
+    };
+
+    const updateIx = createUpdateInstruction(accounts, ixArgs);
+
+    const tx = new Transaction().add(updateIx);
+    const signers = [authority];
+
+    return {
+      tx: handler.sendAndConfirmTransaction(tx, signers, 'tx: Update'),
       migrationState,
     };
   }

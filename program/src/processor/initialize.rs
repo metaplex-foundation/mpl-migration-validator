@@ -1,7 +1,5 @@
 use super::*;
 
-use solana_program::program_memory::sol_memcpy;
-
 pub fn initialize_migration(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
@@ -42,16 +40,16 @@ pub fn initialize_migration(
             mpl_token_metadata::ID.as_ref(),
             collection_mint_info.key.as_ref(),
         ],
-        MigrateError::MetadataMintMistmatch,
+        MigrationError::MetadataMintMistmatch,
     )?;
 
     // This ensures the account isn't empty as the deserialization fails if the account doesn't have the correct size.
     let metadata = Metadata::from_account_info(collection_metadata_info)
-        .map_err(|_| MigrateError::InvalidMetadata)?;
+        .map_err(|_| MigrationError::InvalidMetadata)?;
 
     // Ensure that the authority is the update authority on the metadata
     if metadata.update_authority != *authority_info.key {
-        return Err(MigrateError::InvalidAuthority.into());
+        return Err(MigrationError::InvalidAuthority.into());
     }
 
     // The migrate state account must must match the correct derivation
@@ -59,7 +57,7 @@ pub fn initialize_migration(
         program_id,
         migration_state_info,
         &[b"migration", collection_mint_info.key.as_ref()],
-        MigrateError::InvalidStateDerivation,
+        MigrationError::InvalidStateDerivation,
     )?;
     let state_seeds = &[b"migration", collection_mint_info.key.as_ref(), &[bump]];
 
@@ -69,15 +67,13 @@ pub fn initialize_migration(
 
     msg!("accounts validated");
 
-    let start_time = Clock::get()?.unix_timestamp;
-    let end_time = start_time + MIGRATION_WAIT_PERIOD;
+    let start_time = Clock::get()?.unix_timestamp + MIGRATION_WAIT_PERIOD;
 
     let migration_state = MigrationState {
         collection_authority: *authority_info.key,
         collection_mint: *collection_mint_info.key,
         rule_set: rule_set.unwrap_or_default(),
         start_time,
-        end_time,
         migration_type,
         migration_size: 0,
         is_eligible: false,
@@ -99,7 +95,7 @@ pub fn initialize_migration(
 
     msg!("writing state");
     sol_memcpy(
-        &mut *migration_state_info.data.borrow_mut(),
+        &mut migration_state_info.data.borrow_mut(),
         serialized_data.as_slice(),
         data_len,
     );

@@ -36,7 +36,7 @@ export type MigrateInstructionAccounts = {
   rent?: web3.PublicKey;
 };
 
-export const migrateInstructionDiscriminator = 3;
+export const migrateInstructionDiscriminator = 4;
 
 /**
  * Creates a _Migrate_ instruction.

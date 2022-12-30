@@ -21,7 +21,6 @@ export type MigrationStateArgs = {
   ruleSet: web3.PublicKey;
   collectionDelegate: web3.PublicKey;
   startTime: beet.bignum;
-  endTime: beet.bignum;
   migrationType: MigrationType;
   migrationSize: number;
   inProgress: boolean;
@@ -41,7 +40,6 @@ export class MigrationState implements MigrationStateArgs {
     readonly ruleSet: web3.PublicKey,
     readonly collectionDelegate: web3.PublicKey,
     readonly startTime: beet.bignum,
-    readonly endTime: beet.bignum,
     readonly migrationType: MigrationType,
     readonly migrationSize: number,
     readonly inProgress: boolean,
@@ -58,7 +56,6 @@ export class MigrationState implements MigrationStateArgs {
       args.ruleSet,
       args.collectionDelegate,
       args.startTime,
-      args.endTime,
       args.migrationType,
       args.migrationSize,
       args.inProgress,
@@ -173,17 +170,6 @@ export class MigrationState implements MigrationStateArgs {
         }
         return x;
       })(),
-      endTime: (() => {
-        const x = <{ toNumber: () => number }>this.endTime;
-        if (typeof x.toNumber === 'function') {
-          try {
-            return x.toNumber();
-          } catch (_) {
-            return x;
-          }
-        }
-        return x;
-      })(),
       migrationType: 'MigrationType.' + MigrationType[this.migrationType],
       migrationSize: this.migrationSize,
       inProgress: this.inProgress,
@@ -203,7 +189,6 @@ export const migrationStateBeet = new beet.BeetStruct<MigrationState, MigrationS
     ['ruleSet', beetSolana.publicKey],
     ['collectionDelegate', beetSolana.publicKey],
     ['startTime', beet.i64],
-    ['endTime', beet.i64],
     ['migrationType', migrationTypeBeet],
     ['migrationSize', beet.u32],
     ['inProgress', beet.bool],

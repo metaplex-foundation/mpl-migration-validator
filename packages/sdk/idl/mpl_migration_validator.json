@@ -84,43 +84,79 @@
       }
     },
     {
+      "name": "Update",
+      "accounts": [
+        {
+          "name": "authority",
+          "isMut": false,
+          "isSigner": true,
+          "desc": "The collection authority"
+        },
+        {
+          "name": "migrationState",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The migration state account"
+        },
+        {
+          "name": "voteAccount",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "SPL governance vote account",
+          "optional": true
+        }
+      ],
+      "args": [
+        {
+          "name": "updateArgs",
+          "type": {
+            "defined": "UpdateArgs"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      }
+    },
+    {
       "name": "Start",
       "accounts": [
         {
-          "name": "signedWritableAccount",
-          "isMut": true,
+          "name": "authority",
+          "isMut": false,
           "isSigner": true,
-          "desc": "signed, writable account description"
+          "desc": "The collection authority"
         },
         {
-          "name": "writableAccount",
+          "name": "collectionMint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The mint account of the collection parent NFT"
+        },
+        {
+          "name": "collectionMetadata",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The metadata account of the collection parent NFT"
+        },
+        {
+          "name": "migrationState",
           "isMut": true,
           "isSigner": false,
-          "desc": "writable, non signed account description"
+          "desc": "The migration state account"
         },
         {
-          "name": "nonWritableAccount",
+          "name": "systemProgram",
           "isMut": false,
           "isSigner": false,
-          "desc": "non signed, non writable account description"
-        },
-        {
-          "name": "tokenProgram",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "Token program"
-        },
-        {
-          "name": "rent",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "Rent sysvar"
+          "desc": "System program"
         }
       ],
       "args": [],
       "discriminant": {
         "type": "u8",
-        "value": 2
+        "value": 3
       }
     },
     {
@@ -160,7 +196,7 @@
       "args": [],
       "discriminant": {
         "type": "u8",
-        "value": 3
+        "value": 4
       }
     }
   ],
@@ -188,10 +224,6 @@
           },
           {
             "name": "startTime",
-            "type": "i64"
-          },
-          {
-            "name": "endTime",
             "type": "i64"
           },
           {
@@ -238,12 +270,26 @@
       }
     },
     {
+      "name": "UpdateArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ruleSet",
+            "type": {
+              "option": "publicKey"
+            }
+          }
+        ]
+      }
+    },
+    {
       "name": "MigrationType",
       "type": {
         "kind": "enum",
         "variants": [
           {
-            "name": "WaitPeriod"
+            "name": "Timed"
           },
           {
             "name": "Vote"
@@ -282,6 +328,11 @@
       "code": 5,
       "name": "MigrationInProgress",
       "msg": "Cannot close while migration is in progress"
+    },
+    {
+      "code": 6,
+      "name": "IncorrectProgramOwner",
+      "msg": "Incorrect program owner for migration state account"
     }
   ],
   "metadata": {

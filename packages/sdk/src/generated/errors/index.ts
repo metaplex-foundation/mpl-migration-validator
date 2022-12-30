@@ -135,6 +135,26 @@ createErrorFromCodeLookup.set(0x5, () => new MigrationInProgressError());
 createErrorFromNameLookup.set('MigrationInProgress', () => new MigrationInProgressError());
 
 /**
+ * IncorrectProgramOwner: 'Incorrect program owner for migration state account'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class IncorrectProgramOwnerError extends Error {
+  readonly code: number = 0x6;
+  readonly name: string = 'IncorrectProgramOwner';
+  constructor() {
+    super('Incorrect program owner for migration state account');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, IncorrectProgramOwnerError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x6, () => new IncorrectProgramOwnerError());
+createErrorFromNameLookup.set('IncorrectProgramOwner', () => new IncorrectProgramOwnerError());
+
+/**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
  * @category generated

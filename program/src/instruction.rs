@@ -14,9 +14,15 @@ pub struct InitializeArgs {
     pub migration_type: MigrationType,
 }
 
+#[repr(C)]
+#[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
+pub struct UpdateArgs {
+    pub rule_set: Option<Pubkey>,
+}
+
 #[derive(Debug, Clone, ShankInstruction, BorshSerialize, BorshDeserialize)]
 #[rustfmt::skip]
-pub enum MigrateInstruction {
+pub enum MigrationInstruction {
     /// Initiate a migration, creating the migration state and starting the countdown.
     #[account(0, writable, signer, name="payer", desc="Paying account for initiate migration")]
     #[account(1, signer, name="authority", desc = "The collection authority")]
@@ -26,18 +32,23 @@ pub enum MigrateInstruction {
     #[account(5, name="system_program", desc = "System program")]
     Initialize(InitializeArgs),
 
-    /// Description of this instruction
+    /// Close a migration state account, if the migration is not in progress.
     #[account(0, writable, signer, name="authority", desc="The collection authority")]
     #[account(1, writable, name="migration_state", desc = "The migration state account")]
     #[account(2, name="system_program", desc = "System program")]
     Close,
 
-    /// Description of this instruction
-    #[account(0, writable, signer, name="signed_writable_account", desc="signed, writable account description")]
-    #[account(1, writable, name="writable_account", desc = "writable, non signed account description")]
-    #[account(2, name="non_writable_account", desc = "non signed, non writable account description")]
-    #[account(3, name="token_program", desc = "Token program")]
-    #[account(4, name="rent", desc = "Rent sysvar")]
+    #[account(0, signer, name="authority", desc = "The collection authority")]
+    #[account(1, writable, name="migration_state", desc = "The migration state account")]
+    #[account(2, optional, name="vote_account", desc = "SPL governance vote account")]
+    Update(UpdateArgs),
+
+    /// Start a migration if it is eligible.
+    #[account(0, signer, name="authority", desc = "The collection authority")]
+    #[account(1, name="collection_mint", desc = "The mint account of the collection parent NFT")]
+    #[account(2, name="collection_metadata", desc = "The metadata account of the collection parent NFT")]
+    #[account(3, writable, name="migration_state", desc = "The migration state account")]
+    #[account(4, name="system_program", desc = "System program")]
     Start,
 
     /// Description of this instruction
@@ -58,7 +69,7 @@ pub fn initialize(
     migration_state: Pubkey,
     args: InitializeArgs,
 ) -> Instruction {
-    let data = MigrateInstruction::Initialize(args).try_to_vec().unwrap();
+    let data = MigrationInstruction::Initialize(args).try_to_vec().unwrap();
     Instruction {
         program_id: crate::ID,
         accounts: vec![
@@ -73,8 +84,26 @@ pub fn initialize(
     }
 }
 
+pub fn update(
+    authority: Pubkey,
+    migration_state: Pubkey,
+    vote_account: Option<Pubkey>,
+    args: UpdateArgs,
+) -> Instruction {
+    let data = MigrationInstruction::Update(args).try_to_vec().unwrap();
+    Instruction {
+        program_id: crate::ID,
+        accounts: vec![
+            AccountMeta::new(authority, true),
+            AccountMeta::new(migration_state, false),
+            AccountMeta::new_readonly(vote_account.unwrap_or_default(), false),
+        ],
+        data,
+    }
+}
+
 pub fn close(authority: Pubkey, migration_state: Pubkey) -> Instruction {
-    let data = MigrateInstruction::Close.try_to_vec().unwrap();
+    let data = MigrationInstruction::Close.try_to_vec().unwrap();
     Instruction {
         program_id: crate::ID,
         accounts: vec![

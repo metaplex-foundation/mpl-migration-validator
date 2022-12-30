@@ -17,7 +17,7 @@ test('Initialize: successfully create migration state', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: MigrationType.WaitPeriod,
+    migrationType: MigrationType.Timed,
   };
 
   const { tx: transaction, migrationState } = await API.initialize(
@@ -53,7 +53,7 @@ test('Initialize: Cannot initialize twice', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: MigrationType.WaitPeriod,
+    migrationType: MigrationType.Timed,
   };
 
   const { tx: transaction, migrationState } = await API.initialize(

@@ -1,5 +1,7 @@
 use super::*;
 
+use solana_program::program_memory::sol_memcpy;
+
 pub fn initialize_migration(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
@@ -70,7 +72,8 @@ pub fn initialize_migration(
     let start_time = Clock::get()?.unix_timestamp;
     let end_time = start_time + MIGRATION_WAIT_PERIOD;
 
-    let migrate_state = MigrationState {
+    let migration_state = MigrationState {
+        collection_authority: *authority_info.key,
         collection_mint: *collection_mint_info.key,
         rule_set: rule_set.unwrap_or_default(),
         start_time,
@@ -80,17 +83,24 @@ pub fn initialize_migration(
         collection_delegate: Pubkey::default(),
     };
 
+    let serialized_data = migration_state.try_to_vec()?;
+    let data_len = serialized_data.len();
+
     mpl_utils::create_or_allocate_account_raw(
         *program_id,
         migration_state_info,
         system_program_info,
         payer_info,
-        MIGRATION_STATE_SIZE,
+        data_len,
         state_seeds,
     )?;
 
-    msg!("serializing state");
-    migrate_state.serialize(&mut *migration_state_info.data.borrow_mut())?;
+    msg!("writing state");
+    sol_memcpy(
+        &mut *migration_state_info.data.borrow_mut(),
+        serialized_data.as_slice(),
+        data_len,
+    );
 
     Ok(())
 }

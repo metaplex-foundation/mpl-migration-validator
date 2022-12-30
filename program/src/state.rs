@@ -4,12 +4,11 @@ use solana_program::pubkey::Pubkey;
 
 pub(crate) const MIGRATION_WAIT_PERIOD: i64 = 60 * 60 * 24 * 14; // 14 days
 
-pub const MIGRATION_STATE_SIZE: usize = 32 + 32 + 32 + 8 + 8 + 1 + 1;
-
 #[repr(C)]
 #[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
 // Seeds: [b"migration", collection_mint.as_ref()]
 pub struct MigrationState {
+    pub collection_authority: Pubkey,
     pub collection_mint: Pubkey,
     pub rule_set: Pubkey,
     pub collection_delegate: Pubkey,

@@ -11,6 +11,8 @@
     "build:docs": "yarn workspace @metaplex-foundation/mpl-migration-validator build:docs",
     "build:sdk": "yarn workspace @metaplex-foundation/mpl-migration-validator build",
     "build": "yarn build:rust && yarn solita && yarn fix:format && yarn build:sdk && yarn build:docs",
+    "api:gen": "DEBUG='(solita|rustbin):(info|error)' solita",
+    "test:tap-spec": "node ./test/initialize.test.ts | tap-spec",
     "update-sol-deps": "./scripts/update-solana-dependencies.sh",
     "rename": "./scripts/rename.sh",
     "amman": "./scripts/amman.sh",

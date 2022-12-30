@@ -1,2 +1,2 @@
-export * from './IntializeArgs';
+export * from './InitializeArgs';
 export * from './MigrationType';

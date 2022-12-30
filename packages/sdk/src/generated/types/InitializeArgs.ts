@@ -9,7 +9,7 @@ import * as web3 from '@solana/web3.js';
 import * as beet from '@metaplex-foundation/beet';
 import * as beetSolana from '@metaplex-foundation/beet-solana';
 import { MigrationType, migrationTypeBeet } from './MigrationType';
-export type IntializeArgs = {
+export type InitializeArgs = {
   ruleSet: beet.COption<web3.PublicKey>;
   migrationType: MigrationType;
 };
@@ -18,10 +18,10 @@ export type IntializeArgs = {
  * @category userTypes
  * @category generated
  */
-export const intializeArgsBeet = new beet.FixableBeetArgsStruct<IntializeArgs>(
+export const initializeArgsBeet = new beet.FixableBeetArgsStruct<InitializeArgs>(
   [
     ['ruleSet', beet.coption(beetSolana.publicKey)],
     ['migrationType', migrationTypeBeet],
   ],
-  'IntializeArgs',
+  'InitializeArgs',
 );

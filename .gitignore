@@ -3,6 +3,8 @@ target/
 .DS_Store
 **/.DS_Store
 .anchor/
+.crates/
+
 
 node_modules/
 **/*.rs.bk
@@ -30,4 +32,7 @@ packages/sdk/docs/
 !.yarn/sdks
 !.yarn/versions
 .vercel
+
+external_programs/*
+**/*-keypair.json
 

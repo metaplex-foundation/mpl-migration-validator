@@ -1,6 +1,6 @@
 use crate::{
     error::MigrateError,
-    instruction::{IntializeArgs, MigrateInstruction},
+    instruction::{InitializeArgs, MigrateInstruction},
     state::{MigrationState, MIGRATION_STATE_SIZE, MIGRATION_WAIT_PERIOD},
 };
 use borsh::{BorshDeserialize, BorshSerialize};
@@ -26,9 +26,9 @@ impl Processor {
         let instruction: MigrateInstruction = MigrateInstruction::try_from_slice(instruction_data)?;
 
         match instruction {
-            MigrateInstruction::Initiate(args) => {
+            MigrateInstruction::Initialize(args) => {
                 // handle instruction
-                intialize_migration(program_id, accounts, args)
+                initialize_migration(program_id, accounts, args)
             }
             MigrateInstruction::Start => {
                 // handle instruction
@@ -46,13 +46,13 @@ impl Processor {
     }
 }
 
-pub fn intialize_migration(
+pub fn initialize_migration(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
-    args: IntializeArgs,
+    args: InitializeArgs,
 ) -> ProgramResult {
     msg!("Initiate Migration");
-    let IntializeArgs {
+    let InitializeArgs {
         rule_set,
         migration_type,
     } = args;

@@ -1,4 +1,4 @@
 export * from './Cancel';
-export * from './Initiate';
+export * from './Initialize';
 export * from './Migrate';
 export * from './Start';

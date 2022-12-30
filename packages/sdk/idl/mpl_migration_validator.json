@@ -3,7 +3,7 @@
   "name": "mpl_migration_validator",
   "instructions": [
     {
-      "name": "Initiate",
+      "name": "Initialize",
       "accounts": [
         {
           "name": "payer",
@@ -44,9 +44,9 @@
       ],
       "args": [
         {
-          "name": "intializeArgs",
+          "name": "initializeArgs",
           "type": {
-            "defined": "IntializeArgs"
+            "defined": "InitializeArgs"
           }
         }
       ],
@@ -218,7 +218,7 @@
   ],
   "types": [
     {
-      "name": "IntializeArgs",
+      "name": "InitializeArgs",
       "type": {
         "kind": "struct",
         "fields": [

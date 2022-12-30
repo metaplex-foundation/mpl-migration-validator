@@ -7,34 +7,34 @@
 
 import * as beet from '@metaplex-foundation/beet';
 import * as web3 from '@solana/web3.js';
-import { IntializeArgs, intializeArgsBeet } from '../types/IntializeArgs';
+import { InitializeArgs, initializeArgsBeet } from '../types/InitializeArgs';
 
 /**
  * @category Instructions
- * @category Initiate
+ * @category Initialize
  * @category generated
  */
-export type InitiateInstructionArgs = {
-  intializeArgs: IntializeArgs;
+export type InitializeInstructionArgs = {
+  initializeArgs: InitializeArgs;
 };
 /**
  * @category Instructions
- * @category Initiate
+ * @category Initialize
  * @category generated
  */
-export const InitiateStruct = new beet.FixableBeetArgsStruct<
-  InitiateInstructionArgs & {
+export const InitializeStruct = new beet.FixableBeetArgsStruct<
+  InitializeInstructionArgs & {
     instructionDiscriminator: number;
   }
 >(
   [
     ['instructionDiscriminator', beet.u8],
-    ['intializeArgs', intializeArgsBeet],
+    ['initializeArgs', initializeArgsBeet],
   ],
-  'InitiateInstructionArgs',
+  'InitializeInstructionArgs',
 );
 /**
- * Accounts required by the _Initiate_ instruction
+ * Accounts required by the _Initialize_ instruction
  *
  * @property [_writable_, **signer**] payer Paying account for initiate migration
  * @property [**signer**] authority The collection authority
@@ -42,10 +42,10 @@ export const InitiateStruct = new beet.FixableBeetArgsStruct<
  * @property [] collectionMetadata The metadata account of the collection parent NFT
  * @property [_writable_] migrationState The migration state account
  * @category Instructions
- * @category Initiate
+ * @category Initialize
  * @category generated
  */
-export type InitiateInstructionAccounts = {
+export type InitializeInstructionAccounts = {
   payer: web3.PublicKey;
   authority: web3.PublicKey;
   collectionMint: web3.PublicKey;
@@ -54,25 +54,25 @@ export type InitiateInstructionAccounts = {
   systemProgram?: web3.PublicKey;
 };
 
-export const initiateInstructionDiscriminator = 0;
+export const initializeInstructionDiscriminator = 0;
 
 /**
- * Creates a _Initiate_ instruction.
+ * Creates a _Initialize_ instruction.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
  *
  * @category Instructions
- * @category Initiate
+ * @category Initialize
  * @category generated
  */
-export function createInitiateInstruction(
-  accounts: InitiateInstructionAccounts,
-  args: InitiateInstructionArgs,
+export function createInitializeInstruction(
+  accounts: InitializeInstructionAccounts,
+  args: InitializeInstructionArgs,
   programId = new web3.PublicKey('migrxZFChTqicHpNa1CAjPcF29Mui2JU2q4Ym7qQUTi'),
 ) {
-  const [data] = InitiateStruct.serialize({
-    instructionDiscriminator: initiateInstructionDiscriminator,
+  const [data] = InitializeStruct.serialize({
+    instructionDiscriminator: initializeInstructionDiscriminator,
     ...args,
   });
   const keys: web3.AccountMeta[] = [

@@ -9,7 +9,7 @@ use crate::state::MigrationType;
 
 #[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
-pub struct IntializeArgs {
+pub struct InitializeArgs {
     pub rule_set: Option<Pubkey>,
     pub migration_type: MigrationType,
 }
@@ -24,7 +24,7 @@ pub enum MigrateInstruction {
     #[account(3, name="collection_metadata", desc = "The metadata account of the collection parent NFT")]
     #[account(4, writable, name="migration_state", desc = "The migration state account")]
     #[account(5, name="system_program", desc = "System program")]
-    Initiate(IntializeArgs),
+    Initialize(InitializeArgs),
 
     /// Description of this instruction
     #[account(0, writable, signer, name="signed_writable_account", desc="signed, writable account description")]
@@ -58,9 +58,9 @@ pub fn initialize(
     collection_mint: Pubkey,
     collection_metadata: Pubkey,
     migration_state: Pubkey,
-    args: IntializeArgs,
+    args: InitializeArgs,
 ) -> Instruction {
-    let data = MigrateInstruction::Initiate(args).try_to_vec().unwrap();
+    let data = MigrateInstruction::Initialize(args).try_to_vec().unwrap();
     Instruction {
         program_id: crate::ID,
         accounts: vec![

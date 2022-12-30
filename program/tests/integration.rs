@@ -5,7 +5,7 @@ use borsh::BorshDeserialize;
 use mpl_migration_validator::state::MigrationType;
 use mpl_migration_validator::{
     self,
-    instruction::{initialize, IntializeArgs},
+    instruction::{initialize, InitializeArgs},
 };
 use mpl_token_metadata::pda::find_metadata_account;
 use num_traits::FromPrimitive;
@@ -43,7 +43,7 @@ async fn initiate_migration() {
 
     let migration_type = MigrationType::WaitPeriod;
 
-    let args = IntializeArgs {
+    let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
         migration_type,
     };
@@ -106,7 +106,7 @@ async fn cannot_initialize_twice() {
 
     let migration_type = MigrationType::WaitPeriod;
 
-    let args = IntializeArgs {
+    let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
         migration_type,
     };
@@ -152,7 +152,7 @@ async fn cannot_initialize_twice() {
 
     let migration_type = MigrationType::Vote;
 
-    let args = IntializeArgs {
+    let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
         migration_type,
     };

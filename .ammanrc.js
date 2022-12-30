@@ -4,17 +4,27 @@ const path = require('path');
 const accountProviders = require('./packages/sdk/dist/generated/accounts');
 
 const localDeployDir = path.join(__dirname, 'program', 'target', 'deploy');
+const externalDeployDir = path.join(__dirname, 'external_programs');
 const MY_PROGRAM_ID = require('./packages/sdk/idl/mpl_migration_validator.json').metadata.address;
 
 function localDeployPath(programName) {
   return path.join(localDeployDir, `${programName}.so`);
 }
 
+function externalDeployPath(programName) {
+  return path.join(externalDeployDir, `${programName}.so`);
+}
+
 const programs = [
   {
     label: 'mpl-migration-validator',
     programId: MY_PROGRAM_ID,
-    deployPath: localDeployPath('mpl-migration-validator'),
+    deployPath: localDeployPath('mpl_migration_validator'),
+  },
+  {
+    label: 'Metadata',
+    programId: 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s',
+    deployPath: externalDeployPath('mpl_token_metadata'),
   },
 ];
 
@@ -37,9 +47,10 @@ const accounts = [
 const validator = {
   programs,
   // The accounts below is commented out. Uncomment if you want to pull remote accounts. Check Amman docs for more info
-  accounts,
+  // accounts,
   verifyFees: false,
   limitLedgerSize: 10000000,
+  websocketUrl: '',
 };
 
 module.exports = {

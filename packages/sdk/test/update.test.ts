@@ -3,6 +3,7 @@ import spok from 'spok';
 import test from 'tape';
 import { InitializeArgs, UpdateArgs, MigrationState, MigrationType } from '../src/generated';
 import { InitTransactions, killStuckProcess } from './setup';
+import { delay } from './utils';
 
 killStuckProcess();
 
@@ -64,3 +65,61 @@ test('Update: successfully update state account', async (t) => {
     isEligible: false,
   });
 });
+
+// test.only('Update: Timed method becomes eligible', async (t) => {
+//   // This requires updating the contract with a shorter time period to test.
+//   const API = new InitTransactions();
+//   const { fstTxHandler: handler, payerPair: payer, connection } = await API.payer();
+
+//   const defaultKey = new PublicKey('11111111111111111111111111111111');
+
+//   const { tx: tx1, mint } = await API.mintNft(handler, connection, payer, payer);
+//   await tx1.assertSuccess(t);
+
+//   const args: InitializeArgs = {
+//     ruleSet: defaultKey,
+//     migrationType: MigrationType.Timed,
+//   };
+
+//   const { tx: transaction, migrationState } = await API.initialize(
+//     handler,
+//     payer,
+//     payer,
+//     mint,
+//     args,
+//   );
+//   await transaction.assertSuccess(t);
+
+//   const state = await MigrationState.fromAccountAddress(connection, migrationState);
+//   spok(t, state, {
+//     collectionAuthority: payer.publicKey,
+//     collectionMint: mint,
+//     ruleSet: defaultKey,
+//     collectionDelegate: defaultKey,
+//     migrationType: args.migrationType,
+//     migrationSize: 0,
+//     inProgress: false,
+//     isEligible: false,
+//   });
+
+//   await delay(5000);
+
+//   const updateArgs: UpdateArgs = {
+//     ruleSet: defaultKey,
+//   };
+
+//   const { tx: updateTx } = await API.update(handler, payer, migrationState, updateArgs);
+//   await updateTx.assertSuccess(t);
+
+//   const newState = await MigrationState.fromAccountAddress(connection, migrationState);
+//   spok(t, newState, {
+//     collectionAuthority: payer.publicKey,
+//     collectionMint: mint,
+//     ruleSet: defaultKey,
+//     collectionDelegate: defaultKey,
+//     migrationType: args.migrationType,
+//     migrationSize: 0,
+//     inProgress: false,
+//     isEligible: true,
+//   });
+// });

@@ -55,7 +55,7 @@ pub fn update_state(
     msg!("now: {:?}", now);
     let wait_period_over = now >= migration_state.start_time;
 
-    if migration_state.migration_type == MigrationType::Timed && wait_period_over {
+    if migration_state._type == Type::Timed && wait_period_over {
         migration_state.is_eligible = true;
         state_change = true;
     }

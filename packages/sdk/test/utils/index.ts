@@ -55,3 +55,7 @@ export function assertIsNotNull<T>(t: Test, x: T | null | undefined): asserts x 
 export function assertSamePubkey(t: Assert, a: PublicKey | COption<PublicKey>, b: PublicKey) {
   t.equal(a?.toBase58(), b.toBase58(), 'pubkeys are same');
 }
+
+export function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

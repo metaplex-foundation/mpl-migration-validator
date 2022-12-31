@@ -5,13 +5,13 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::state::MigrationType;
+use crate::state::Type;
 
 #[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
 pub struct InitializeArgs {
     pub rule_set: Option<Pubkey>,
-    pub migration_type: MigrationType,
+    pub migration_type: Type,
 }
 
 #[repr(C)]
@@ -51,14 +51,31 @@ pub enum MigrationInstruction {
     #[account(4, name="system_program", desc = "System program")]
     Start,
 
-    /// Description of this instruction
-    #[account(0, writable, signer, name="signed_writable_account", desc="signed, writable account description")]
-    #[account(1, writable, name="writable_account", desc = "writable, non signed account description")]
-    #[account(2, name="non_writable_account", desc = "non signed, non writable account description")]
-    #[account(3, name="token_program", desc = "Token program")]
-    #[account(4, name="rent", desc = "Rent sysvar")]
+    /// Migrate an asset.    
+    #[account(0, writable, signer, name="payer", desc="Pays for migration costs")]
+    #[account(1, writable, name="metadata", desc="Metadata account")]
+    #[account(2, name="edition", desc="Edition account")]
+    #[account(3, writable, name="token", desc="Token account")]
+    #[account(4, name="mint", desc="Mint account")]
+    #[account(5, name="delegate_record", desc="Update authority or delegate")]
+    #[account(6, name="collection_metadata", desc="Collection metadata account")]
+    #[account(7, writable, name="migration_state", desc = "The migration state account")]
+    #[account(8, name="program_signer", desc="Program signer PDA")]
+    #[account(9, name="system_program", desc="System program")]
+    #[account(10, name="sysvar_instructions", desc="Instruction sysvar account")]
+    #[account(11, name="spl_token_program", desc="Token Program")]
+    #[account(12, name="token_metadata_program", desc = "Token Metadata program for the CPI call")]
+    #[account(13, optional, name="authorization_rules_program", desc="Token Authorization Rules Program")]
+    #[account(14, optional, name="authorization_rules", desc="Token Authorization Rules account")]
+    #[default_optional_accounts]
     Migrate,
-    
+
+    /// Permissionless handler to initialize the program signer
+    /// 
+    #[account(0, writable, signer, name="payer", desc="Paying account for initiate migration")]
+    #[account(1, writable, name="program_signer", desc="Program signer account")]
+    #[account(2, name="system_program", desc = "System program")]
+    InitSigner,
 }
 
 pub fn initialize(
@@ -109,6 +126,19 @@ pub fn close(authority: Pubkey, migration_state: Pubkey) -> Instruction {
         accounts: vec![
             AccountMeta::new(authority, true),
             AccountMeta::new(migration_state, false),
+            AccountMeta::new_readonly(solana_program::system_program::ID, false),
+        ],
+        data,
+    }
+}
+
+pub fn init_signer(payer: Pubkey, program_signer: Pubkey) -> Instruction {
+    let data = MigrationInstruction::InitSigner.try_to_vec().unwrap();
+    Instruction {
+        program_id: crate::ID,
+        accounts: vec![
+            AccountMeta::new(payer, true),
+            AccountMeta::new(program_signer, false),
             AccountMeta::new_readonly(solana_program::system_program::ID, false),
         ],
         data,

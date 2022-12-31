@@ -29,6 +29,27 @@ pub enum MigrationError {
     /// 6
     #[error("Incorrect program owner for migration state account")]
     IncorrectProgramOwner,
+    /// 7
+    #[error("Overflow error")]
+    Overflow,
+    /// 8
+    #[error("Failed to build Migrate instruction")]
+    InvalidInstruction,
+    /// 9
+    #[error("No rule set provided")]
+    NoRuleSet,
+    /// 10
+    #[error("Program signer account derivation is in correct")]
+    InvalidSignerDerivation,
+    /// 11
+    #[error("Program signer is already initialized")]
+    AlreadyInitialized,
+    /// 12
+    #[error("Invalid delegate")]
+    InvalidDelegate,
+    /// 13
+    #[error("This feature is currently disabled")]
+    FeatureDisabled,
 }
 
 impl PrintProgramError for MigrationError {

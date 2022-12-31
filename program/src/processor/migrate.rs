@@ -59,7 +59,7 @@ pub fn migrate_item(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramRes
 
     // This ensures the account isn't empty as the deserialization fails if
     // the account doesn't have the correct size.
-    let metadata =
+    let _metadata =
         Metadata::from_account_info(metadata_info).map_err(|_| MigrationError::InvalidMetadata)?;
 
     let collection_metadata = Metadata::from_account_info(collection_metadata_info)
@@ -75,7 +75,7 @@ pub fn migrate_item(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramRes
     // Validate that the delegate is the program signer for the correct
     // mint and update authority.
     assert_valid_delegate(
-        &program_signer_info.key,
+        program_signer_info.key,
         delegate_record_info,
         &collection_metadata,
         &migration_state,

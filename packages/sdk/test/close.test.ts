@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import spok from 'spok';
 import test from 'tape';
-import { InitializeArgs, MigrationState, MigrationType } from '../src/generated';
+import { InitializeArgs, MigrationState, UnlockMethod } from '../src/generated';
 import { InitTransactions, killStuckProcess } from './setup';
 
 killStuckProcess();
@@ -17,7 +17,8 @@ test('Close: successfully close migration state account', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: MigrationType.Timed,
+    migrationType: UnlockMethod.Timed,
+    collectionSize: 0,
   };
 
   const { tx: transaction, migrationState } = await API.initialize(
@@ -30,15 +31,16 @@ test('Close: successfully close migration state account', async (t) => {
   await transaction.assertSuccess(t);
 
   const state = await MigrationState.fromAccountAddress(connection, migrationState);
-  spok(t, state, {
-    collectionAuthority: payer.publicKey,
-    collectionMint: mint,
+  spok(t, state.collectionInfo, {
+    authority: payer.publicKey,
+    mint: mint,
     ruleSet: defaultKey,
-    collectionDelegate: defaultKey,
-    migrationType: args.migrationType,
-    migrationSize: 0,
+    delegate: defaultKey,
+    size: 0,
+  });
+  spok(t, state.status, {
     inProgress: false,
-    isEligible: false,
+    isLocked: true,
   });
 
   const { tx: closeTx } = await API.close(handler, payer, migrationState);

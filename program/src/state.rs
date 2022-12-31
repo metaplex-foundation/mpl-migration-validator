@@ -12,16 +12,9 @@ pub(crate) const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBv
 #[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
 // Seeds: [b"migration", collection_mint.as_ref()]
 pub struct MigrationState {
-    pub collection_authority: Pubkey,
-    pub collection_mint: Pubkey,
-    pub rule_set: Pubkey,
-    pub collection_delegate: Pubkey,
-    pub start_time: i64,
-    pub _type: Type,
-    pub migration_size: u32,
-    pub items_migrated: u32,
-    pub in_progress: bool,
-    pub is_eligible: bool,
+    pub collection_info: CollectionInfo,
+    pub unlock_method: UnlockMethod,
+    pub status: MigrationStatus,
 }
 
 impl MigrationState {
@@ -39,8 +32,25 @@ impl MigrationState {
     }
 }
 
+#[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
+pub struct CollectionInfo {
+    pub authority: Pubkey,
+    pub mint: Pubkey,
+    pub rule_set: Pubkey,
+    pub delegate: Pubkey,
+    pub size: u32,
+}
+
+#[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
+pub struct MigrationStatus {
+    pub unlock_time: i64,
+    pub is_locked: bool,
+    pub in_progress: bool,
+    pub items_migrated: u32,
+}
+
 #[derive(Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug)]
-pub enum Type {
+pub enum UnlockMethod {
     Timed,
     Vote,
 }

@@ -16,12 +16,12 @@ pub fn close_migration_state(_program_id: &Pubkey, accounts: &[AccountInfo]) -> 
             .map_err(|_| MigrationError::InvalidStateDeserialization)?;
 
         // Ensure the authority matches
-        if migration_state.collection_authority != *authority_info.key {
+        if migration_state.collection_info.authority != *authority_info.key {
             return Err(MigrationError::InvalidAuthority.into());
         }
 
         // Ensure the migration isn't in progress
-        if migration_state.in_progress {
+        if migration_state.status.in_progress {
             return Err(MigrationError::MigrationInProgress.into());
         }
     }

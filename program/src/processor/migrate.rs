@@ -81,13 +81,13 @@ pub fn migrate_item(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramRes
         &migration_state,
     )?;
 
-    if migration_state.rule_set == Pubkey::default() {
+    if migration_state.collection_info.rule_set == Pubkey::default() {
         return Err(MigrationError::NoRuleSet.into());
     }
 
     let args = MigrateArgs::V1 {
         migration_type: MigrationType::ProgrammableV1,
-        rule_set: Some(migration_state.rule_set),
+        rule_set: Some(migration_state.collection_info.rule_set),
     };
 
     let mut builder = MigrateBuilder::new();
@@ -120,7 +120,8 @@ pub fn migrate_item(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramRes
     invoke_signed(&instruction, &account_infos, &[signers_seeds]).unwrap();
 
     // Increment the number of items migrated
-    migration_state.items_migrated = migration_state
+    migration_state.status.items_migrated = migration_state
+        .status
         .items_migrated
         .checked_add(1)
         .ok_or(MigrationError::Overflow)?;

@@ -1,3 +1,3 @@
 export * from './InitializeArgs';
-export * from './MigrationType';
+export * from './UnlockMethod';
 export * from './UpdateArgs';

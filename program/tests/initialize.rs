@@ -4,7 +4,7 @@ pub mod utils;
 use borsh::BorshDeserialize;
 use mpl_migration_validator::{
     instruction::{initialize, InitializeArgs},
-    state::Type,
+    state::UnlockMethod,
 };
 use mpl_token_metadata::pda::find_metadata_account;
 use num_traits::FromPrimitive;
@@ -40,11 +40,12 @@ async fn initiate_migration() {
 
     let mut context = test.start_with_context().await;
 
-    let migration_type = Type::Timed;
+    let migration_type = UnlockMethod::Timed;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
         migration_type,
+        collection_size: 0,
     };
 
     let instruction = initialize(
@@ -81,8 +82,8 @@ async fn initiate_migration() {
     )
     .unwrap();
 
-    assert_eq!(migrate_state.collection_mint, mint_pubkey);
-    assert_eq!(migrate_state.rule_set, dummy_rule_set);
+    assert_eq!(migrate_state.collection_info.mint, mint_pubkey);
+    assert_eq!(migrate_state.collection_info.rule_set, dummy_rule_set);
 }
 
 #[tokio::test]
@@ -103,11 +104,12 @@ async fn cannot_initialize_twice() {
 
     let mut context = test.start_with_context().await;
 
-    let migration_type = Type::Timed;
+    let migration_type = UnlockMethod::Timed;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
         migration_type,
+        collection_size: 0,
     };
 
     let instruction = initialize(
@@ -144,16 +146,17 @@ async fn cannot_initialize_twice() {
     )
     .unwrap();
 
-    assert_eq!(migrate_state.collection_mint, mint_pubkey);
-    assert_eq!(migrate_state.rule_set, dummy_rule_set);
+    assert_eq!(migrate_state.collection_info.mint, mint_pubkey);
+    assert_eq!(migrate_state.collection_info.rule_set, dummy_rule_set);
 
     // Try to initialize again with a different value
 
-    let migration_type = Type::Vote;
+    let migration_type = UnlockMethod::Vote;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
         migration_type,
+        collection_size: 0,
     };
 
     let instruction = initialize(

@@ -1,3 +1,5 @@
+use crate::state::{CollectionInfo, MigrationStatus};
+
 use super::*;
 
 pub fn initialize_migration(
@@ -8,7 +10,8 @@ pub fn initialize_migration(
     msg!("Initiate Migration");
     let InitializeArgs {
         rule_set,
-        migration_type,
+        migration_type: _,
+        collection_size: _,
     } = args;
 
     // Fetch accounts
@@ -67,19 +70,29 @@ pub fn initialize_migration(
 
     msg!("accounts validated");
 
-    let start_time = Clock::get()?.unix_timestamp + MIGRATION_WAIT_PERIOD;
+    let unlock_time = Clock::get()?.unix_timestamp + MIGRATION_WAIT_PERIOD;
+
+    let collection_info = CollectionInfo {
+        authority: *authority_info.key,
+        mint: *collection_mint_info.key,
+        delegate: Pubkey::default(),
+        rule_set: rule_set.unwrap_or_default(),
+        size: 0,
+    };
+
+    let status = MigrationStatus {
+        unlock_time,
+        is_locked: true,
+        in_progress: false,
+        items_migrated: 0,
+    };
+
+    let unlock_method = UnlockMethod::Timed;
 
     let migration_state = MigrationState {
-        collection_authority: *authority_info.key,
-        collection_mint: *collection_mint_info.key,
-        rule_set: rule_set.unwrap_or_default(),
-        start_time,
-        _type: migration_type,
-        migration_size: 0,
-        items_migrated: 0,
-        is_eligible: false,
-        in_progress: false,
-        collection_delegate: Pubkey::default(),
+        collection_info,
+        unlock_method,
+        status,
     };
 
     let serialized_data = migration_state.try_to_vec()?;

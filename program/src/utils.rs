@@ -12,19 +12,20 @@ pub fn assert_valid_delegate(
     collection_metadata: &Metadata,
     migration_state: &MigrationState,
 ) -> Result<(), ProgramError> {
+    let info = &migration_state.collection_info;
     // Mint is the correct one for the metadata account.
-    if collection_metadata.mint != migration_state.collection_mint {
+    if collection_metadata.mint != info.mint {
         return Err(MigrationError::MetadataMintMistmatch.into());
     }
 
-    if collection_metadata.update_authority != migration_state.collection_authority {
+    if collection_metadata.update_authority != info.authority {
         return Err(MigrationError::InvalidAuthority.into());
     }
 
     let bump = assert_is_collection_delegated_authority(
         delegate_record_info,
         delegate_pubkey,
-        &migration_state.collection_mint,
+        &info.mint,
     )?;
 
     let data = delegate_record_info.try_borrow_data()?;

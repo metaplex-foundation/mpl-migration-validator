@@ -163,40 +163,131 @@
       "name": "Migrate",
       "accounts": [
         {
-          "name": "signedWritableAccount",
+          "name": "payer",
           "isMut": true,
           "isSigner": true,
-          "desc": "signed, writable account description"
+          "desc": "Pays for migration costs"
         },
         {
-          "name": "writableAccount",
+          "name": "metadata",
           "isMut": true,
           "isSigner": false,
-          "desc": "writable, non signed account description"
+          "desc": "Metadata account"
         },
         {
-          "name": "nonWritableAccount",
+          "name": "edition",
           "isMut": false,
           "isSigner": false,
-          "desc": "non signed, non writable account description"
+          "desc": "Edition account"
         },
         {
-          "name": "tokenProgram",
-          "isMut": false,
+          "name": "token",
+          "isMut": true,
           "isSigner": false,
-          "desc": "Token program"
+          "desc": "Token account"
         },
         {
-          "name": "rent",
+          "name": "mint",
           "isMut": false,
           "isSigner": false,
-          "desc": "Rent sysvar"
+          "desc": "Mint account"
+        },
+        {
+          "name": "delegateRecord",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Update authority or delegate"
+        },
+        {
+          "name": "collectionMetadata",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Collection metadata account"
+        },
+        {
+          "name": "migrationState",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The migration state account"
+        },
+        {
+          "name": "programSigner",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Program signer PDA"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        },
+        {
+          "name": "sysvarInstructions",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Instruction sysvar account"
+        },
+        {
+          "name": "splTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token Program"
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token Metadata program for the CPI call"
+        },
+        {
+          "name": "authorizationRulesProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token Authorization Rules Program",
+          "optional": true
+        },
+        {
+          "name": "authorizationRules",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token Authorization Rules account",
+          "optional": true
+        }
+      ],
+      "args": [],
+      "defaultOptionalAccounts": true,
+      "discriminant": {
+        "type": "u8",
+        "value": 4
+      }
+    },
+    {
+      "name": "InitSigner",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Paying account for initiate migration"
+        },
+        {
+          "name": "programSigner",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Program signer account"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
         }
       ],
       "args": [],
       "discriminant": {
         "type": "u8",
-        "value": 4
+        "value": 5
       }
     }
   ],
@@ -207,11 +298,37 @@
         "kind": "struct",
         "fields": [
           {
-            "name": "collectionAuthority",
+            "name": "collectionInfo",
+            "type": {
+              "defined": "CollectionInfo"
+            }
+          },
+          {
+            "name": "unlockMethod",
+            "type": {
+              "defined": "UnlockMethod"
+            }
+          },
+          {
+            "name": "status",
+            "type": {
+              "defined": "MigrationStatus"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CollectionInfo",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "authority",
             "type": "publicKey"
           },
           {
-            "name": "collectionMint",
+            "name": "mint",
             "type": "publicKey"
           },
           {
@@ -219,30 +336,48 @@
             "type": "publicKey"
           },
           {
-            "name": "collectionDelegate",
+            "name": "delegate",
             "type": "publicKey"
           },
           {
-            "name": "startTime",
+            "name": "size",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MigrationStatus",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "unlockTime",
             "type": "i64"
           },
           {
-            "name": "migrationType",
-            "type": {
-              "defined": "MigrationType"
-            }
-          },
-          {
-            "name": "migrationSize",
-            "type": "u32"
+            "name": "isLocked",
+            "type": "bool"
           },
           {
             "name": "inProgress",
             "type": "bool"
           },
           {
-            "name": "isEligible",
-            "type": "bool"
+            "name": "itemsMigrated",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ProgramSigner",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "bump",
+            "type": "u8"
           }
         ]
       }
@@ -263,8 +398,12 @@
           {
             "name": "migrationType",
             "type": {
-              "defined": "MigrationType"
+              "defined": "UnlockMethod"
             }
+          },
+          {
+            "name": "collectionSize",
+            "type": "u64"
           }
         ]
       }
@@ -284,7 +423,7 @@
       }
     },
     {
-      "name": "MigrationType",
+      "name": "UnlockMethod",
       "type": {
         "kind": "enum",
         "variants": [
@@ -333,6 +472,41 @@
       "code": 6,
       "name": "IncorrectProgramOwner",
       "msg": "Incorrect program owner for migration state account"
+    },
+    {
+      "code": 7,
+      "name": "Overflow",
+      "msg": "Overflow error"
+    },
+    {
+      "code": 8,
+      "name": "InvalidInstruction",
+      "msg": "Failed to build Migrate instruction"
+    },
+    {
+      "code": 9,
+      "name": "NoRuleSet",
+      "msg": "No rule set provided"
+    },
+    {
+      "code": 10,
+      "name": "InvalidSignerDerivation",
+      "msg": "Program signer account derivation is in correct"
+    },
+    {
+      "code": 11,
+      "name": "AlreadyInitialized",
+      "msg": "Program signer is already initialized"
+    },
+    {
+      "code": 12,
+      "name": "InvalidDelegate",
+      "msg": "Invalid delegate"
+    },
+    {
+      "code": 13,
+      "name": "FeatureDisabled",
+      "msg": "This feature is currently disabled"
     }
   ],
   "metadata": {

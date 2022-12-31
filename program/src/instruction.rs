@@ -5,13 +5,14 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::state::Type;
+use crate::state::UnlockMethod;
 
 #[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
 pub struct InitializeArgs {
     pub rule_set: Option<Pubkey>,
-    pub migration_type: Type,
+    pub migration_type: UnlockMethod,
+    pub collection_size: u64,
 }
 
 #[repr(C)]

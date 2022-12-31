@@ -1,7 +1,7 @@
 import { PublicKey } from '@solana/web3.js';
 import spok from 'spok';
 import test from 'tape';
-import { InitializeArgs, MigrationState, MigrationType } from '../src/generated';
+import { InitializeArgs, MigrationState, UnlockMethod } from '../src/generated';
 import { InitTransactions, killStuckProcess } from './setup';
 
 killStuckProcess();
@@ -17,7 +17,8 @@ test('Initialize: successfully create migration state', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: MigrationType.Timed,
+    migrationType: UnlockMethod.Timed,
+    collectionSize: 0,
   };
 
   const { tx: transaction, migrationState } = await API.initialize(
@@ -30,15 +31,16 @@ test('Initialize: successfully create migration state', async (t) => {
   await transaction.assertSuccess(t);
 
   const state = await MigrationState.fromAccountAddress(connection, migrationState);
-  spok(t, state, {
-    collectionAuthority: payer.publicKey,
-    collectionMint: mint,
+  spok(t, state.collectionInfo, {
+    authority: payer.publicKey,
+    mint: mint,
     ruleSet: defaultKey,
-    collectionDelegate: defaultKey,
-    migrationType: args.migrationType,
-    migrationSize: 0,
+    delegate: defaultKey,
+    size: 0,
+  });
+  spok(t, state.status, {
     inProgress: false,
-    isEligible: false,
+    isLocked: true,
   });
 });
 
@@ -53,7 +55,8 @@ test('Initialize: Cannot initialize twice', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: MigrationType.Timed,
+    migrationType: UnlockMethod.Timed,
+    collectionSize: 0,
   };
 
   const { tx: transaction, migrationState } = await API.initialize(
@@ -66,17 +69,22 @@ test('Initialize: Cannot initialize twice', async (t) => {
   await transaction.assertSuccess(t);
 
   const state = await MigrationState.fromAccountAddress(connection, migrationState);
-  spok(t, state, {
-    collectionMint: mint,
+  spok(t, state.collectionInfo, {
+    authority: payer.publicKey,
+    mint: mint,
     ruleSet: defaultKey,
-    collectionDelegate: defaultKey,
-    migrationType: args.migrationType,
-    isEligible: false,
+    delegate: defaultKey,
+    size: 0,
+  });
+  spok(t, state.status, {
+    inProgress: false,
+    isLocked: true,
   });
 
   const args2: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: MigrationType.Vote,
+    migrationType: UnlockMethod.Vote,
+    collectionSize: 0,
   };
 
   const { tx: transaction2 } = await API.initialize(handler, payer, payer, mint, args2);

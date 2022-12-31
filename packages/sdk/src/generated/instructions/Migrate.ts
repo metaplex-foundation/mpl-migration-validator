@@ -5,7 +5,6 @@
  * See: https://github.com/metaplex-foundation/solita
  */
 
-import * as splToken from '@solana/spl-token';
 import * as beet from '@metaplex-foundation/beet';
 import * as web3 from '@solana/web3.js';
 
@@ -21,25 +20,49 @@ export const MigrateStruct = new beet.BeetArgsStruct<{ instructionDiscriminator:
 /**
  * Accounts required by the _Migrate_ instruction
  *
- * @property [_writable_, **signer**] signedWritableAccount signed, writable account description
- * @property [_writable_] writableAccount writable, non signed account description
- * @property [] nonWritableAccount non signed, non writable account description
+ * @property [_writable_, **signer**] payer Pays for migration costs
+ * @property [_writable_] metadata Metadata account
+ * @property [] edition Edition account
+ * @property [_writable_] token Token account
+ * @property [] mint Mint account
+ * @property [] delegateRecord Update authority or delegate
+ * @property [] collectionMetadata Collection metadata account
+ * @property [_writable_] migrationState The migration state account
+ * @property [] programSigner Program signer PDA
+ * @property [] sysvarInstructions Instruction sysvar account
+ * @property [] splTokenProgram Token Program
+ * @property [] tokenMetadataProgram Token Metadata program for the CPI call
+ * @property [] authorizationRulesProgram (optional) Token Authorization Rules Program
+ * @property [] authorizationRules (optional) Token Authorization Rules account
  * @category Instructions
  * @category Migrate
  * @category generated
  */
 export type MigrateInstructionAccounts = {
-  signedWritableAccount: web3.PublicKey;
-  writableAccount: web3.PublicKey;
-  nonWritableAccount: web3.PublicKey;
-  tokenProgram?: web3.PublicKey;
-  rent?: web3.PublicKey;
+  payer: web3.PublicKey;
+  metadata: web3.PublicKey;
+  edition: web3.PublicKey;
+  token: web3.PublicKey;
+  mint: web3.PublicKey;
+  delegateRecord: web3.PublicKey;
+  collectionMetadata: web3.PublicKey;
+  migrationState: web3.PublicKey;
+  programSigner: web3.PublicKey;
+  systemProgram?: web3.PublicKey;
+  sysvarInstructions: web3.PublicKey;
+  splTokenProgram: web3.PublicKey;
+  tokenMetadataProgram: web3.PublicKey;
+  authorizationRulesProgram?: web3.PublicKey;
+  authorizationRules?: web3.PublicKey;
 };
 
 export const migrateInstructionDiscriminator = 4;
 
 /**
  * Creates a _Migrate_ instruction.
+ *
+ * Optional accounts that are not provided default to the program ID since
+ * this was indicated in the IDL from which this instruction was generated.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @category Instructions
@@ -55,27 +78,77 @@ export function createMigrateInstruction(
   });
   const keys: web3.AccountMeta[] = [
     {
-      pubkey: accounts.signedWritableAccount,
+      pubkey: accounts.payer,
       isWritable: true,
       isSigner: true,
     },
     {
-      pubkey: accounts.writableAccount,
+      pubkey: accounts.metadata,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.nonWritableAccount,
+      pubkey: accounts.edition,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: accounts.tokenProgram ?? splToken.TOKEN_PROGRAM_ID,
+      pubkey: accounts.token,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.mint,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: accounts.rent ?? web3.SYSVAR_RENT_PUBKEY,
+      pubkey: accounts.delegateRecord,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.collectionMetadata,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.migrationState,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.programSigner,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.sysvarInstructions,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.splTokenProgram,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.tokenMetadataProgram,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.authorizationRulesProgram ?? programId,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.authorizationRules ?? programId,
       isWritable: false,
       isSigner: false,
     },

@@ -30,12 +30,12 @@ pub fn update_state(
     let mut migration_state = MigrationState::from_account_info(migration_state_info)?;
 
     // Ensure the authority matches
-    if migration_state.collection_authority != *authority_info.key {
+    if migration_state.collection_info.authority != *authority_info.key {
         return Err(MigrationError::InvalidAuthority.into());
     }
 
     // Ensure the migration isn't in progress
-    if migration_state.in_progress {
+    if migration_state.status.in_progress {
         return Err(MigrationError::MigrationInProgress.into());
     }
 
@@ -46,17 +46,17 @@ pub fn update_state(
     if let Some(rule_set) = rule_set {
         msg!("new rule set provided");
         msg!("rule set: {:?}", rule_set);
-        migration_state.rule_set = rule_set;
+        migration_state.collection_info.rule_set = rule_set;
         state_change = true;
     }
 
     // Perform a time check to check eligibility for migration
     let now = Clock::get()?.unix_timestamp;
     msg!("now: {:?}", now);
-    let wait_period_over = now >= migration_state.start_time;
+    let wait_period_over = now >= migration_state.status.unlock_time;
 
-    if migration_state._type == Type::Timed && wait_period_over {
-        migration_state.is_eligible = true;
+    if migration_state.unlock_method == UnlockMethod::Timed && wait_period_over {
+        migration_state.status.is_locked = false;
         state_change = true;
     }
 

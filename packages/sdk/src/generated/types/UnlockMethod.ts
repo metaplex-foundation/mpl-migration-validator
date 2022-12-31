@@ -10,7 +10,7 @@ import * as beet from '@metaplex-foundation/beet';
  * @category enums
  * @category generated
  */
-export enum MigrationType {
+export enum UnlockMethod {
   Timed,
   Vote,
 }
@@ -19,7 +19,7 @@ export enum MigrationType {
  * @category userTypes
  * @category generated
  */
-export const migrationTypeBeet = beet.fixedScalarEnum(MigrationType) as beet.FixedSizeBeet<
-  MigrationType,
-  MigrationType
+export const unlockMethodBeet = beet.fixedScalarEnum(UnlockMethod) as beet.FixedSizeBeet<
+  UnlockMethod,
+  UnlockMethod
 >;

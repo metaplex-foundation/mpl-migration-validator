@@ -1,7 +1,7 @@
 use crate::{
     error::MigrationError,
     instruction::{InitializeArgs, MigrationInstruction, UpdateArgs},
-    state::{MigrationState, ProgramSigner, Type, MIGRATION_WAIT_PERIOD, SPL_TOKEN_ID},
+    state::{MigrationState, ProgramSigner, UnlockMethod, MIGRATION_WAIT_PERIOD, SPL_TOKEN_ID},
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_token_metadata::{

@@ -6,57 +6,58 @@
  */
 
 import * as web3 from '@solana/web3.js';
-import * as beet from '@metaplex-foundation/beet';
 import * as beetSolana from '@metaplex-foundation/beet-solana';
-import { CollectionInfo, collectionInfoBeet } from './CollectionInfo';
-import { UnlockMethod, unlockMethodBeet } from '../types/UnlockMethod';
-import { MigrationStatus, migrationStatusBeet } from './MigrationStatus';
+import * as beet from '@metaplex-foundation/beet';
 
 /**
- * Arguments used to create {@link MigrationState}
+ * Arguments used to create {@link CollectionInfo}
  * @category Accounts
  * @category generated
  */
-export type MigrationStateArgs = {
-  collectionInfo: CollectionInfo;
-  unlockMethod: UnlockMethod;
-  status: MigrationStatus;
+export type CollectionInfoArgs = {
+  authority: web3.PublicKey;
+  mint: web3.PublicKey;
+  ruleSet: web3.PublicKey;
+  delegate: web3.PublicKey;
+  size: number;
 };
 /**
- * Holds the data for the {@link MigrationState} Account and provides de/serialization
+ * Holds the data for the {@link CollectionInfo} Account and provides de/serialization
  * functionality for that data
  *
  * @category Accounts
  * @category generated
  */
-export class MigrationState implements MigrationStateArgs {
+export class CollectionInfo implements CollectionInfoArgs {
   private constructor(
-    readonly collectionInfo: CollectionInfo,
-    readonly unlockMethod: UnlockMethod,
-    readonly status: MigrationStatus,
+    readonly authority: web3.PublicKey,
+    readonly mint: web3.PublicKey,
+    readonly ruleSet: web3.PublicKey,
+    readonly delegate: web3.PublicKey,
+    readonly size: number,
   ) {}
 
   /**
-   * Creates a {@link MigrationState} instance from the provided args.
+   * Creates a {@link CollectionInfo} instance from the provided args.
    */
-  static fromArgs(args: MigrationStateArgs) {
-    return new MigrationState(args.collectionInfo, args.unlockMethod, args.status);
+  static fromArgs(args: CollectionInfoArgs) {
+    return new CollectionInfo(args.authority, args.mint, args.ruleSet, args.delegate, args.size);
   }
 
   /**
-   * Deserializes the {@link MigrationState} from the data of the provided {@link web3.AccountInfo}.
+   * Deserializes the {@link CollectionInfo} from the data of the provided {@link web3.AccountInfo}.
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
   static fromAccountInfo(
     accountInfo: web3.AccountInfo<Buffer>,
     offset = 0,
-  ): [MigrationState, number] {
-    return MigrationState.deserialize(accountInfo.data, offset);
+  ): [CollectionInfo, number] {
+    return CollectionInfo.deserialize(accountInfo.data, offset);
   }
 
   /**
    * Retrieves the account info from the provided address and deserializes
-   * the {@link MigrationState} from its data.
+   * the {@link CollectionInfo} from its data.
    *
    * @throws Error if no account info is found at the address or if deserialization fails
    */
@@ -64,12 +65,12 @@ export class MigrationState implements MigrationStateArgs {
     connection: web3.Connection,
     address: web3.PublicKey,
     commitmentOrConfig?: web3.Commitment | web3.GetAccountInfoConfig,
-  ): Promise<MigrationState> {
+  ): Promise<CollectionInfo> {
     const accountInfo = await connection.getAccountInfo(address, commitmentOrConfig);
     if (accountInfo == null) {
-      throw new Error(`Unable to find MigrationState account at ${address}`);
+      throw new Error(`Unable to find CollectionInfo account at ${address}`);
     }
-    return MigrationState.fromAccountInfo(accountInfo, 0)[0];
+    return CollectionInfo.fromAccountInfo(accountInfo, 0)[0];
   }
 
   /**
@@ -81,36 +82,36 @@ export class MigrationState implements MigrationStateArgs {
   static gpaBuilder(
     programId: web3.PublicKey = new web3.PublicKey('migrxZFChTqicHpNa1CAjPcF29Mui2JU2q4Ym7qQUTi'),
   ) {
-    return beetSolana.GpaBuilder.fromStruct(programId, migrationStateBeet);
+    return beetSolana.GpaBuilder.fromStruct(programId, collectionInfoBeet);
   }
 
   /**
-   * Deserializes the {@link MigrationState} from the provided data Buffer.
+   * Deserializes the {@link CollectionInfo} from the provided data Buffer.
    * @returns a tuple of the account data and the offset up to which the buffer was read to obtain it.
    */
-  static deserialize(buf: Buffer, offset = 0): [MigrationState, number] {
-    return migrationStateBeet.deserialize(buf, offset);
+  static deserialize(buf: Buffer, offset = 0): [CollectionInfo, number] {
+    return collectionInfoBeet.deserialize(buf, offset);
   }
 
   /**
-   * Serializes the {@link MigrationState} into a Buffer.
+   * Serializes the {@link CollectionInfo} into a Buffer.
    * @returns a tuple of the created Buffer and the offset up to which the buffer was written to store it.
    */
   serialize(): [Buffer, number] {
-    return migrationStateBeet.serialize(this);
+    return collectionInfoBeet.serialize(this);
   }
 
   /**
    * Returns the byteSize of a {@link Buffer} holding the serialized data of
-   * {@link MigrationState}
+   * {@link CollectionInfo}
    */
   static get byteSize() {
-    return migrationStateBeet.byteSize;
+    return collectionInfoBeet.byteSize;
   }
 
   /**
    * Fetches the minimum balance needed to exempt an account holding
-   * {@link MigrationState} data from rent
+   * {@link CollectionInfo} data from rent
    *
    * @param connection used to retrieve the rent exemption information
    */
@@ -118,26 +119,28 @@ export class MigrationState implements MigrationStateArgs {
     connection: web3.Connection,
     commitment?: web3.Commitment,
   ): Promise<number> {
-    return connection.getMinimumBalanceForRentExemption(MigrationState.byteSize, commitment);
+    return connection.getMinimumBalanceForRentExemption(CollectionInfo.byteSize, commitment);
   }
 
   /**
    * Determines if the provided {@link Buffer} has the correct byte size to
-   * hold {@link MigrationState} data.
+   * hold {@link CollectionInfo} data.
    */
   static hasCorrectByteSize(buf: Buffer, offset = 0) {
-    return buf.byteLength - offset === MigrationState.byteSize;
+    return buf.byteLength - offset === CollectionInfo.byteSize;
   }
 
   /**
-   * Returns a readable version of {@link MigrationState} properties
+   * Returns a readable version of {@link CollectionInfo} properties
    * and can be used to convert to JSON and/or logging
    */
   pretty() {
     return {
-      collectionInfo: this.collectionInfo,
-      unlockMethod: 'UnlockMethod.' + UnlockMethod[this.unlockMethod],
-      status: this.status,
+      authority: this.authority.toBase58(),
+      mint: this.mint.toBase58(),
+      ruleSet: this.ruleSet.toBase58(),
+      delegate: this.delegate.toBase58(),
+      size: this.size,
     };
   }
 }
@@ -146,12 +149,14 @@ export class MigrationState implements MigrationStateArgs {
  * @category Accounts
  * @category generated
  */
-export const migrationStateBeet = new beet.BeetStruct<MigrationState, MigrationStateArgs>(
+export const collectionInfoBeet = new beet.BeetStruct<CollectionInfo, CollectionInfoArgs>(
   [
-    ['collectionInfo', collectionInfoBeet],
-    ['unlockMethod', unlockMethodBeet],
-    ['status', migrationStatusBeet],
+    ['authority', beetSolana.publicKey],
+    ['mint', beetSolana.publicKey],
+    ['ruleSet', beetSolana.publicKey],
+    ['delegate', beetSolana.publicKey],
+    ['size', beet.u32],
   ],
-  MigrationState.fromArgs,
-  'MigrationState',
+  CollectionInfo.fromArgs,
+  'CollectionInfo',
 );

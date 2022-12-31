@@ -4,7 +4,7 @@ pub mod utils;
 use borsh::BorshDeserialize;
 use mpl_migration_validator::{
     instruction::{initialize, InitializeArgs},
-    state::MigrationType,
+    state::Type,
 };
 use mpl_token_metadata::pda::find_metadata_account;
 use num_traits::FromPrimitive;
@@ -40,7 +40,7 @@ async fn initiate_migration() {
 
     let mut context = test.start_with_context().await;
 
-    let migration_type = MigrationType::Timed;
+    let migration_type = Type::Timed;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
@@ -103,7 +103,7 @@ async fn cannot_initialize_twice() {
 
     let mut context = test.start_with_context().await;
 
-    let migration_type = MigrationType::Timed;
+    let migration_type = Type::Timed;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
@@ -149,7 +149,7 @@ async fn cannot_initialize_twice() {
 
     // Try to initialize again with a different value
 
-    let migration_type = MigrationType::Vote;
+    let migration_type = Type::Vote;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),

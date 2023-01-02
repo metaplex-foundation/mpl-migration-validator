@@ -1,8 +1,13 @@
+#![allow(clippy::unreachable)]
+#![allow(unreachable_code, unused_variables)]
+
 use crate::utils::assert_valid_delegate;
 
 use super::*;
 
 pub fn migrate_item(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    return Err(MigrationError::FeatureDisabled.into());
+
     msg!("Migrate Item");
 
     // Fetch accounts

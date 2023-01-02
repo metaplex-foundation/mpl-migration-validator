@@ -31,7 +31,7 @@ async fn initiate_migration() {
     let dummy_rule_set = Pubkey::new_unique();
     let mint_pubkey = Pubkey::new_unique();
 
-    let migrate_state_pubkey = find_migrate_state_pda(mint_pubkey);
+    let (migrate_state_pubkey, _) = find_migrate_state_pda(mint_pubkey);
     let metadata_pubkey = find_metadata_account(&mint_pubkey).0;
 
     let metadata_account = create_dummy_metadata_account(mint_pubkey, authority.pubkey());
@@ -95,7 +95,7 @@ async fn cannot_initialize_twice() {
     let dummy_rule_set = Pubkey::new_unique();
     let mint_pubkey = Pubkey::new_unique();
 
-    let migrate_state_pubkey = find_migrate_state_pda(mint_pubkey);
+    let (migrate_state_pubkey, _) = find_migrate_state_pda(mint_pubkey);
     let metadata_pubkey = find_metadata_account(&mint_pubkey).0;
 
     let metadata_account = create_dummy_metadata_account(mint_pubkey, authority.pubkey());

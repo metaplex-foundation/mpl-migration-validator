@@ -12,9 +12,13 @@ use crate::METADATA_RENT;
 mod assert;
 pub use assert::*;
 
-pub fn find_migrate_state_pda(mint: Pubkey) -> Pubkey {
+pub fn find_migrate_state_pda(mint: Pubkey) -> (Pubkey, u8) {
     let seeds = &[b"migration", mint.as_ref()];
-    Pubkey::find_program_address(seeds, &mpl_migration_validator::ID).0
+    Pubkey::find_program_address(seeds, &mpl_migration_validator::ID)
+}
+
+pub fn find_program_signer_pda() -> (Pubkey, u8) {
+    Pubkey::find_program_address(&[b"signer"], &mpl_migration_validator::ID)
 }
 
 pub fn create_dummy_metadata_account(mint_pubkey: Pubkey, authority: Pubkey) -> Account {

@@ -12,12 +12,15 @@ pub fn init_signer(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResu
         &[b"signer"],
         MigrationError::InvalidSignerDerivation,
     )?;
+    let signer_seeds: &[&[u8]] = &[b"signer", &[bump]];
 
     if system_program_info.key != &solana_program::system_program::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
 
     // Already initialized
+    let data_len = program_signer_info.data.borrow().len();
+    msg!("data_len: {}", data_len);
     if !program_signer_info.data.borrow().is_empty() {
         return Err(MigrationError::AlreadyInitialized.into());
     }
@@ -33,7 +36,7 @@ pub fn init_signer(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResu
         system_program_info,
         payer_info,
         data_len,
-        &[],
+        signer_seeds,
     )?;
 
     msg!("writing state");

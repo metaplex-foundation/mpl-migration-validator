@@ -451,7 +451,7 @@
     {
       "code": 2,
       "name": "InvalidAuthority",
-      "msg": "Authority does not match update authority on metadata"
+      "msg": "Authority does not match the authority on the account"
     },
     {
       "code": 3,

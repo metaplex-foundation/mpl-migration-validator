@@ -1,8 +1,16 @@
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey, SystemProgram, Transaction } from '@solana/web3.js';
 import spok from 'spok';
 import test from 'tape';
-import { InitializeArgs, MigrationState, UnlockMethod } from '../src/generated';
-import { InitTransactions, killStuckProcess } from './setup';
+import {
+  createInitializeInstruction,
+  InitializeArgs,
+  InitializeInstructionAccounts,
+  InitializeInstructionArgs,
+  MigrationState,
+  UnlockMethod,
+} from '../src/generated';
+import { amman, InitTransactions, killStuckProcess } from './setup';
+import { findMetadataAddress, findMigrationState } from './utils/pdas';
 
 killStuckProcess();
 
@@ -92,4 +100,46 @@ test('Initialize: Cannot initialize twice', async (t) => {
   // we check for logs indicating it fails on the account already being
   // in use.
   await transaction2.assertLogs(t, [/Allocate: account Address/, /already in use/]);
+});
+
+test('Initialize: cannot initialize for another authority', async (t) => {
+  const API = new InitTransactions();
+  const { fstTxHandler: handler, payerPair: payer, connection } = await API.payer();
+
+  const defaultKey = new PublicKey('11111111111111111111111111111111');
+
+  const { tx: tx1, mint } = await API.mintNft(handler, connection, payer, payer);
+  await tx1.assertSuccess(t);
+
+  const newAuthority = new Keypair();
+  await amman.airdrop(connection, newAuthority.publicKey, 1);
+
+  const args: InitializeArgs = {
+    ruleSet: defaultKey,
+    migrationType: UnlockMethod.Timed,
+    collectionSize: 0,
+  };
+
+  const collectionMetadata = findMetadataAddress(mint);
+  const migrationState = findMigrationState(mint);
+
+  const accounts: InitializeInstructionAccounts = {
+    payer: newAuthority.publicKey,
+    authority: newAuthority.publicKey,
+    collectionMetadata,
+    collectionMint: mint,
+    migrationState,
+    systemProgram: SystemProgram.programId,
+  };
+
+  const ixArgs: InitializeInstructionArgs = {
+    initializeArgs: args,
+  };
+  const initializeIx = createInitializeInstruction(accounts, ixArgs);
+
+  const initTx = new Transaction().add(initializeIx);
+  const signers = [newAuthority];
+
+  const res = handler.sendAndConfirmTransaction(initTx, signers, 'tx: Initialize');
+  await res.assertError(t, /Authority does not match the authority on the account/);
 });

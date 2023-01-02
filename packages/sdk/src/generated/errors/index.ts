@@ -52,7 +52,7 @@ createErrorFromCodeLookup.set(0x1, () => new InvalidMetadataError());
 createErrorFromNameLookup.set('InvalidMetadata', () => new InvalidMetadataError());
 
 /**
- * InvalidAuthority: 'Authority does not match update authority on metadata'
+ * InvalidAuthority: 'Authority does not match the authority on the account'
  *
  * @category Errors
  * @category generated
@@ -61,7 +61,7 @@ export class InvalidAuthorityError extends Error {
   readonly code: number = 0x2;
   readonly name: string = 'InvalidAuthority';
   constructor() {
-    super('Authority does not match update authority on metadata');
+    super('Authority does not match the authority on the account');
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, InvalidAuthorityError);
     }

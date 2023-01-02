@@ -15,7 +15,7 @@ pub enum MigrationError {
     #[error("Metadata did not deserialize correctly")]
     InvalidMetadata,
     /// 2
-    #[error("Authority does not match update authority on metadata")]
+    #[error("Authority does not match the authority on the account")]
     InvalidAuthority,
     /// 3
     #[error("Migration state account derivation is in correct")]

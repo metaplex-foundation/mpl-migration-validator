@@ -92,7 +92,7 @@ export class InitTransactions {
     const initializeIx = createInitializeInstruction(accounts, ixArgs);
 
     const tx = new Transaction().add(initializeIx);
-    const signers = [payer];
+    const signers = [payer, authority];
 
     return {
       tx: handler.sendAndConfirmTransaction(tx, signers, 'tx: Initialize'),

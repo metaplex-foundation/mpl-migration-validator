@@ -1,7 +1,7 @@
 {
   "name": "mpl-migration-validator-workspace",
   "packageManager": "yarn@3.2.0-rc.12",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "",
   "author": "Metaplex Maintainers <contact@metaplex.com>",
   "license": "Apache-2.0",

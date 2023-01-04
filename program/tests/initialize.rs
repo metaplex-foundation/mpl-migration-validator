@@ -40,11 +40,11 @@ async fn initiate_migration() {
 
     let mut context = test.start_with_context().await;
 
-    let migration_type = UnlockMethod::Timed;
+    let unlock_method = UnlockMethod::Timed;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
-        migration_type,
+        unlock_method,
         collection_size: 0,
     };
 
@@ -104,11 +104,11 @@ async fn cannot_initialize_twice() {
 
     let mut context = test.start_with_context().await;
 
-    let migration_type = UnlockMethod::Timed;
+    let unlock_method = UnlockMethod::Timed;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
-        migration_type,
+        unlock_method,
         collection_size: 0,
     };
 
@@ -151,11 +151,11 @@ async fn cannot_initialize_twice() {
 
     // Try to initialize again with a different value
 
-    let migration_type = UnlockMethod::Vote;
+    let unlock_method = UnlockMethod::Vote;
 
     let args = InitializeArgs {
         rule_set: Some(dummy_rule_set),
-        migration_type,
+        unlock_method,
         collection_size: 0,
     };
 

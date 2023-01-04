@@ -11,8 +11,8 @@ use crate::state::UnlockMethod;
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
 pub struct InitializeArgs {
     pub rule_set: Option<Pubkey>,
-    pub migration_type: UnlockMethod,
-    pub collection_size: u64,
+    pub unlock_method: UnlockMethod,
+    pub collection_size: u32,
 }
 
 #[repr(C)]
@@ -45,11 +45,15 @@ pub enum MigrationInstruction {
     Update(UpdateArgs),
 
     /// Start a migration if it is eligible.
-    #[account(0, signer, name="authority", desc = "The collection authority")]
-    #[account(1, name="collection_mint", desc = "The mint account of the collection parent NFT")]
-    #[account(2, name="collection_metadata", desc = "The metadata account of the collection parent NFT")]
-    #[account(3, writable, name="migration_state", desc = "The migration state account")]
-    #[account(4, name="system_program", desc = "System program")]
+    #[account(0, writable, signer, name="payer", desc="Paying account for initiate migration")]
+    #[account(1, signer, name="authority", desc = "The collection authority")]
+    #[account(2, name="delegate", desc = "The collection delegate. This should be the program signer.")]
+    #[account(3, name="collection_mint", desc = "The mint account of the collection parent NFT")]
+    #[account(4, name="collection_metadata", desc = "The metadata account of the collection parent NFT")]
+    #[account(5, writable, name="migration_state", desc = "The migration state account")]
+    #[account(6, name="delegate_record", desc = "The collection delegate record of for the program signer and the collection")]
+    #[account(7, name="spl_token_program", desc="Token Program")]
+    #[account(8, name="system_program", desc = "System program")]
     Start,
 
     /// Migrate an asset.    

@@ -61,7 +61,7 @@ pub struct ProgramSigner {
 }
 
 impl ProgramSigner {
-    pub fn address() -> Pubkey {
+    pub fn pubkey() -> Pubkey {
         pubkey!("4fDQAj27ahBfXw3ZQumg5gJrMRUCzPUW6RxrRPFMC8Av")
     }
     pub fn from_account_info(a: &AccountInfo) -> Result<Self, ProgramError> {

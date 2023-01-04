@@ -25,12 +25,14 @@ mod close;
 mod initialize;
 mod migrate;
 mod misc;
+mod start;
 mod update;
 
 use close::close_migration_state;
 use initialize::initialize_migration;
 use migrate::migrate_item;
 use misc::init_signer;
+use start::start_migration;
 use update::update_state;
 
 pub struct Processor;
@@ -58,11 +60,11 @@ impl Processor {
             }
             MigrationInstruction::Start => {
                 // handle instruction
-                migrate_item(program_id, accounts)
+                start_migration(program_id, accounts)
             }
             MigrationInstruction::Migrate => {
                 // handle instruction
-                Ok(())
+                migrate_item(program_id, accounts)
             }
             MigrationInstruction::InitSigner => init_signer(program_id, accounts),
         }

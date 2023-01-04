@@ -11,8 +11,8 @@ import * as beetSolana from '@metaplex-foundation/beet-solana';
 import { UnlockMethod, unlockMethodBeet } from './UnlockMethod';
 export type InitializeArgs = {
   ruleSet: beet.COption<web3.PublicKey>;
-  migrationType: UnlockMethod;
-  collectionSize: beet.bignum;
+  unlockMethod: UnlockMethod;
+  collectionSize: number;
 };
 
 /**
@@ -22,8 +22,8 @@ export type InitializeArgs = {
 export const initializeArgsBeet = new beet.FixableBeetArgsStruct<InitializeArgs>(
   [
     ['ruleSet', beet.coption(beetSolana.publicKey)],
-    ['migrationType', unlockMethodBeet],
-    ['collectionSize', beet.u64],
+    ['unlockMethod', unlockMethodBeet],
+    ['collectionSize', beet.u32],
   ],
   'InitializeArgs',
 );

@@ -11,8 +11,8 @@ use crate::state::UnlockMethod;
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
 pub struct InitializeArgs {
     pub rule_set: Option<Pubkey>,
-    pub migration_type: UnlockMethod,
-    pub collection_size: u64,
+    pub unlock_method: UnlockMethod,
+    pub collection_size: u32,
 }
 
 #[repr(C)]

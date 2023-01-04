@@ -18,7 +18,7 @@ test('Close: successfully close migration state account', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: UnlockMethod.Timed,
+    unlockMethod: UnlockMethod.Timed,
     collectionSize: 0,
   };
 
@@ -65,7 +65,7 @@ test('Close: cannot close another migration state account', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: UnlockMethod.Timed,
+    unlockMethod: UnlockMethod.Timed,
     collectionSize: 0,
   };
 
@@ -112,7 +112,7 @@ test('Close: empty migration state account fails', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: UnlockMethod.Timed,
+    unlockMethod: UnlockMethod.Timed,
     collectionSize: 0,
   };
 

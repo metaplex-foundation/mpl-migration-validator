@@ -10,8 +10,8 @@ pub fn initialize_migration(
     msg!("Initiate Migration");
     let InitializeArgs {
         rule_set,
-        migration_type: _,
-        collection_size: _,
+        unlock_method,
+        collection_size,
     } = args;
 
     // Fetch accounts
@@ -77,7 +77,7 @@ pub fn initialize_migration(
         mint: *collection_mint_info.key,
         delegate: Pubkey::default(),
         rule_set: rule_set.unwrap_or_default(),
-        size: 0,
+        size: collection_size,
     };
 
     let status = MigrationStatus {
@@ -86,8 +86,6 @@ pub fn initialize_migration(
         in_progress: false,
         items_migrated: 0,
     };
-
-    let unlock_method = UnlockMethod::Timed;
 
     let migration_state = MigrationState {
         collection_info,

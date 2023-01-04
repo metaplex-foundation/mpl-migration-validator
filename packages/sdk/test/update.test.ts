@@ -17,7 +17,7 @@ test('Update: successfully update state account', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: UnlockMethod.Timed,
+    unlockMethod: UnlockMethod.Timed,
     collectionSize: 0,
   };
 
@@ -79,7 +79,7 @@ test('Update: successfully update state account', async (t) => {
 
 //   const args: InitializeArgs = {
 //     ruleSet: defaultKey,
-//     migrationType: UnlockMethod.Timed,
+//     unlockMethod: UnlockMethod.Timed,
 //   };
 
 //   const { tx: transaction, migrationState } = await API.initialize(
@@ -97,7 +97,7 @@ test('Update: successfully update state account', async (t) => {
 //     collectionMint: mint,
 //     ruleSet: defaultKey,
 //     collectionDelegate: defaultKey,
-//     migrationType: args.unlockMethod,
+//     unlockMethod: args.unlockMethod,
 //     migrationSize: 0,
 //     inProgress: false,
 //     isEligible: false,
@@ -118,7 +118,7 @@ test('Update: successfully update state account', async (t) => {
 //     collectionMint: mint,
 //     ruleSet: defaultKey,
 //     collectionDelegate: defaultKey,
-//     migrationType: args.unlockMethod,
+//     unlockMethod: args.unlockMethod,
 //     migrationSize: 0,
 //     inProgress: false,
 //     isEligible: true,

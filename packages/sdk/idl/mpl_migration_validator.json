@@ -396,14 +396,14 @@
             }
           },
           {
-            "name": "migrationType",
+            "name": "unlockMethod",
             "type": {
               "defined": "UnlockMethod"
             }
           },
           {
             "name": "collectionSize",
-            "type": "u64"
+            "type": "u32"
           }
         ]
       }

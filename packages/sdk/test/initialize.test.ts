@@ -25,7 +25,7 @@ test('Initialize: successfully create migration state', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: UnlockMethod.Timed,
+    unlockMethod: UnlockMethod.Timed,
     collectionSize: 0,
   };
 
@@ -63,7 +63,7 @@ test('Initialize: Cannot initialize twice', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: UnlockMethod.Timed,
+    unlockMethod: UnlockMethod.Timed,
     collectionSize: 0,
   };
 
@@ -91,7 +91,7 @@ test('Initialize: Cannot initialize twice', async (t) => {
 
   const args2: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: UnlockMethod.Vote,
+    unlockMethod: UnlockMethod.Vote,
     collectionSize: 0,
   };
 
@@ -116,7 +116,7 @@ test('Initialize: cannot initialize for another authority', async (t) => {
 
   const args: InitializeArgs = {
     ruleSet: defaultKey,
-    migrationType: UnlockMethod.Timed,
+    unlockMethod: UnlockMethod.Timed,
     collectionSize: 0,
   };
 

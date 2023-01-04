@@ -8,22 +8,15 @@
 import * as web3 from '@solana/web3.js';
 import * as beet from '@metaplex-foundation/beet';
 import * as beetSolana from '@metaplex-foundation/beet-solana';
-import { UnlockMethod, unlockMethodBeet } from './UnlockMethod';
-export type InitializeArgs = {
+export type UpdateArgs = {
   ruleSet: beet.COption<web3.PublicKey>;
-  unlockMethod: UnlockMethod;
-  collectionSize: number;
 };
 
 /**
  * @category userTypes
  * @category generated
  */
-export const initializeArgsBeet = new beet.FixableBeetArgsStruct<InitializeArgs>(
-  [
-    ['ruleSet', beet.coption(beetSolana.publicKey)],
-    ['unlockMethod', unlockMethodBeet],
-    ['collectionSize', beet.u32],
-  ],
-  'InitializeArgs',
+export const updateArgsBeet = new beet.FixableBeetArgsStruct<UpdateArgs>(
+  [['ruleSet', beet.coption(beetSolana.publicKey)]],
+  'UpdateArgs',
 );

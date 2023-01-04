@@ -1,5 +1,5 @@
 {
-  "version": "0.1.0",
+  "version": "0.1.4",
   "name": "mpl_migration_validator",
   "instructions": [
     {
@@ -396,14 +396,14 @@
             }
           },
           {
-            "name": "migrationType",
+            "name": "unlockMethod",
             "type": {
               "defined": "UnlockMethod"
             }
           },
           {
             "name": "collectionSize",
-            "type": "u64"
+            "type": "u32"
           }
         ]
       }

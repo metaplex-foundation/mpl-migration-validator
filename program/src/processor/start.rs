@@ -3,7 +3,6 @@ use mpl_token_metadata::state::CollectionAuthorityRecord;
 use super::*;
 
 pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    // return Err(MigrationError::FeatureDisabled.into());
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let payer_info = next_account_info(account_info_iter)?;

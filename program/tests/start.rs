@@ -8,20 +8,17 @@ use mpl_token_metadata::pda::find_collection_authority_account;
 use mpl_token_metadata::state::{CollectionAuthorityRecord, TokenMetadataAccount};
 use num_traits::FromPrimitive;
 use solana_program::pubkey::Pubkey;
-use solana_program_test::{tokio, BanksClientError, ProgramTest};
+use solana_program_test::{tokio, BanksClientError};
 use solana_sdk::{instruction::InstructionError, signer::Signer, transaction::TransactionError};
 use utils::*;
 
 #[tokio::test]
 async fn start_migration() {
-    // Set up the test context with the programs we need.
-    let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
-    test.add_program("mpl_token_metadata", mpl_token_metadata::ID, None);
-    let mut context = test.start_with_context().await;
+    let mut context = setup_context().await;
 
     // Create a default NFT to use as a collection.
     let nft = NfTest::new();
-    nft.mint_default(&mut context).await.unwrap();
+    nft.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.
     let mut migratorr = Migratorr::new(nft.mint_pubkey());

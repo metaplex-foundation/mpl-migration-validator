@@ -24,6 +24,7 @@ solana-program-test = "1.13"
 solana-sdk = "1.13"
 solana-logger = "1.13"
 spl-token = "3.5.0"
+async-trait = "0.1.60"
 
 [lib]
 crate-type = ["cdylib", "lib"]

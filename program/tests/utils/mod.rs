@@ -1,5 +1,6 @@
+use async_trait::async_trait;
 use solana_program::{program_pack::Pack, pubkey::Pubkey, system_instruction};
-use solana_program_test::{BanksClientError, ProgramTestContext};
+use solana_program_test::{BanksClientError, ProgramTest, ProgramTestContext};
 use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transaction::Transaction};
 
 mod assert;
@@ -9,6 +10,54 @@ mod nft;
 pub use assert::*;
 pub use migratorr::*;
 pub use nft::*;
+
+pub trait DirtyClone {
+    fn dirty_clone(&self) -> Self;
+}
+
+impl DirtyClone for Keypair {
+    fn dirty_clone(&self) -> Self {
+        Keypair::from_bytes(&self.to_bytes()).unwrap()
+    }
+}
+
+#[async_trait]
+pub trait Airdrop {
+    async fn airdrop(
+        &self,
+        context: &mut ProgramTestContext,
+        lamports: u64,
+    ) -> Result<(), BanksClientError>;
+}
+
+#[async_trait]
+impl Airdrop for Keypair {
+    async fn airdrop(
+        &self,
+        context: &mut ProgramTestContext,
+        lamports: u64,
+    ) -> Result<(), BanksClientError> {
+        let tx = Transaction::new_signed_with_payer(
+            &[system_instruction::transfer(
+                &context.payer.pubkey(),
+                &self.pubkey(),
+                lamports,
+            )],
+            Some(&context.payer.pubkey()),
+            &[&context.payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await
+    }
+}
+
+pub async fn setup_context() -> ProgramTestContext {
+    let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
+    test.add_program("mpl_token_metadata", mpl_token_metadata::ID, None);
+
+    test.start_with_context().await
+}
 
 pub async fn get_account(context: &mut ProgramTestContext, pubkey: &Pubkey) -> Account {
     context
@@ -24,19 +73,24 @@ pub async fn mint_tokens(
     mint: &Pubkey,
     account: &Pubkey,
     amount: u64,
-    owner: &Pubkey,
+    owner: &Keypair,
     additional_signer: Option<&Keypair>,
 ) -> Result<(), BanksClientError> {
-    let mut signing_keypairs = vec![&context.payer];
+    let mut signing_keypairs = vec![&context.payer, owner];
     if let Some(signer) = additional_signer {
         signing_keypairs.push(signer);
     }
 
     let tx = Transaction::new_signed_with_payer(
-        &[
-            spl_token::instruction::mint_to(&spl_token::id(), mint, account, owner, &[], amount)
-                .unwrap(),
-        ],
+        &[spl_token::instruction::mint_to(
+            &spl_token::id(),
+            mint,
+            account,
+            &owner.pubkey(),
+            &[],
+            amount,
+        )
+        .unwrap()],
         Some(&context.payer.pubkey()),
         &signing_keypairs,
         context.last_blockhash,

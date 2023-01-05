@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use borsh::BorshSerialize;
 use mpl_migration_validator::{
     instruction::{initialize, start, update, InitializeArgs, UpdateArgs},
@@ -9,21 +7,10 @@ use mpl_token_metadata::pda::find_collection_authority_account;
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
-    account::AccountSharedData, pubkey::Pubkey, signature::Signer, signer::keypair::Keypair,
-    transaction::Transaction,
+    pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
 };
 
 use super::*;
-
-pub trait DirtyClone {
-    fn dirty_clone(&self) -> Self;
-}
-
-impl DirtyClone for Keypair {
-    fn dirty_clone(&self) -> Self {
-        Keypair::from_bytes(&self.to_bytes()).unwrap()
-    }
-}
 
 #[derive(Debug)]
 pub struct Migratorr {

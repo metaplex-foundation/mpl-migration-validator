@@ -64,6 +64,7 @@ impl NfTest {
     pub async fn mint(
         &self,
         context: &mut ProgramTestContext,
+        authority: &Keypair,
         name: String,
         symbol: String,
         uri: String,
@@ -77,8 +78,8 @@ impl NfTest {
         create_mint(
             context,
             &self.mint,
-            &context.payer.pubkey(),
-            Some(&context.payer.pubkey()),
+            &authority.pubkey(),
+            Some(&authority.pubkey()),
             0,
         )
         .await?;
@@ -86,7 +87,7 @@ impl NfTest {
             context,
             &self.token,
             &self.mint.pubkey(),
-            &context.payer.pubkey(),
+            &authority.pubkey(),
         )
         .await?;
         mint_tokens(
@@ -94,7 +95,7 @@ impl NfTest {
             &self.mint.pubkey(),
             &self.token.pubkey(),
             1,
-            &context.payer.pubkey(),
+            &authority,
             None,
         )
         .await?;
@@ -104,9 +105,9 @@ impl NfTest {
                 id(),
                 self.metadata,
                 self.mint.pubkey(),
+                authority.pubkey(),
                 context.payer.pubkey(),
-                context.payer.pubkey(),
-                context.payer.pubkey(),
+                authority.pubkey(),
                 name,
                 symbol,
                 uri,
@@ -118,8 +119,8 @@ impl NfTest {
                 uses,
                 collection_details,
             )],
-            Some(&context.payer.pubkey()),
-            &[&context.payer],
+            Some(&authority.pubkey()),
+            &[&context.payer, authority],
             context.last_blockhash,
         );
 
@@ -129,9 +130,11 @@ impl NfTest {
     pub async fn mint_default(
         &self,
         context: &mut ProgramTestContext,
+        authority: Option<&Keypair>,
     ) -> Result<(), BanksClientError> {
         self.mint(
             context,
+            authority.unwrap_or(&context.payer.dirty_clone()),
             "name".to_string(),
             "symbol".to_string(),
             "uri".to_string(),

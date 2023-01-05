@@ -4,21 +4,18 @@ pub mod utils;
 use borsh::BorshDeserialize;
 use mpl_migration_validator::{error::MigrationError, instruction::init_signer};
 use num_traits::FromPrimitive;
-use solana_program_test::{tokio, BanksClientError, ProgramTest};
+use solana_program_test::{tokio, BanksClientError};
 use solana_sdk::{
     instruction::InstructionError,
     signer::Signer,
     transaction::{Transaction, TransactionError},
 };
 
-use crate::utils::find_program_signer_pda;
-
-const METADATA_RENT: u64 = 5616720;
+use crate::utils::*;
 
 #[tokio::test]
 async fn successfully_init_signer() {
-    let test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
-    let mut context = test.start_with_context().await;
+    let mut context = setup_context().await;
 
     let (program_signer_pubkey, bump) = find_program_signer_pda();
 

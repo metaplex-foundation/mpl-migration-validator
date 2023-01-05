@@ -198,9 +198,9 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.53"
+version = "0.1.60"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ed6aa3524a2dfcf9fe180c51eae2b58738348d819517ceadf95789c51fff7600"
+checksum = "677d1d8ab452a3936018a687b20e6f7cf5363d713b732b8884001317b0e48aa3"
 dependencies = [
  "proc-macro2 1.0.49",
  "quote 1.0.23",
@@ -1795,6 +1795,7 @@ name = "mpl-migration-validator"
 version = "0.1.4"
 dependencies = [
  "assert_matches",
+ "async-trait",
  "borsh",
  "mpl-token-metadata",
  "mpl-utils 0.0.5 (registry+https://github.com/rust-lang/crates.io-index)",

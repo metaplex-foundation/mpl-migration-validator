@@ -1,114 +1,70 @@
-// #![cfg(feature = "test-bpf")]
-// pub mod utils;
+#![cfg(feature = "test-bpf")]
+pub mod utils;
 
-// use borsh::BorshDeserialize;
-// use mpl_migration_validator::instruction::{update, UpdateArgs};
-// use mpl_migration_validator::state::MigrationType;
-// use mpl_migration_validator::{
-//     self,
-//     instruction::{initialize, InitializeArgs},
-// };
-// use mpl_token_metadata::pda::find_metadata_account;
-// use solana_program::pubkey::Pubkey;
-// use solana_program_test::{tokio, ProgramTest};
-// use solana_sdk::signature::Keypair;
-// use solana_sdk::{signer::Signer, transaction::Transaction};
-// use utils::find_migrate_state_pda;
+use mpl_migration_validator::instruction::UpdateArgs;
+use mpl_migration_validator::state::UnlockMethod;
+use mpl_migration_validator::{self, instruction::InitializeArgs};
+use solana_program::pubkey::Pubkey;
+use solana_program_test::tokio;
+use solana_sdk::signature::Keypair;
+use solana_sdk::signer::Signer;
 
-// use crate::utils::create_dummy_metadata_account;
+use crate::utils::*;
 
-// const METADATA_RENT: u64 = 5616720;
+#[tokio::test]
+async fn update_rule_set() {
+    let mut context = setup_context().await;
 
-// #[tokio::test]
-// async fn update_wait_period() {
-//     let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
+    // Create an authority that is separate from the payer.
+    let authority = Keypair::new();
+    authority
+        .airdrop(&mut context, 1_000_000_000)
+        .await
+        .unwrap();
 
-//     let authority = Keypair::new();
+    // Create a default NFT to use as a collection.
+    let nft = NfTest::new();
+    nft.mint_default(&mut context, Some(&authority))
+        .await
+        .unwrap();
 
-//     let dummy_rule_set = Pubkey::new_unique();
-//     let mint_pubkey = Pubkey::new_unique();
+    // Create our migration state manager.
+    let mut migratorr = Migratorr::new(nft.mint_pubkey());
 
-//     let migrate_state_pubkey = find_migrate_state_pda(mint_pubkey);
-//     let metadata_pubkey = find_metadata_account(&mint_pubkey).0;
+    // Set up our initialize args
+    let unlock_method = UnlockMethod::Timed;
 
-//     let metadata_account = create_dummy_metadata_account(mint_pubkey, authority.pubkey());
+    let args = InitializeArgs {
+        rule_set: None, // this defaults to the default public key
+        unlock_method,
+        collection_size: 0,
+    };
 
-//     test.add_account(metadata_pubkey, metadata_account);
+    let payer = context.payer.dirty_clone();
 
-//     let mut context = test.start_with_context().await;
+    // Initialize the migration state account on-chain
+    migratorr
+        .initialize(&mut context, &payer, &authority, &nft, args)
+        .await
+        .unwrap();
 
-//     let migration_type = MigrationType::Timed;
+    // Refresh the migratorr's state from the on-chain account.
+    migratorr.refresh_state(&mut context).await.unwrap();
 
-//     let args = InitializeArgs {
-//         rule_set: Some(dummy_rule_set),
-//         migration_type,
-//     };
+    assert_eq!(migratorr.mint(), nft.mint_pubkey());
+    assert_eq!(migratorr.authority(), authority.pubkey());
 
-//     let instruction = initialize(
-//         context.payer.pubkey(),
-//         authority.pubkey(),
-//         mint_pubkey,
-//         metadata_pubkey,
-//         migrate_state_pubkey,
-//         args,
-//     );
+    let dummy_rule_set = Pubkey::new_unique();
+    let update_args = UpdateArgs {
+        rule_set: Some(dummy_rule_set),
+    };
 
-//     let transaction = Transaction::new_signed_with_payer(
-//         &[instruction],
-//         Some(&context.payer.pubkey()),
-//         &[&context.payer, &authority],
-//         context.last_blockhash,
-//     );
+    migratorr
+        .update(&mut context, &authority, None, update_args)
+        .await
+        .unwrap();
 
-//     context
-//         .banks_client
-//         .process_transaction(transaction)
-//         .await
-//         .unwrap();
+    migratorr.refresh_state(&mut context).await.unwrap();
 
-//     let migrate_state_account = context
-//         .banks_client
-//         .get_account(migrate_state_pubkey)
-//         .await
-//         .unwrap()
-//         .unwrap();
-
-//     let migrate_state = mpl_migration_validator::state::MigrationState::try_from_slice(
-//         &migrate_state_account.data[..],
-//     )
-//     .unwrap();
-
-//     assert_eq!(migrate_state.collection_mint, mint_pubkey);
-//     assert_eq!(migrate_state.rule_set, dummy_rule_set);
-
-//     println!("start time: {}", migrate_state.start_time);
-
-//     // Warp to end of wait period and check that update makes the migration
-//     // eligible.
-//     context.warp_to_slot(2_000_000).unwrap();
-//     tokio::time::sleep(std::time::Duration::from_secs(5)).await;
-
-//     let args = UpdateArgs { rule_set: None };
-
-//     let instruction = update(authority.pubkey(), migrate_state_pubkey, None, args);
-
-//     let transaction = Transaction::new_signed_with_payer(
-//         &[instruction],
-//         Some(&context.payer.pubkey()),
-//         &[&context.payer, &authority],
-//         context.last_blockhash,
-//     );
-
-//     context
-//         .banks_client
-//         .process_transaction(transaction)
-//         .await
-//         .unwrap();
-
-//     let migrate_state = mpl_migration_validator::state::MigrationState::try_from_slice(
-//         &migrate_state_account.data[..],
-//     )
-//     .unwrap();
-
-//     assert_eq!(migrate_state.is_eligible, true);
-// }
+    assert_eq!(migratorr.rule_set(), dummy_rule_set);
+}

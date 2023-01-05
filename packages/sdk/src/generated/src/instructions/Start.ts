@@ -20,19 +20,27 @@ export const StartStruct = new beet.BeetArgsStruct<{ instructionDiscriminator: n
 /**
  * Accounts required by the _Start_ instruction
  *
+ * @property [_writable_, **signer**] payer Paying account for initiate migration
  * @property [**signer**] authority The collection authority
  * @property [] collectionMint The mint account of the collection parent NFT
  * @property [] collectionMetadata The metadata account of the collection parent NFT
+ * @property [] delegate The collection delegate. This should be the program signer.
+ * @property [] delegateRecord The collection delegate record of for the program signer and the collection
  * @property [_writable_] migrationState The migration state account
+ * @property [] splTokenProgram Token Program
  * @category Instructions
  * @category Start
  * @category generated
  */
 export type StartInstructionAccounts = {
+  payer: web3.PublicKey;
   authority: web3.PublicKey;
   collectionMint: web3.PublicKey;
   collectionMetadata: web3.PublicKey;
+  delegate: web3.PublicKey;
+  delegateRecord: web3.PublicKey;
   migrationState: web3.PublicKey;
+  splTokenProgram: web3.PublicKey;
   systemProgram?: web3.PublicKey;
 };
 
@@ -55,6 +63,11 @@ export function createStartInstruction(
   });
   const keys: web3.AccountMeta[] = [
     {
+      pubkey: accounts.payer,
+      isWritable: true,
+      isSigner: true,
+    },
+    {
       pubkey: accounts.authority,
       isWritable: false,
       isSigner: true,
@@ -70,8 +83,23 @@ export function createStartInstruction(
       isSigner: false,
     },
     {
+      pubkey: accounts.delegate,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.delegateRecord,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
       pubkey: accounts.migrationState,
       isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.splTokenProgram,
+      isWritable: false,
       isSigner: false,
     },
     {

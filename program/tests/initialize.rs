@@ -18,8 +18,6 @@ use solana_sdk::{
 };
 use utils::find_migrate_state_pda;
 
-use crate::utils::create_dummy_metadata_account;
-
 const METADATA_RENT: u64 = 5616720;
 
 #[tokio::test]

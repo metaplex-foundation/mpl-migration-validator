@@ -1,7 +1,8 @@
 use borsh::{BorshDeserialize, BorshSerialize};
 use shank::ShankAccount;
 use solana_program::{
-    account_info::AccountInfo, program_error::ProgramError, pubkey, pubkey::Pubkey,
+    account_info::AccountInfo, program_error::ProgramError, program_memory::sol_memcpy, pubkey,
+    pubkey::Pubkey,
 };
 
 use crate::error::MigrationError;
@@ -30,6 +31,52 @@ impl MigrationState {
 
         Ok(ua)
     }
+
+    pub fn save(&self, a: &AccountInfo) -> Result<(), ProgramError> {
+        let serialized_data = self.try_to_vec()?;
+        let data_len = serialized_data.len();
+
+        sol_memcpy(
+            &mut a.data.borrow_mut(),
+            serialized_data.as_slice(),
+            data_len,
+        );
+
+        Ok(())
+    }
+}
+
+impl Default for MigrationState {
+    fn default() -> Self {
+        Self {
+            collection_info: CollectionInfo::default(),
+            unlock_method: UnlockMethod::Timed,
+            status: MigrationStatus::default(),
+        }
+    }
+}
+
+impl Default for CollectionInfo {
+    fn default() -> Self {
+        Self {
+            authority: Pubkey::default(),
+            mint: Pubkey::default(),
+            rule_set: Pubkey::default(),
+            delegate: Pubkey::default(),
+            size: 0,
+        }
+    }
+}
+
+impl Default for MigrationStatus {
+    fn default() -> Self {
+        Self {
+            unlock_time: 0,
+            is_locked: true,
+            in_progress: false,
+            items_migrated: 0,
+        }
+    }
 }
 
 #[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
@@ -49,7 +96,7 @@ pub struct MigrationStatus {
     pub items_migrated: u32,
 }
 
-#[derive(Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug)]
 pub enum UnlockMethod {
     Timed,
     Vote,

@@ -56,6 +56,9 @@ pub enum MigrationError {
     /// 15
     #[error("Collection mint does not match state account")]
     CollectionMintMismatch,
+    /// 16
+    #[error("Migration state account is locked")]
+    MigrationLocked,
 }
 
 impl PrintProgramError for MigrationError {

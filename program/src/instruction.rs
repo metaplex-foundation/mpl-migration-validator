@@ -5,7 +5,7 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::state::UnlockMethod;
+use crate::state::{UnlockMethod, SPL_TOKEN_ID};
 
 #[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
@@ -47,11 +47,11 @@ pub enum MigrationInstruction {
     /// Start a migration if it is eligible.
     #[account(0, writable, signer, name="payer", desc="Paying account for initiate migration")]
     #[account(1, signer, name="authority", desc = "The collection authority")]
-    #[account(2, name="delegate", desc = "The collection delegate. This should be the program signer.")]
-    #[account(3, name="collection_mint", desc = "The mint account of the collection parent NFT")]
-    #[account(4, name="collection_metadata", desc = "The metadata account of the collection parent NFT")]
-    #[account(5, writable, name="migration_state", desc = "The migration state account")]
-    #[account(6, name="delegate_record", desc = "The collection delegate record of for the program signer and the collection")]
+    #[account(2, name="collection_mint", desc = "The mint account of the collection parent NFT")]
+    #[account(3, name="collection_metadata", desc = "The metadata account of the collection parent NFT")]
+    #[account(4, name="delegate", desc = "The collection delegate. This should be the program signer.")]
+    #[account(5, name="delegate_record", desc = "The collection delegate record of for the program signer and the collection")]
+    #[account(6, writable, name="migration_state", desc = "The migration state account")]
     #[account(7, name="spl_token_program", desc="Token Program")]
     #[account(8, name="system_program", desc = "System program")]
     Start,
@@ -145,6 +145,34 @@ pub fn init_signer(payer: Pubkey, program_signer: Pubkey) -> Instruction {
             AccountMeta::new(payer, true),
             AccountMeta::new(program_signer, false),
             AccountMeta::new_readonly(solana_program::system_program::ID, false),
+        ],
+        data,
+    }
+}
+
+pub fn start(
+    payer: Pubkey,
+    authority: Pubkey,
+    collection_mint: Pubkey,
+    collection_metadata: Pubkey,
+    delegate: Pubkey,
+    delegate_record: Pubkey,
+    migration_state: Pubkey,
+) -> Instruction {
+    let data = MigrationInstruction::Start.try_to_vec().unwrap();
+    Instruction {
+        program_id: crate::ID,
+        accounts: vec![
+            AccountMeta::new(payer, true),
+            AccountMeta::new(authority, true),
+            AccountMeta::new_readonly(collection_mint, false),
+            AccountMeta::new_readonly(collection_metadata, false),
+            AccountMeta::new_readonly(delegate, false),
+            AccountMeta::new(delegate_record, false),
+            AccountMeta::new(migration_state, false),
+            AccountMeta::new_readonly(SPL_TOKEN_ID, false),
+            AccountMeta::new_readonly(solana_program::system_program::ID, false),
+            AccountMeta::new_readonly(mpl_token_metadata::ID, false),
         ],
         data,
     }

@@ -295,6 +295,69 @@ createErrorFromCodeLookup.set(0xd, () => new FeatureDisabledError());
 createErrorFromNameLookup.set('FeatureDisabled', () => new FeatureDisabledError());
 
 /**
+ * InvalidDelegateRecordDerivation: 'Invalid delegate record derivation'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidDelegateRecordDerivationError extends Error {
+  readonly code: number = 0xe;
+  readonly name: string = 'InvalidDelegateRecordDerivation';
+  constructor() {
+    super('Invalid delegate record derivation');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidDelegateRecordDerivationError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0xe, () => new InvalidDelegateRecordDerivationError());
+createErrorFromNameLookup.set(
+  'InvalidDelegateRecordDerivation',
+  () => new InvalidDelegateRecordDerivationError(),
+);
+
+/**
+ * CollectionMintMismatch: 'Collection mint does not match state account'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class CollectionMintMismatchError extends Error {
+  readonly code: number = 0xf;
+  readonly name: string = 'CollectionMintMismatch';
+  constructor() {
+    super('Collection mint does not match state account');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, CollectionMintMismatchError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0xf, () => new CollectionMintMismatchError());
+createErrorFromNameLookup.set('CollectionMintMismatch', () => new CollectionMintMismatchError());
+
+/**
+ * MigrationLocked: 'Migration state account is locked'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class MigrationLockedError extends Error {
+  readonly code: number = 0x10;
+  readonly name: string = 'MigrationLocked';
+  constructor() {
+    super('Migration state account is locked');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, MigrationLockedError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x10, () => new MigrationLockedError());
+createErrorFromNameLookup.set('MigrationLocked', () => new MigrationLockedError());
+
+/**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
  * @category generated

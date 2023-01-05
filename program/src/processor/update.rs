@@ -69,13 +69,14 @@ pub fn update_state(
     // write updated state if there was a change
     if state_change {
         msg!("Updating state");
-        let serialized_data = migration_state.try_to_vec()?;
-        let data_len = serialized_data.len();
-        sol_memcpy(
-            &mut migration_state_info.data.borrow_mut(),
-            serialized_data.as_slice(),
-            data_len,
-        );
+        migration_state.save(migration_state_info)?;
+        // let serialized_data = migration_state.try_to_vec()?;
+        // let data_len = serialized_data.len();
+        // sol_memcpy(
+        //     &mut migration_state_info.data.borrow_mut(),
+        //     serialized_data.as_slice(),
+        //     data_len,
+        // );
     }
 
     Ok(())

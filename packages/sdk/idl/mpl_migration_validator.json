@@ -123,6 +123,12 @@
       "name": "Start",
       "accounts": [
         {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Paying account for initiate migration"
+        },
+        {
           "name": "authority",
           "isMut": false,
           "isSigner": true,
@@ -141,10 +147,28 @@
           "desc": "The metadata account of the collection parent NFT"
         },
         {
+          "name": "delegate",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The collection delegate. This should be the program signer."
+        },
+        {
+          "name": "delegateRecord",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "The collection delegate record of for the program signer and the collection"
+        },
+        {
           "name": "migrationState",
           "isMut": true,
           "isSigner": false,
           "desc": "The migration state account"
+        },
+        {
+          "name": "splTokenProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token Program"
         },
         {
           "name": "systemProgram",
@@ -507,6 +531,21 @@
       "code": 13,
       "name": "FeatureDisabled",
       "msg": "This feature is currently disabled"
+    },
+    {
+      "code": 14,
+      "name": "InvalidDelegateRecordDerivation",
+      "msg": "Invalid delegate record derivation"
+    },
+    {
+      "code": 15,
+      "name": "CollectionMintMismatch",
+      "msg": "Collection mint does not match state account"
+    },
+    {
+      "code": 16,
+      "name": "MigrationLocked",
+      "msg": "Migration state account is locked"
     }
   ],
   "metadata": {

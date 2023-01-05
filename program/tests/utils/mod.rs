@@ -1,16 +1,117 @@
-use borsh::BorshSerialize;
-use mpl_token_metadata::{
-    pda::find_metadata_account,
-    state::{Metadata, MAX_METADATA_LEN},
-};
-use solana_program::{pubkey::Pubkey, stake_history::Epoch};
-use solana_program_test::ProgramTest;
-use solana_sdk::{account::Account, signature::Keypair, signer::Signer};
-
-use crate::METADATA_RENT;
+use solana_program::{program_pack::Pack, pubkey::Pubkey, system_instruction};
+use solana_program_test::{BanksClientError, ProgramTestContext};
+use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transaction::Transaction};
 
 mod assert;
+mod migratorr;
+mod nft;
+
 pub use assert::*;
+pub use migratorr::*;
+pub use nft::*;
+
+pub async fn get_account(context: &mut ProgramTestContext, pubkey: &Pubkey) -> Account {
+    context
+        .banks_client
+        .get_account(*pubkey)
+        .await
+        .expect("account not found")
+        .expect("account empty")
+}
+
+pub async fn mint_tokens(
+    context: &mut ProgramTestContext,
+    mint: &Pubkey,
+    account: &Pubkey,
+    amount: u64,
+    owner: &Pubkey,
+    additional_signer: Option<&Keypair>,
+) -> Result<(), BanksClientError> {
+    let mut signing_keypairs = vec![&context.payer];
+    if let Some(signer) = additional_signer {
+        signing_keypairs.push(signer);
+    }
+
+    let tx = Transaction::new_signed_with_payer(
+        &[
+            spl_token::instruction::mint_to(&spl_token::id(), mint, account, owner, &[], amount)
+                .unwrap(),
+        ],
+        Some(&context.payer.pubkey()),
+        &signing_keypairs,
+        context.last_blockhash,
+    );
+
+    context.banks_client.process_transaction(tx).await
+}
+
+pub async fn create_token_account(
+    context: &mut ProgramTestContext,
+    account: &Keypair,
+    mint: &Pubkey,
+    manager: &Pubkey,
+) -> Result<(), BanksClientError> {
+    let rent = context.banks_client.get_rent().await.unwrap();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[
+            system_instruction::create_account(
+                &context.payer.pubkey(),
+                &account.pubkey(),
+                rent.minimum_balance(spl_token::state::Account::LEN),
+                spl_token::state::Account::LEN as u64,
+                &spl_token::id(),
+            ),
+            spl_token::instruction::initialize_account(
+                &spl_token::id(),
+                &account.pubkey(),
+                mint,
+                manager,
+            )
+            .unwrap(),
+        ],
+        Some(&context.payer.pubkey()),
+        &[&context.payer, account],
+        context.last_blockhash,
+    );
+
+    context.banks_client.process_transaction(tx).await
+}
+
+pub async fn create_mint(
+    context: &mut ProgramTestContext,
+    mint: &Keypair,
+    manager: &Pubkey,
+    freeze_authority: Option<&Pubkey>,
+    decimals: u8,
+) -> Result<(), BanksClientError> {
+    let rent = context.banks_client.get_rent().await.unwrap();
+
+    let tx = Transaction::new_signed_with_payer(
+        &[
+            system_instruction::create_account(
+                &context.payer.pubkey(),
+                &mint.pubkey(),
+                rent.minimum_balance(spl_token::state::Mint::LEN),
+                spl_token::state::Mint::LEN as u64,
+                &spl_token::id(),
+            ),
+            spl_token::instruction::initialize_mint(
+                &spl_token::id(),
+                &mint.pubkey(),
+                manager,
+                freeze_authority,
+                decimals,
+            )
+            .unwrap(),
+        ],
+        Some(&context.payer.pubkey()),
+        &[&context.payer, mint],
+        context.last_blockhash,
+    );
+
+    context.banks_client.process_transaction(tx).await
+}
 
 pub fn find_migrate_state_pda(mint: Pubkey) -> (Pubkey, u8) {
     let seeds = &[b"migration", mint.as_ref()];
@@ -19,31 +120,4 @@ pub fn find_migrate_state_pda(mint: Pubkey) -> (Pubkey, u8) {
 
 pub fn find_program_signer_pda() -> (Pubkey, u8) {
     Pubkey::find_program_address(&[b"signer"], &mpl_migration_validator::ID)
-}
-
-pub fn create_dummy_metadata_account(mint_pubkey: Pubkey, authority: Pubkey) -> Account {
-    let mut metadata = Metadata::default();
-    metadata.update_authority = authority;
-    metadata.mint = mint_pubkey;
-
-    let mut data = metadata.try_to_vec().unwrap();
-    data.extend(vec![0; MAX_METADATA_LEN - data.len()]);
-
-    Account {
-        lamports: METADATA_RENT,
-        data,
-        owner: mpl_token_metadata::ID,
-        executable: false,
-        rent_epoch: Epoch::default(),
-    }
-}
-
-pub fn set_up_dummy_init_context(test: &mut ProgramTest) {
-    let mint_pubkey = Pubkey::new_unique();
-    let metadata_pubkey = find_metadata_account(&mint_pubkey).0;
-    let authority = Keypair::new();
-
-    let metadata_account = create_dummy_metadata_account(mint_pubkey, authority.pubkey());
-
-    test.add_account(metadata_pubkey, metadata_account);
 }

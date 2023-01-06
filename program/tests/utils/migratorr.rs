@@ -140,6 +140,24 @@ impl Migratorr {
         context.banks_client.process_transaction(transaction).await
     }
 
+    pub async fn close(
+        &self,
+        context: &mut ProgramTestContext,
+        authority: &Keypair,
+    ) -> Result<(), BanksClientError> {
+        let instruction =
+            mpl_migration_validator::instruction::close(authority.pubkey(), self.pubkey);
+
+        let transaction = Transaction::new_signed_with_payer(
+            &[instruction],
+            Some(&authority.pubkey()),
+            &[&*authority],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(transaction).await
+    }
+
     //      *****Utilities*****         //
     pub async fn refresh_state(
         &mut self,

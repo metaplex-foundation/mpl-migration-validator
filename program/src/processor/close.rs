@@ -1,6 +1,6 @@
 use super::*;
 
-pub fn close_migration_state(_program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let authority_info = next_account_info(account_info_iter)?;
@@ -9,11 +9,26 @@ pub fn close_migration_state(_program_id: &Pubkey, accounts: &[AccountInfo]) -> 
     // Validate Accounts
     assert_signer(authority_info)?;
 
+    // Paranoia.
+    assert_owned_by(
+        migration_state_info,
+        program_id,
+        MigrationError::IncorrectProgramOwner,
+    )?;
+
     {
         // Deserialize the migration state
         let buffer = migration_state_info.try_borrow_data()?;
         let migration_state = MigrationState::deserialize(&mut buffer.as_ref())
             .map_err(|_| MigrationError::InvalidStateDeserialization)?;
+
+        // Idc about compute, check this anyway.
+        assert_derivation(
+            program_id,
+            migration_state_info,
+            &[b"migration", migration_state.collection_info.mint.as_ref()],
+            MigrationError::InvalidStateDerivation,
+        )?;
 
         // Ensure the authority matches
         if migration_state.collection_info.authority != *authority_info.key {

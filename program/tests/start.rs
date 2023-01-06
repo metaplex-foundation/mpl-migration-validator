@@ -69,7 +69,7 @@ async fn start_migration() {
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
         .as_secs() as u64;
-    println!("now: {}", now);
+
     let mut state = migratorr.state().clone();
     state.status.unlock_time = now as i64 - 2;
 
@@ -202,8 +202,6 @@ async fn incorrect_migration_state_fails() {
 
     let delegate = ProgramSigner::pubkey();
     let (delegate_record, _) = find_collection_authority_account(&nft.mint_pubkey(), &delegate);
-
-    println!("delegate_record: {:?}", delegate_record);
 
     let instruction = start(
         payer.pubkey(),

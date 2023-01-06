@@ -124,7 +124,7 @@ test('Initialize: cannot initialize for another authority', async (t) => {
   const migrationState = findMigrationState(mint);
 
   const accounts: InitializeInstructionAccounts = {
-    payer: newAuthority.publicKey,
+    payer: payer.publicKey,
     authority: newAuthority.publicKey,
     collectionMetadata,
     collectionMint: mint,
@@ -138,7 +138,7 @@ test('Initialize: cannot initialize for another authority', async (t) => {
   const initializeIx = createInitializeInstruction(accounts, ixArgs);
 
   const initTx = new Transaction().add(initializeIx);
-  const signers = [newAuthority];
+  const signers = [payer, newAuthority];
 
   const res = handler.sendAndConfirmTransaction(initTx, signers, 'tx: Initialize');
   await res.assertError(t, /Authority does not match the authority on the account/);

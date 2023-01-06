@@ -55,6 +55,11 @@ pub fn initialize_migration(
         return Err(MigrationError::InvalidAuthority.into());
     }
 
+    // For good measure we check that the mint is the mint on the metadata.
+    if metadata.mint != *collection_mint_info.key {
+        return Err(MigrationError::MetadataMintMistmatch.into());
+    }
+
     // The migrate state account must must match the correct derivation
     let bump = assert_derivation(
         program_id,

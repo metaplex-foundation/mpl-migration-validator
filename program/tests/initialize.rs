@@ -23,7 +23,7 @@ use crate::utils::create_dummy_metadata_account;
 const METADATA_RENT: u64 = 5616720;
 
 #[tokio::test]
-async fn initiate_migration() {
+async fn initialize_successfully() {
     let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
 
     let authority = Keypair::new();

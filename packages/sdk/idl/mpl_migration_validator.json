@@ -1,5 +1,5 @@
 {
-  "version": "0.1.4",
+  "version": "0.1.5",
   "name": "mpl_migration_validator",
   "instructions": [
     {
@@ -507,6 +507,16 @@
       "code": 13,
       "name": "FeatureDisabled",
       "msg": "This feature is currently disabled"
+    },
+    {
+      "code": 14,
+      "name": "InvalidTokenStandard",
+      "msg": "Invalid token standard"
+    },
+    {
+      "code": 15,
+      "name": "MissingTokenStandard",
+      "msg": "Missing token standard"
     }
   ],
   "metadata": {

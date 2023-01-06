@@ -295,6 +295,46 @@ createErrorFromCodeLookup.set(0xd, () => new FeatureDisabledError());
 createErrorFromNameLookup.set('FeatureDisabled', () => new FeatureDisabledError());
 
 /**
+ * InvalidTokenStandard: 'Invalid token standard'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidTokenStandardError extends Error {
+  readonly code: number = 0xe;
+  readonly name: string = 'InvalidTokenStandard';
+  constructor() {
+    super('Invalid token standard');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidTokenStandardError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0xe, () => new InvalidTokenStandardError());
+createErrorFromNameLookup.set('InvalidTokenStandard', () => new InvalidTokenStandardError());
+
+/**
+ * MissingTokenStandard: 'Missing token standard'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class MissingTokenStandardError extends Error {
+  readonly code: number = 0xf;
+  readonly name: string = 'MissingTokenStandard';
+  constructor() {
+    super('Missing token standard');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, MissingTokenStandardError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0xf, () => new MissingTokenStandardError());
+createErrorFromNameLookup.set('MissingTokenStandard', () => new MissingTokenStandardError());
+
+/**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
  * @category generated

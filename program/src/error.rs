@@ -50,6 +50,12 @@ pub enum MigrationError {
     /// 13
     #[error("This feature is currently disabled")]
     FeatureDisabled,
+    /// 14
+    #[error("Invalid token standard")]
+    InvalidTokenStandard,
+    /// 15
+    #[error("Missing token standard")]
+    MissingTokenStandard,
 }
 
 impl PrintProgramError for MigrationError {

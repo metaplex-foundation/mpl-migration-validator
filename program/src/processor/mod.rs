@@ -18,7 +18,7 @@ use solana_program::{
     msg,
     program_error::ProgramError,
     pubkey::Pubkey,
-    sysvar::Sysvar,
+    sysvar::{self, Sysvar},
 };
 
 mod close;

@@ -56,30 +56,7 @@ impl Default for MigrationState {
     }
 }
 
-impl Default for CollectionInfo {
-    fn default() -> Self {
-        Self {
-            authority: Pubkey::default(),
-            mint: Pubkey::default(),
-            rule_set: Pubkey::default(),
-            delegate: Pubkey::default(),
-            size: 0,
-        }
-    }
-}
-
-impl Default for MigrationStatus {
-    fn default() -> Self {
-        Self {
-            unlock_time: 0,
-            is_locked: true,
-            in_progress: false,
-            items_migrated: 0,
-        }
-    }
-}
-
-#[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
+#[derive(Clone, Default, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
 pub struct CollectionInfo {
     pub authority: Pubkey,
     pub mint: Pubkey,
@@ -88,7 +65,7 @@ pub struct CollectionInfo {
     pub size: u32,
 }
 
-#[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
+#[derive(Clone, Default, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
 pub struct MigrationStatus {
     pub unlock_time: i64,
     pub is_locked: bool,

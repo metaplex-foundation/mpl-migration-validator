@@ -1,7 +1,8 @@
 #![allow(clippy::unreachable)]
 #![allow(unreachable_code, unused_variables)]
 
-use crate::utils::assert_valid_delegate;
+use solana_program::program_pack::Pack;
+use spl_token::state::Mint;
 
 use super::*;
 
@@ -26,70 +27,57 @@ pub fn migrate_item(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramRes
     let spl_token_program_info = next_account_info(account_info_iter)?;
     let token_metadata_program_info = next_account_info(account_info_iter)?;
 
-    // Validate Accounts
-
-    // Signers
-    assert_signer(payer_info)?;
-
-    // Program ownership
-    assert_owned_by(
-        delegate_record_info,
-        &mpl_token_metadata::ID,
-        MigrationError::IncorrectProgramOwner,
-    )?;
-
-    assert_owned_by(
-        mint_info,
-        &SPL_TOKEN_ID,
-        MigrationError::IncorrectProgramOwner,
-    )?;
-    assert_owned_by(
-        metadata_info,
-        &mpl_token_metadata::ID,
-        MigrationError::IncorrectProgramOwner,
-    )?;
-    assert_owned_by(
-        migration_state_info,
+    let account_context = AccountContext {
         program_id,
-        MigrationError::IncorrectProgramOwner,
-    )?;
+        payer: payer_info,
+        metadata: metadata_info,
+        edition: edition_info,
+        mint: mint_info,
+        delegate_record: delegate_record_info,
+        migration_state: migration_state_info,
+        program_signer: program_signer_info,
+        system_program: system_program_info,
+        sysvar_instructions: sysvar_instructions_info,
+        spl_token_program: spl_token_program_info,
+        token_metadata_program: token_metadata_program_info,
+    };
 
-    // Programs
-    if token_metadata_program_info.key != &mpl_token_metadata::ID {
-        return Err(ProgramError::IncorrectProgramId);
-    }
-    if system_program_info.key != &solana_program::system_program::ID {
-        return Err(ProgramError::IncorrectProgramId);
-    }
+    // Validate Accounts
+    validate_accounts(&account_context)?;
 
-    // This ensures the account isn't empty as the deserialization fails if
-    // the account doesn't have the correct size.
-    let _metadata =
+    // Deserialize accounts
+    let metadata =
         Metadata::from_account_info(metadata_info).map_err(|_| MigrationError::InvalidMetadata)?;
 
     let collection_metadata = Metadata::from_account_info(collection_metadata_info)
         .map_err(|_| MigrationError::InvalidMetadata)?;
 
-    // Deserialize the migration state
     let mut migration_state = MigrationState::from_account_info(migration_state_info)?;
 
-    // This also checks that the data is not empty to ensure this is initalized.
+    let mint = Mint::unpack(&mint_info.data.borrow())?;
+    let token = Account::unpack(&token_info.data.borrow())?;
+
     let program_signer = ProgramSigner::from_account_info(program_signer_info)?;
     let signers_seeds = &[b"signer", crate::ID.as_ref(), &[program_signer.bump]];
 
-    // Validate that the delegate is the program signer for the correct
-    // mint and update authority.
-    assert_valid_delegate(
-        program_signer_info.key,
-        delegate_record_info,
-        &collection_metadata,
-        &migration_state,
-    )?;
+    let data_context = DataContext {
+        metadata: &metadata,
+        collection_metadata: &collection_metadata,
+        migration_state: &migration_state,
+        mint: &mint,
+        token: &token,
+    };
 
-    if migration_state.collection_info.rule_set == Pubkey::default() {
-        return Err(MigrationError::NoRuleSet.into());
-    }
+    // Validate relatonships between accounts
+    validate_relationships(&account_context, &data_context)?;
 
+    // Validate the delegate record is correct.
+    validate_delegate(&account_context, &data_context)?;
+
+    // Validate this item passes all eligibility rules.
+    validate_eligibility(&account_context, &data_context)?;
+
+    // Migrate the item by CPI'ing into Token Metadata.
     let args = MigrateArgs::V1 {
         migration_type: MigrationType::ProgrammableV1,
         rule_set: Some(migration_state.collection_info.rule_set),

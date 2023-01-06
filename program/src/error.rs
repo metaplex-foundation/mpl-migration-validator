@@ -59,6 +59,18 @@ pub enum MigrationError {
     /// 16
     #[error("Migration state account is locked")]
     MigrationLocked,
+    /// 17
+    #[error("Immutable metadata cannot be migrated")]
+    ImmutableMetadata,
+    /// 18
+    #[error("Incorrect freeze authority")]
+    IncorrectFreezeAuthority,
+    /// 19
+    #[error("The edition derivation does not match the edition key")]
+    InvalidEditionDerivation,
+    /// 20
+    #[error("The token does not belong to the mint")]
+    InvalidTokenMint,
 }
 
 impl PrintProgramError for MigrationError {

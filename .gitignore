@@ -33,6 +33,6 @@ packages/sdk/docs/
 !.yarn/versions
 .vercel
 
-external_programs/*
+test-programs/*
 **/*-keypair.json
 

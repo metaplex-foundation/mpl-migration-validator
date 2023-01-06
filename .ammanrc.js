@@ -4,7 +4,7 @@ const path = require('path');
 const accountProviders = require('./packages/sdk/dist/src/generated/accounts');
 
 const localDeployDir = path.join(__dirname, 'program', 'target', 'deploy');
-const externalDeployDir = path.join(__dirname, 'external_programs');
+const externalDeployDir = path.join(__dirname, 'test-programs');
 const MY_PROGRAM_ID = require('./packages/sdk/idl/mpl_migration_validator.json').metadata.address;
 
 function localDeployPath(programName) {

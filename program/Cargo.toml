@@ -16,6 +16,7 @@ mpl-utils = "0.0.5"
 mpl-token-metadata = { git = "https://github.com/metaplex-foundation/metaplex-program-library", branch = "feat/programmable-asset", features = ["no-entrypoint"] }
 
 [features]
+no-entrypoint = []
 test-bpf = []
 
 [dev-dependencies]

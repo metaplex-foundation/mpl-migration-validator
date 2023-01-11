@@ -546,7 +546,41 @@
       "code": 16,
       "name": "MigrationLocked",
       "msg": "Migration state account is locked"
-
+    },
+    {
+      "code": 17,
+      "name": "ImmutableMetadata",
+      "msg": "Immutable metadata cannot be migrated"
+    },
+    {
+      "code": 18,
+      "name": "IncorrectFreezeAuthority",
+      "msg": "Incorrect freeze authority"
+    },
+    {
+      "code": 19,
+      "name": "InvalidEditionDerivation",
+      "msg": "The edition derivation does not match the edition key"
+    },
+    {
+      "code": 20,
+      "name": "InvalidTokenMint",
+      "msg": "The token does not belong to the mint"
+    },
+    {
+      "code": 21,
+      "name": "InvalidUnlockMethod",
+      "msg": "Invalid unlock method"
+    },
+    {
+      "code": 22,
+      "name": "InvalidTokenStandard",
+      "msg": "Invalid token standard"
+    },
+    {
+      "code": 23,
+      "name": "MissingTokenStandard",
+      "msg": "Missing token standard"
     }
   ],
   "metadata": {

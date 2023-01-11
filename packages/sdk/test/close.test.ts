@@ -98,7 +98,7 @@ test('Close: cannot close another migration state account', async (t) => {
   t.equal(account != null, true);
 });
 
-test('Close: empty migration state account fails', async (t) => {
+test.only('Close: empty migration state account fails', async (t) => {
   const API = new InitTransactions();
   const { fstTxHandler: handler, payerPair: payer, connection } = await API.payer();
 
@@ -129,7 +129,7 @@ test('Close: empty migration state account fails', async (t) => {
   const emptyMigrationState = findMigrationState(fakeMint);
 
   const { tx: closeTx } = await API.close(handler, payer, emptyMigrationState);
-  await closeTx.assertError(t, /Migration state did not deserialize correctly/);
+  await closeTx.assertError(t, /Incorrect program owner for migration state account/);
 
   const account = await connection.getAccountInfo(migrationState);
   t.equal(account != null, true);

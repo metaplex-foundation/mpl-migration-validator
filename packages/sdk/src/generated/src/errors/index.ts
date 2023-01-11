@@ -300,7 +300,6 @@ createErrorFromNameLookup.set('FeatureDisabled', () => new FeatureDisabledError(
  * @category Errors
  * @category generated
  */
-
 export class InvalidDelegateRecordDerivationError extends Error {
   readonly code: number = 0xe;
   readonly name: string = 'InvalidDelegateRecordDerivation';
@@ -308,11 +307,9 @@ export class InvalidDelegateRecordDerivationError extends Error {
     super('Invalid delegate record derivation');
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, InvalidDelegateRecordDerivationError);
-
     }
   }
 }
-
 
 createErrorFromCodeLookup.set(0xe, () => new InvalidDelegateRecordDerivationError());
 createErrorFromNameLookup.set(
@@ -322,12 +319,10 @@ createErrorFromNameLookup.set(
 
 /**
  * CollectionMintMismatch: 'Collection mint does not match state account'
-
  *
  * @category Errors
  * @category generated
  */
-
 export class CollectionMintMismatchError extends Error {
   readonly code: number = 0xf;
   readonly name: string = 'CollectionMintMismatch';
@@ -335,7 +330,6 @@ export class CollectionMintMismatchError extends Error {
     super('Collection mint does not match state account');
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, CollectionMintMismatchError);
-
     }
   }
 }
@@ -363,6 +357,151 @@ export class MigrationLockedError extends Error {
 createErrorFromCodeLookup.set(0x10, () => new MigrationLockedError());
 createErrorFromNameLookup.set('MigrationLocked', () => new MigrationLockedError());
 
+/**
+ * ImmutableMetadata: 'Immutable metadata cannot be migrated'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class ImmutableMetadataError extends Error {
+  readonly code: number = 0x11;
+  readonly name: string = 'ImmutableMetadata';
+  constructor() {
+    super('Immutable metadata cannot be migrated');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, ImmutableMetadataError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x11, () => new ImmutableMetadataError());
+createErrorFromNameLookup.set('ImmutableMetadata', () => new ImmutableMetadataError());
+
+/**
+ * IncorrectFreezeAuthority: 'Incorrect freeze authority'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class IncorrectFreezeAuthorityError extends Error {
+  readonly code: number = 0x12;
+  readonly name: string = 'IncorrectFreezeAuthority';
+  constructor() {
+    super('Incorrect freeze authority');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, IncorrectFreezeAuthorityError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x12, () => new IncorrectFreezeAuthorityError());
+createErrorFromNameLookup.set(
+  'IncorrectFreezeAuthority',
+  () => new IncorrectFreezeAuthorityError(),
+);
+
+/**
+ * InvalidEditionDerivation: 'The edition derivation does not match the edition key'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidEditionDerivationError extends Error {
+  readonly code: number = 0x13;
+  readonly name: string = 'InvalidEditionDerivation';
+  constructor() {
+    super('The edition derivation does not match the edition key');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidEditionDerivationError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x13, () => new InvalidEditionDerivationError());
+createErrorFromNameLookup.set(
+  'InvalidEditionDerivation',
+  () => new InvalidEditionDerivationError(),
+);
+
+/**
+ * InvalidTokenMint: 'The token does not belong to the mint'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidTokenMintError extends Error {
+  readonly code: number = 0x14;
+  readonly name: string = 'InvalidTokenMint';
+  constructor() {
+    super('The token does not belong to the mint');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidTokenMintError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x14, () => new InvalidTokenMintError());
+createErrorFromNameLookup.set('InvalidTokenMint', () => new InvalidTokenMintError());
+
+/**
+ * InvalidUnlockMethod: 'Invalid unlock method'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidUnlockMethodError extends Error {
+  readonly code: number = 0x15;
+  readonly name: string = 'InvalidUnlockMethod';
+  constructor() {
+    super('Invalid unlock method');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidUnlockMethodError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x15, () => new InvalidUnlockMethodError());
+createErrorFromNameLookup.set('InvalidUnlockMethod', () => new InvalidUnlockMethodError());
+
+/**
+ * InvalidTokenStandard: 'Invalid token standard'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidTokenStandardError extends Error {
+  readonly code: number = 0x16;
+  readonly name: string = 'InvalidTokenStandard';
+  constructor() {
+    super('Invalid token standard');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidTokenStandardError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x16, () => new InvalidTokenStandardError());
+createErrorFromNameLookup.set('InvalidTokenStandard', () => new InvalidTokenStandardError());
+
+/**
+ * MissingTokenStandard: 'Missing token standard'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class MissingTokenStandardError extends Error {
+  readonly code: number = 0x17;
+  readonly name: string = 'MissingTokenStandard';
+  constructor() {
+    super('Missing token standard');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, MissingTokenStandardError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x17, () => new MissingTokenStandardError());
+createErrorFromNameLookup.set('MissingTokenStandard', () => new MissingTokenStandardError());
 
 /**
  * Attempts to resolve a custom program error from the provided error code.

@@ -9,7 +9,7 @@ use solana_sdk::{instruction::InstructionError, signer::Signer, transaction::Tra
 use utils::*;
 
 #[tokio::test]
-async fn initiate_migration() {
+async fn initialize_successfully() {
     let mut context = setup_context().await;
 
     // Create a default NFT to use as a collection.

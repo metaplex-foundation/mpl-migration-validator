@@ -20,8 +20,8 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
         MigrationError::IncorrectProgramOwner,
     )?;
 
+    // Scope the borrow so we can drop it before calling close_program_account
     {
-        msg!("scope");
         // Deserialize the migration state
         let buffer = migration_state_info.try_borrow_data()?;
         let migration_state = MigrationState::deserialize(&mut buffer.as_ref())

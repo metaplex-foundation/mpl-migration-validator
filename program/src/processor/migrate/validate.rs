@@ -1,4 +1,7 @@
-use mpl_token_metadata::state::{EDITION, PREFIX};
+use mpl_token_metadata::{
+    error::MetadataError,
+    state::{EDITION, PREFIX},
+};
 use solana_program::program_option::COption;
 
 use crate::utils::assert_valid_delegate;
@@ -68,10 +71,23 @@ pub(crate) fn validate_relationships(
     if &data.metadata.mint != ctx.mint.key {
         return Err(MigrationError::MetadataMintMistmatch.into());
     }
+
     // The item's update authority must match that of the collection.
     if data.metadata.update_authority != data.migration_state.collection_info.authority {
         return Err(MigrationError::InvalidAuthority.into());
     }
+
+    // The item must actually be a verified member of the collection.
+    if data.metadata.collection.is_none() {
+        return Err(MetadataError::CollectionNotFound.into());
+    }
+
+    let collection = data.metadata.collection.as_ref().unwrap();
+
+    if !collection.verified || collection.key != data.migration_state.collection_info.mint {
+        return Err(MetadataError::NotVerifiedMemberOfCollection.into());
+    }
+
     // The edition must be correctly derived from the mint.
     assert_derivation(
         ctx.program_id,
@@ -105,10 +121,6 @@ pub(crate) fn validate_eligibility(
     // The item metadata must be mutable.
     if !data.metadata.is_mutable {
         return Err(MigrationError::ImmutableMetadata.into());
-    }
-
-    if data.migration_state.collection_info.rule_set == Pubkey::default() {
-        return Err(MigrationError::NoRuleSet.into());
     }
 
     Ok(())

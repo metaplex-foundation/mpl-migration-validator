@@ -6,9 +6,9 @@ use solana_program::{
 use crate::{error::MigrationError, processor::Processor};
 
 entrypoint!(process_instruction);
-fn process_instruction(
-    program_id: &Pubkey,
-    accounts: &[AccountInfo],
+fn process_instruction<'a>(
+    program_id: &'a Pubkey,
+    accounts: &'a [AccountInfo<'a>],
     instruction_data: &[u8],
 ) -> ProgramResult {
     if let Err(error) = Processor::process_instruction(program_id, accounts, instruction_data) {

@@ -6,7 +6,7 @@ use spl_token::state::Mint;
 
 use super::*;
 
-pub fn migrate_item(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
     return Err(MigrationError::FeatureDisabled.into());
 
     msg!("Migrate Item");

@@ -1,10 +1,14 @@
+use crate::utils::close_program_account;
+
 use super::*;
 
 pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    msg!("Migration Validator: Close");
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let authority_info = next_account_info(account_info_iter)?;
     let migration_state_info = next_account_info(account_info_iter)?;
+    let _system_program_info = next_account_info(account_info_iter)?;
 
     // Validate Accounts
     assert_signer(authority_info)?;
@@ -17,6 +21,7 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     )?;
 
     {
+        msg!("scope");
         // Deserialize the migration state
         let buffer = migration_state_info.try_borrow_data()?;
         let migration_state = MigrationState::deserialize(&mut buffer.as_ref())
@@ -41,7 +46,7 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
         }
     }
 
-    mpl_utils::close_account_raw(authority_info, migration_state_info)?;
+    close_program_account(migration_state_info, authority_info)?;
 
     Ok(())
 }

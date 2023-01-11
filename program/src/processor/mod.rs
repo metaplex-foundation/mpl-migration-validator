@@ -37,9 +37,9 @@ use update::update_state;
 
 pub struct Processor;
 impl Processor {
-    pub fn process_instruction(
-        program_id: &Pubkey,
-        accounts: &[AccountInfo],
+    pub fn process_instruction<'a>(
+        program_id: &'a Pubkey,
+        accounts: &'a [AccountInfo<'a>],
         instruction_data: &[u8],
     ) -> ProgramResult {
         let instruction: MigrationInstruction =

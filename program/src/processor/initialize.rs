@@ -1,3 +1,5 @@
+use mpl_token_metadata::state::TokenStandard;
+
 use crate::state::{CollectionInfo, MigrationStatus};
 
 use super::*;
@@ -58,6 +60,16 @@ pub fn initialize_migration(
     // For good measure we check that the mint is the mint on the metadata.
     if metadata.mint != *collection_mint_info.key {
         return Err(MigrationError::MetadataMintMistmatch.into());
+    }
+
+    // The Collection NFT should be a NonFungible type, meaning it has a Master Edition.
+    if let Some(token_standard) = metadata.token_standard {
+        if token_standard != TokenStandard::NonFungible {
+            return Err(MigrationError::InvalidTokenStandard.into());
+        }
+    } else {
+        // No token standard set.
+        return Err(MigrationError::MissingTokenStandard.into());
     }
 
     // The migrate state account must must match the correct derivation

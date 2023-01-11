@@ -1,5 +1,5 @@
 {
-  "version": "0.1.4",
+  "version": "0.1.5",
   "name": "mpl_migration_validator",
   "instructions": [
     {
@@ -546,6 +546,7 @@
       "code": 16,
       "name": "MigrationLocked",
       "msg": "Migration state account is locked"
+
     }
   ],
   "metadata": {

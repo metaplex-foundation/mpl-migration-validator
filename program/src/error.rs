@@ -71,7 +71,7 @@ pub enum MigrationError {
     /// 20
     #[error("The token does not belong to the mint")]
     InvalidTokenMint,
-}
+
 
 impl PrintProgramError for MigrationError {
     fn print<E>(&self) {

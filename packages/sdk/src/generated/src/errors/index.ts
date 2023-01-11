@@ -300,6 +300,7 @@ createErrorFromNameLookup.set('FeatureDisabled', () => new FeatureDisabledError(
  * @category Errors
  * @category generated
  */
+
 export class InvalidDelegateRecordDerivationError extends Error {
   readonly code: number = 0xe;
   readonly name: string = 'InvalidDelegateRecordDerivation';
@@ -307,9 +308,11 @@ export class InvalidDelegateRecordDerivationError extends Error {
     super('Invalid delegate record derivation');
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, InvalidDelegateRecordDerivationError);
+
     }
   }
 }
+
 
 createErrorFromCodeLookup.set(0xe, () => new InvalidDelegateRecordDerivationError());
 createErrorFromNameLookup.set(
@@ -319,10 +322,12 @@ createErrorFromNameLookup.set(
 
 /**
  * CollectionMintMismatch: 'Collection mint does not match state account'
+
  *
  * @category Errors
  * @category generated
  */
+
 export class CollectionMintMismatchError extends Error {
   readonly code: number = 0xf;
   readonly name: string = 'CollectionMintMismatch';
@@ -330,6 +335,7 @@ export class CollectionMintMismatchError extends Error {
     super('Collection mint does not match state account');
     if (typeof Error.captureStackTrace === 'function') {
       Error.captureStackTrace(this, CollectionMintMismatchError);
+
     }
   }
 }
@@ -356,6 +362,7 @@ export class MigrationLockedError extends Error {
 
 createErrorFromCodeLookup.set(0x10, () => new MigrationLockedError());
 createErrorFromNameLookup.set('MigrationLocked', () => new MigrationLockedError());
+
 
 /**
  * Attempts to resolve a custom program error from the provided error code.

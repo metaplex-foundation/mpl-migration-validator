@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use borsh::{BorshDeserialize, BorshSerialize};
 use shank::ShankAccount;
 use solana_program::{
@@ -77,6 +79,18 @@ pub struct MigrationStatus {
 pub enum UnlockMethod {
     Timed,
     Vote,
+}
+
+impl FromStr for UnlockMethod {
+    type Err = MigrationError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "timed" => Ok(UnlockMethod::Timed),
+            "vote" => Ok(UnlockMethod::Vote),
+            _ => Err(MigrationError::InvalidTokenStandard),
+        }
+    }
 }
 
 #[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]

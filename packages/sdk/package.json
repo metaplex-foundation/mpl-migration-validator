@@ -1,6 +1,6 @@
 {
   "name": "@metaplex-foundation/mpl-migration-validator",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Metaplex NFT to pNFT migration validation and tracking program.",
   "main": "dist/src/mpl-migration-validator.js",
   "types": "dist/src/mpl-migration-validator.d.ts",

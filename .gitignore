@@ -34,6 +34,5 @@ packages/sdk/docs/
 !.yarn/versions
 .vercel
 
-test-programs/
 **/*-keypair.json
 

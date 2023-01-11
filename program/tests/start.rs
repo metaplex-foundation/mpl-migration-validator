@@ -20,7 +20,7 @@ async fn start_migration() {
     let mut context = setup_context().await;
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.
@@ -127,7 +127,7 @@ async fn wrong_authority_fails() {
     let fake_authority = Keypair::new();
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.
@@ -164,11 +164,11 @@ async fn incorrect_migration_state_fails() {
         .unwrap();
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
 
     // NFT for someone else's migration state account.
-    let other_nft = NfTest::new();
+    let mut other_nft = NfTest::new();
     other_nft
         .mint_default(&mut context, Some(&other_authority))
         .await

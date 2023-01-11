@@ -15,7 +15,7 @@ async fn close_successfully() {
     let mut context = setup_context().await;
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.
@@ -60,7 +60,7 @@ async fn cannot_close_in_progress_state() {
     let mut context = setup_context().await;
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.
@@ -153,7 +153,7 @@ async fn authority_must_match() {
         .unwrap();
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.

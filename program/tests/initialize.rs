@@ -13,7 +13,7 @@ async fn initialize_successfully() {
     let mut context = setup_context().await;
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.
@@ -48,7 +48,7 @@ async fn cannot_initialize_twice() {
     let mut context = setup_context().await;
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.
@@ -84,7 +84,7 @@ async fn cannot_initialize_twice() {
 }
 
 #[tokio::test]
-async fn initiate_migration_separate_authority() {
+async fn init_migration_separate_authority() {
     let mut context = setup_context().await;
 
     // Create an authority that is separate from the payer.
@@ -95,7 +95,7 @@ async fn initiate_migration_separate_authority() {
         .unwrap();
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, Some(&authority))
         .await
         .unwrap();

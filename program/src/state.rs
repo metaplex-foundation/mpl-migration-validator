@@ -88,7 +88,7 @@ impl FromStr for UnlockMethod {
         match s.to_lowercase().as_str() {
             "timed" => Ok(UnlockMethod::Timed),
             "vote" => Ok(UnlockMethod::Vote),
-            _ => Err(MigrationError::InvalidTokenStandard),
+            _ => Err(MigrationError::InvalidUnlockMethod),
         }
     }
 }

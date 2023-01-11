@@ -23,7 +23,7 @@ async fn update_rule_set() {
         .unwrap();
 
     // Create a default NFT to use as a collection.
-    let nft = NfTest::new();
+    let mut nft = NfTest::new();
     nft.mint_default(&mut context, Some(&authority))
         .await
         .unwrap();

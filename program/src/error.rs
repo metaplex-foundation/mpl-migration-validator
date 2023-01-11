@@ -71,7 +71,16 @@ pub enum MigrationError {
     /// 20
     #[error("The token does not belong to the mint")]
     InvalidTokenMint,
-
+    /// 21
+    #[error("Invalid unlock method")]
+    InvalidUnlockMethod,
+    /// 22
+    #[error("Invalid token standard")]
+    InvalidTokenStandard,
+    /// 23
+    #[error("Missing token standard")]
+    MissingTokenStandard,
+}
 
 impl PrintProgramError for MigrationError {
     fn print<E>(&self) {

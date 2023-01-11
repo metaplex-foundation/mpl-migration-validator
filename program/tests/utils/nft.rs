@@ -1,6 +1,6 @@
 use mpl_token_metadata::{
     id, instruction,
-    state::{Collection, CollectionDetails, Creator, Uses, PREFIX},
+    state::{Collection, CollectionDetails, Creator, Uses, EDITION, PREFIX},
 };
 use solana_program::borsh::try_from_slice_unchecked;
 use solana_program_test::{BanksClientError, ProgramTestContext};
@@ -15,6 +15,7 @@ pub struct NfTest {
     mint: Keypair,
     metadata: Pubkey,
     token: Keypair,
+    edition: Option<Pubkey>,
 }
 
 impl NfTest {
@@ -30,6 +31,7 @@ impl NfTest {
             mint,
             metadata,
             token: Keypair::new(),
+            edition: None,
         }
     }
 
@@ -128,7 +130,7 @@ impl NfTest {
     }
 
     pub async fn mint_default(
-        &self,
+        &mut self,
         context: &mut ProgramTestContext,
         authority: Option<&Keypair>,
     ) -> Result<(), BanksClientError> {
@@ -146,11 +148,89 @@ impl NfTest {
             None,
         )
         .await
+        .unwrap();
+
+        let master_edition = MasterEditionV2::new(&self);
+        master_edition
+            .create_v3(context, authority, Some(0))
+            .await
+            .unwrap();
+
+        self.edition = Some(master_edition.pubkey);
+
+        Ok(())
     }
 }
 
 impl Default for NfTest {
     fn default() -> Self {
         Self::new()
+    }
+}
+
+#[derive(Debug)]
+pub struct MasterEditionV2 {
+    pub pubkey: Pubkey,
+    pub metadata_pubkey: Pubkey,
+    pub mint_pubkey: Pubkey,
+}
+
+impl MasterEditionV2 {
+    pub fn new(nft: &NfTest) -> Self {
+        let program_id = id();
+        let mint_pubkey = nft.mint.pubkey();
+
+        let master_edition_seeds = &[
+            PREFIX.as_bytes(),
+            program_id.as_ref(),
+            mint_pubkey.as_ref(),
+            EDITION.as_bytes(),
+        ];
+        let (pubkey, _) = Pubkey::find_program_address(master_edition_seeds, &id());
+
+        MasterEditionV2 {
+            pubkey,
+            metadata_pubkey: nft.metadata,
+            mint_pubkey,
+        }
+    }
+
+    pub async fn get_data_from_account(
+        context: &mut ProgramTestContext,
+        pubkey: &Pubkey,
+    ) -> mpl_token_metadata::state::MasterEditionV2 {
+        let account = get_account(context, pubkey).await;
+        try_from_slice_unchecked(&account.data).unwrap()
+    }
+
+    pub async fn create_v3(
+        &self,
+        context: &mut ProgramTestContext,
+        authority: Option<&Keypair>,
+        max_supply: Option<u64>,
+    ) -> Result<(), BanksClientError> {
+        let authority = if let Some(auth) = authority {
+            auth
+        } else {
+            &context.payer
+        };
+
+        let tx = Transaction::new_signed_with_payer(
+            &[instruction::create_master_edition_v3(
+                id(),
+                self.pubkey,
+                self.mint_pubkey,
+                authority.pubkey(),
+                authority.pubkey(),
+                self.metadata_pubkey,
+                authority.pubkey(),
+                max_supply,
+            )],
+            Some(&authority.pubkey()),
+            &[authority],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(tx).await
     }
 }

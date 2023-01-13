@@ -4,10 +4,12 @@
 use solana_program::program_pack::Pack;
 use spl_token::state::Mint;
 
+use crate::errors::GeneralError;
+
 use super::*;
 
 pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
-    return Err(MigrationError::FeatureDisabled.into());
+    return Err(GeneralError::FeatureDisabled.into());
 
     msg!("Migrate Item");
 
@@ -29,28 +31,28 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
 
     let account_context = AccountContext {
         program_id,
-        payer: payer_info,
-        metadata: metadata_info,
-        edition: edition_info,
-        mint: mint_info,
-        delegate_record: delegate_record_info,
-        migration_state: migration_state_info,
-        program_signer: program_signer_info,
-        system_program: system_program_info,
-        sysvar_instructions: sysvar_instructions_info,
-        spl_token_program: spl_token_program_info,
-        token_metadata_program: token_metadata_program_info,
+        payer_info,
+        metadata_info,
+        edition_info,
+        mint_info,
+        delegate_record_info,
+        migration_state_info,
+        program_signer_info,
+        system_program_info,
+        sysvar_instructions_info,
+        spl_token_program_info,
+        token_metadata_program_info,
     };
 
     // Validate Accounts
     validate_accounts(&account_context)?;
 
     // Deserialize accounts
-    let metadata =
-        Metadata::from_account_info(metadata_info).map_err(|_| MigrationError::InvalidMetadata)?;
+    let metadata = Metadata::from_account_info(metadata_info)
+        .map_err(|_| DeserializationError::InvalidMetadata)?;
 
     let collection_metadata = Metadata::from_account_info(collection_metadata_info)
-        .map_err(|_| MigrationError::InvalidMetadata)?;
+        .map_err(|_| DeserializationError::InvalidMetadata)?;
 
     let mut migration_state = MigrationState::from_account_info(migration_state_info)?;
 
@@ -94,7 +96,7 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
         .authority(*program_signer_info.key)
         // .delegate_record(*delegate_record_info.key)
         .build(args)
-        .map_err(|_| MigrationError::InvalidInstruction)?
+        .map_err(|_| GeneralError::InvalidInstruction)?
         .instruction();
 
     let account_infos = [
@@ -117,7 +119,7 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
         .status
         .items_migrated
         .checked_add(1)
-        .ok_or(MigrationError::Overflow)?;
+        .ok_or(GeneralError::Overflow)?;
 
     Ok(())
 }

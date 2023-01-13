@@ -1,12 +1,12 @@
 use crate::{
-    error::MigrationError,
+    errors::{MigrationError, ValidationError},
     instruction::{InitializeArgs, MigrationInstruction, UpdateArgs},
     state::{MigrationState, ProgramSigner, UnlockMethod, MIGRATION_WAIT_PERIOD, SPL_TOKEN_ID},
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_token_metadata::{
     instruction::{builders::MigrateBuilder, InstructionBuilder, MigrateArgs},
-    state::{Metadata, MigrationType, TokenMetadataAccount},
+    state::{Metadata, MigrationType, TokenMetadataAccount, EDITION, PREFIX},
 };
 use mpl_utils::{assert_derivation, assert_owned_by, assert_signer};
 use solana_program::program::invoke_signed;
@@ -17,9 +17,12 @@ use solana_program::{
     entrypoint::ProgramResult,
     msg,
     program_error::ProgramError,
+    program_option::COption,
     pubkey::Pubkey,
     sysvar::{self, Sysvar},
 };
+
+use spl_token::state::Account as TokenAccount;
 
 mod close;
 mod initialize;
@@ -27,13 +30,16 @@ mod migrate;
 mod misc;
 mod start;
 mod update;
+mod validators;
 
+use crate::errors::*;
 use close::close_migration_state;
 use initialize::initialize_migration;
 use migrate::migrate_item;
 use misc::init_signer;
 use start::start_migration;
 use update::update_state;
+use validators::*;
 
 pub struct Processor;
 impl Processor {

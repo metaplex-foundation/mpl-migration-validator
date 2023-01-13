@@ -45,32 +45,32 @@ pub fn initialize_migration(
             mpl_token_metadata::ID.as_ref(),
             collection_mint_info.key.as_ref(),
         ],
-        MigrationError::MetadataMintMistmatch,
+        ValidationError::MetadataMintMistmatch,
     )?;
 
     // This ensures the account isn't empty as the deserialization fails if the account doesn't have the correct size.
     let metadata = Metadata::from_account_info(collection_metadata_info)
-        .map_err(|_| MigrationError::InvalidMetadata)?;
+        .map_err(|_| DeserializationError::InvalidMetadata)?;
 
     // Ensure that the authority is the update authority on the metadata
     if metadata.update_authority != *authority_info.key {
-        return Err(MigrationError::InvalidAuthority.into());
+        return Err(ValidationError::InvalidAuthority.into());
     }
 
     // For good measure we check that the mint is the mint on the metadata.
     if metadata.mint != *collection_mint_info.key {
-        return Err(MigrationError::MetadataMintMistmatch.into());
+        return Err(ValidationError::MetadataMintMistmatch.into());
     }
 
     // The Collection NFT should be a NonFungible type, meaning it has a Master Edition.
     if let Some(token_standard) = metadata.token_standard {
         msg!("token standard: {:?}", token_standard);
         if token_standard != TokenStandard::NonFungible {
-            return Err(MigrationError::InvalidTokenStandard.into());
+            return Err(ValidationError::InvalidTokenStandard.into());
         }
     } else {
         // No token standard set.
-        return Err(MigrationError::MissingTokenStandard.into());
+        return Err(ValidationError::MissingTokenStandard.into());
     }
 
     // The migrate state account must must match the correct derivation
@@ -78,7 +78,7 @@ pub fn initialize_migration(
         program_id,
         migration_state_info,
         &[b"migration", collection_mint_info.key.as_ref()],
-        MigrationError::InvalidStateDerivation,
+        ValidationError::InvalidMigrationStateDerivation,
     )?;
     let state_seeds = &[b"migration", collection_mint_info.key.as_ref(), &[bump]];
 

@@ -23,7 +23,7 @@ pub fn update_state(
     assert_owned_by(
         migration_state_info,
         &crate::ID,
-        MigrationError::IncorrectProgramOwner,
+        ValidationError::IncorrectProgramOwner,
     )?;
 
     // Deserialize the migration state
@@ -31,7 +31,7 @@ pub fn update_state(
 
     // Ensure the authority matches
     if migration_state.collection_info.authority != *authority_info.key {
-        return Err(MigrationError::InvalidAuthority.into());
+        return Err(ValidationError::InvalidAuthority.into());
     }
 
     // Ensure the migration isn't in progress

@@ -2,7 +2,7 @@
 pub mod utils;
 
 use borsh::BorshDeserialize;
-use mpl_migration_validator::{error::MigrationError, instruction::init_signer};
+use mpl_migration_validator::{errors::MigrationError, instruction::init_signer};
 use num_traits::FromPrimitive;
 use solana_program_test::{tokio, BanksClientError};
 use solana_sdk::{

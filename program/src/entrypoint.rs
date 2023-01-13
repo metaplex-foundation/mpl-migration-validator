@@ -3,7 +3,7 @@ use solana_program::{
     program_error::PrintProgramError, pubkey::Pubkey,
 };
 
-use crate::{error::MigrationError, processor::Processor};
+use crate::{errors::MigrationError, processor::Processor};
 
 entrypoint!(process_instruction);
 fn process_instruction<'a>(

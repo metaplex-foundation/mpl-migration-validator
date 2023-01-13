@@ -1,51 +1,45 @@
-use mpl_token_metadata::{
-    error::MetadataError,
-    state::{EDITION, PREFIX},
-};
-use solana_program::program_option::COption;
-
 use crate::utils::assert_valid_delegate;
 
 use super::*;
 
 pub(crate) fn validate_accounts(ctx: &AccountContext) -> Result<(), ProgramError> {
     // Signers
-    assert_signer(ctx.payer)?;
+    assert_signer(ctx.payer_info)?;
 
     // Program ownership
     assert_owned_by(
-        ctx.delegate_record,
+        ctx.delegate_record_info,
         &mpl_token_metadata::ID,
-        MigrationError::IncorrectProgramOwner,
+        ValidationError::IncorrectProgramOwner,
     )?;
 
     assert_owned_by(
-        ctx.mint,
+        ctx.mint_info,
         &SPL_TOKEN_ID,
-        MigrationError::IncorrectProgramOwner,
+        ValidationError::IncorrectProgramOwner,
     )?;
     assert_owned_by(
-        ctx.metadata,
+        ctx.metadata_info,
         &mpl_token_metadata::ID,
-        MigrationError::IncorrectProgramOwner,
+        ValidationError::IncorrectProgramOwner,
     )?;
     assert_owned_by(
-        ctx.migration_state,
+        ctx.migration_state_info,
         ctx.program_id,
-        MigrationError::IncorrectProgramOwner,
+        ValidationError::IncorrectProgramOwner,
     )?;
 
     // Programs
-    if ctx.token_metadata_program.key != &mpl_token_metadata::ID {
+    if ctx.token_metadata_program_info.key != &mpl_token_metadata::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
-    if ctx.system_program.key != &solana_program::system_program::ID {
+    if ctx.system_program_info.key != &solana_program::system_program::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
-    if ctx.spl_token_program.key != &SPL_TOKEN_ID {
+    if ctx.spl_token_program_info.key != &SPL_TOKEN_ID {
         return Err(ProgramError::IncorrectProgramId);
     }
-    if ctx.sysvar_instructions.key != &sysvar::instructions::ID {
+    if ctx.sysvar_instructions_info.key != &sysvar::instructions::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
 
@@ -56,55 +50,36 @@ pub(crate) fn validate_relationships(
     ctx: &AccountContext,
     data: &DataContext,
 ) -> Result<(), ProgramError> {
+    // User provided
+    let item_metadata = data.metadata;
+    let collection_metadata = data.collection_metadata;
+    let mint_pubkey = ctx.mint_info.key;
+
+    // Migration State
+    let stored_collection_mint_pubkey = &data.migration_state.collection_info.mint;
+    let stored_collection_authority_pubkey = &data.migration_state.collection_info.authority;
+
     // Collection NFT
     // The provided collection metadata must match the collection mint and update authority
     // stored on the migration state.
-    if data.collection_metadata.mint != data.migration_state.collection_info.mint {
-        return Err(MigrationError::MetadataMintMistmatch.into());
-    }
-    if data.collection_metadata.update_authority != data.migration_state.collection_info.authority {
-        return Err(MigrationError::InvalidAuthority.into());
-    }
+    metadata_belongs_to_mint(collection_metadata, stored_collection_mint_pubkey)?;
+    update_authority_matches(collection_metadata, stored_collection_authority_pubkey)?;
 
     // Migration Item
     // The item's metadata and mint must match.
-    if &data.metadata.mint != ctx.mint.key {
-        return Err(MigrationError::MetadataMintMistmatch.into());
-    }
+    metadata_belongs_to_mint(item_metadata, mint_pubkey)?;
 
     // The item's update authority must match that of the collection.
-    if data.metadata.update_authority != data.migration_state.collection_info.authority {
-        return Err(MigrationError::InvalidAuthority.into());
-    }
+    update_authority_matches(item_metadata, stored_collection_authority_pubkey)?;
 
     // The item must actually be a verified member of the collection.
-    if data.metadata.collection.is_none() {
-        return Err(MetadataError::CollectionNotFound.into());
-    }
+    verified_collection_member(item_metadata, mint_pubkey)?;
 
-    let collection = data.metadata.collection.as_ref().unwrap();
-
-    if !collection.verified || collection.key != data.migration_state.collection_info.mint {
-        return Err(MetadataError::NotVerifiedMemberOfCollection.into());
-    }
-
-    // The edition must be correctly derived from the mint.
-    assert_derivation(
-        ctx.program_id,
-        ctx.edition,
-        &[
-            PREFIX.as_bytes(),
-            ctx.program_id.as_ref(),
-            ctx.mint.key.as_ref(),
-            EDITION.as_bytes(),
-        ],
-        MigrationError::InvalidEditionDerivation,
-    )?;
+    // The item's edition must be derived from the item's mint.
+    edition_derived_from_mint(ctx.edition_info, ctx.mint_info)?;
 
     // The token must belong to the mint
-    if data.token.mint != *ctx.mint.key {
-        return Err(MigrationError::InvalidTokenMint.into());
-    }
+    token_belongs_to_mint(data.token, mint_pubkey)?;
 
     Ok(())
 }
@@ -113,8 +88,8 @@ pub(crate) fn validate_eligibility(
     ctx: &AccountContext,
     data: &DataContext,
 ) -> Result<(), ProgramError> {
-    // The Token Metadata edition PDA must have the freeze authority.
-    if data.mint.freeze_authority != COption::Some(*ctx.edition.key) {
+    // The Token Metadata edition PDA must have the freeze authority on the item.
+    if data.mint.freeze_authority != COption::Some(*ctx.edition_info.key) {
         return Err(MigrationError::IncorrectFreezeAuthority.into());
     }
 
@@ -133,8 +108,8 @@ pub(crate) fn validate_delegate(
     // Validate that the delegate is the program signer for the correct
     // mint and update authority.
     assert_valid_delegate(
-        ctx.program_signer.key,
-        ctx.delegate_record,
+        ctx.program_signer_info.key,
+        ctx.delegate_record_info,
         data.collection_metadata,
         data.migration_state,
     )?;

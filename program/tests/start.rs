@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_migration_validator::error::MigrationError;
+use mpl_migration_validator::errors::{MigrationError, ValidationError};
 use mpl_migration_validator::instruction::{start, UpdateArgs};
 use mpl_migration_validator::state::ProgramSigner;
 use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
@@ -22,6 +22,9 @@ async fn start_migration() {
     // Create a default NFT to use as a collection.
     let mut nft = NfTest::new();
     nft.mint_default(&mut context, None).await.unwrap();
+
+    let mut nft2 = NfTest::new();
+    nft2.mint_default(&mut context, None).await.unwrap();
 
     // Create our migration state manager.
     let mut migratorr = Migratorr::new(nft.mint_pubkey());
@@ -118,6 +121,16 @@ async fn start_migration() {
         migratorr.authority()
     );
     assert_eq!(delegate_record.bump, bump);
+
+    context.warp_to_slot(200).unwrap();
+
+    // Running start again should fail because the migration is already in progress.
+    let err = migratorr
+        .start(&mut context, &payer, &payer, &nft)
+        .await
+        .unwrap_err();
+
+    assert_custom_error_ix!(0, err, MigrationError::MigrationInProgress);
 }
 
 #[tokio::test]
@@ -150,7 +163,7 @@ async fn wrong_authority_fails() {
         .await
         .unwrap_err();
 
-    assert_custom_error_ix!(0, err, MigrationError::InvalidAuthority);
+    assert_custom_error_ix!(0, err, ValidationError::InvalidAuthority);
 }
 
 #[tokio::test]
@@ -226,5 +239,5 @@ async fn incorrect_migration_state_fails() {
         .await
         .unwrap_err();
 
-    assert_custom_error_ix!(0, err, MigrationError::InvalidStateDerivation);
+    assert_custom_error_ix!(0, err, ValidationError::InvalidMigrationStateDerivation);
 }

@@ -2,7 +2,8 @@ use mpl_token_metadata::state::CollectionAuthorityRecord;
 
 use super::*;
 
-pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+pub fn start_migration(_program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    msg!("Migration Validator: Start");
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let payer_info = next_account_info(account_info_iter)?;
@@ -16,24 +17,35 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
     let system_program_info = next_account_info(account_info_iter)?;
     let _token_metadata_program_info = next_account_info(account_info_iter)?;
 
-    // Authority is a signer
+    // Check signers
+    assert_signer(payer_info)?;
     assert_signer(authority_info)?;
 
-    // The migration state account must must match the correct derivation
-    let _bump = assert_derivation(
-        program_id,
-        migration_state_info,
-        &[b"migration", collection_mint_info.key.as_ref()],
-        MigrationError::InvalidStateDerivation,
-    )?;
-    // let state_seeds = &[b"migration", collection_mint_info.key.as_ref(), &[bump]];
-
-    // Deserialize the migration state
-    let mut migration_state = MigrationState::from_account_info(migration_state_info)?;
-
-    if collection_mint_info.key != &migration_state.collection_info.mint {
-        return Err(MigrationError::CollectionMintMismatch.into());
+    // Check program ids
+    if spl_token_program_info.key != &SPL_TOKEN_ID {
+        return Err(ProgramError::IncorrectProgramId);
     }
+
+    if system_program_info.key != &solana_program::system_program::ID {
+        return Err(ProgramError::IncorrectProgramId);
+    }
+
+    // The migration state account must must match the correct derivation
+    migration_state_derived_from_mint(migration_state_info, collection_mint_info)?;
+
+    // Deserialize needed accounts
+    let mut migration_state = MigrationState::from_account_info(migration_state_info)?;
+    let collection_metadata = Metadata::from_account_info(collection_metadata_info)?;
+
+    // Relationship validation
+    incoming_collection_mint_matches_stored(collection_mint_info, &migration_state)?;
+    incoming_collection_authority_matches_stored(authority_info, &migration_state)?;
+    metadata_derived_from_mint(collection_metadata_info, collection_mint_info)?;
+    // Update authority on collection metadata matches the authority stored in the migration state.
+    update_authority_matches(
+        &collection_metadata,
+        &migration_state.collection_info.authority,
+    )?;
 
     let program_signer = ProgramSigner::pubkey();
 
@@ -50,7 +62,7 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
             mpl_token_metadata::pda::COLLECTION_AUTHORITY.as_bytes(),
             program_signer.as_ref(),
         ],
-        MigrationError::InvalidDelegateRecordDerivation,
+        ValidationError::InvalidDelegateRecordDerivation,
     )?;
 
     // If the delegate record is unitialized, then we CPI into
@@ -80,18 +92,15 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
         invoke_signed(&instruction, &account_infos, &[]).unwrap();
     }
 
-    if spl_token_program_info.key != &SPL_TOKEN_ID {
-        return Err(ProgramError::IncorrectProgramId);
-    }
-
-    if system_program_info.key != &solana_program::system_program::ID {
-        return Err(ProgramError::IncorrectProgramId);
-    }
-
     let authority_record = CollectionAuthorityRecord::from_account_info(delegate_record_info)?;
 
     if authority_record.update_authority != Some(*authority_info.key) {
-        return Err(MigrationError::InvalidAuthority.into());
+        return Err(ValidationError::InvalidAuthority.into());
+    }
+
+    // Migration must not be in progress
+    if migration_state.status.in_progress {
+        return Err(MigrationError::MigrationInProgress.into());
     }
 
     // Migration must be unlocked

@@ -7,7 +7,7 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
-use crate::error::MigrationError;
+use crate::errors::{DeserializationError, GeneralError};
 
 pub(crate) const MIGRATION_WAIT_PERIOD: i64 = 60 * 60 * 24 * 14; // 14 days
 pub(crate) const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
@@ -25,11 +25,11 @@ impl MigrationState {
         let data = a.try_borrow_data()?;
 
         if data.is_empty() {
-            return Err(MigrationError::InvalidStateDerivation.into());
+            return Err(DeserializationError::EmptyMigrationState.into());
         }
 
         let ua = Self::deserialize(&mut data.as_ref())
-            .map_err(|_| MigrationError::InvalidStateDerivation)?;
+            .map_err(|_| DeserializationError::InvalidMigrationState)?;
 
         Ok(ua)
     }
@@ -82,13 +82,13 @@ pub enum UnlockMethod {
 }
 
 impl FromStr for UnlockMethod {
-    type Err = MigrationError;
+    type Err = GeneralError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "timed" => Ok(UnlockMethod::Timed),
             "vote" => Ok(UnlockMethod::Vote),
-            _ => Err(MigrationError::InvalidUnlockMethod),
+            _ => Err(GeneralError::InvalidUnlockMethod),
         }
     }
 }
@@ -106,11 +106,11 @@ impl ProgramSigner {
         let data = a.try_borrow_data()?;
 
         if data.is_empty() {
-            return Err(MigrationError::InvalidStateDerivation.into());
+            return Err(DeserializationError::EmptyProgramSigner.into());
         }
 
         let ua = Self::deserialize(&mut data.as_ref())
-            .map_err(|_| MigrationError::InvalidStateDerivation)?;
+            .map_err(|_| DeserializationError::InvalidProgramSigner)?;
 
         Ok(ua)
     }

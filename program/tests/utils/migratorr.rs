@@ -118,8 +118,6 @@ impl Migratorr {
         let delegate = ProgramSigner::pubkey();
         let (delegate_record, _) = find_collection_authority_account(&nft.mint_pubkey(), &delegate);
 
-        println!("delegate_record: {:?}", delegate_record);
-
         let instruction = start(
             payer.pubkey(),
             authority.pubkey(),

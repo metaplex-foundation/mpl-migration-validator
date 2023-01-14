@@ -55,6 +55,14 @@ impl NfTest {
         &self.token
     }
 
+    pub fn set_mint(&mut self, mint: Keypair) {
+        self.mint = mint;
+    }
+
+    pub fn set_metadata(&mut self, metadata: Pubkey) {
+        self.metadata = metadata;
+    }
+
     pub async fn get_data(
         &self,
         context: &mut ProgramTestContext,

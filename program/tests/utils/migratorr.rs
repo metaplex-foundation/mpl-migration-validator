@@ -20,7 +20,7 @@ pub struct Migratorr {
 
 impl Migratorr {
     pub fn new(collection_mint: Pubkey) -> Self {
-        let (pubkey, _) = find_migrate_state_pda(collection_mint);
+        let (pubkey, _) = find_migrate_state_pda(&collection_mint);
 
         Migratorr {
             pubkey,

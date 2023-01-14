@@ -55,7 +55,6 @@ impl Airdrop for Keypair {
 pub async fn setup_context() -> ProgramTestContext {
     let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
     test.add_program("mpl_token_metadata", mpl_token_metadata::ID, None);
-
     test.start_with_context().await
 }
 
@@ -167,7 +166,7 @@ pub async fn create_mint(
     context.banks_client.process_transaction(tx).await
 }
 
-pub fn find_migrate_state_pda(mint: Pubkey) -> (Pubkey, u8) {
+pub fn find_migrate_state_pda(mint: &Pubkey) -> (Pubkey, u8) {
     let seeds = &[b"migration", mint.as_ref()];
     Pubkey::find_program_address(seeds, &mpl_migration_validator::ID)
 }

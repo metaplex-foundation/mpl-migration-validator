@@ -28,6 +28,10 @@ impl MigrationState {
             return Err(DeserializationError::EmptyMigrationState.into());
         }
 
+        if data.is_zeroed() {
+            return Err(DeserializationError::EmptyMigrationState.into());
+        }
+
         let ua = Self::deserialize(&mut data.as_ref())
             .map_err(|_| DeserializationError::InvalidMigrationState)?;
 
@@ -55,6 +59,16 @@ impl Default for MigrationState {
             unlock_method: UnlockMethod::Timed,
             status: MigrationStatus::default(),
         }
+    }
+}
+
+trait Zeroed {
+    fn is_zeroed(&self) -> bool;
+}
+
+impl Zeroed for [u8] {
+    fn is_zeroed(&self) -> bool {
+        self.iter().all(|&x| x == 0)
     }
 }
 

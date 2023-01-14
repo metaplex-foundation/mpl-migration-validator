@@ -45,7 +45,7 @@ pub(crate) fn metadata_derived_from_mint(
         metadata_info,
         &[
             PREFIX.as_bytes(),
-            &mpl_token_metadata::ID.as_ref(),
+            mpl_token_metadata::ID.as_ref(),
             mint_info.key.as_ref(),
         ],
         ValidationError::MetadataMintMistmatch,
@@ -62,7 +62,7 @@ pub(crate) fn edition_derived_from_mint(
         edition_info,
         &[
             PREFIX.as_bytes(),
-            &mpl_token_metadata::ID.as_ref(),
+            mpl_token_metadata::ID.as_ref(),
             mint_info.key.as_ref(),
             EDITION.as_bytes(),
         ],

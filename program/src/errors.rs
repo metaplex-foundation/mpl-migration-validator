@@ -31,7 +31,7 @@ pub enum GeneralError {
 #[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
 pub enum MigrationError {
     #[error("Cannot perform this action while migration is in progress")]
-    MigrationInProgress = 0 + MIGRATION_ERROR_START,
+    MigrationInProgress = MIGRATION_ERROR_START,
 
     #[error("Program signer is already initialized")]
     AlreadyInitialized = 1 + MIGRATION_ERROR_START,
@@ -49,7 +49,7 @@ pub enum MigrationError {
 #[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
 pub enum ValidationError {
     #[error("Metadata does not match mint account")]
-    MetadataMintMistmatch = 0 + VALIDATOR_ERROR_START,
+    MetadataMintMistmatch = VALIDATOR_ERROR_START,
 
     #[error("Token does not match the mint account")]
     TokenMintMismatch = 1 + VALIDATOR_ERROR_START,
@@ -97,7 +97,7 @@ pub enum ValidationError {
 #[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
 pub enum DeserializationError {
     #[error("Metadata did not deserialize correctly")]
-    InvalidMetadata = 0 + DESERIALIZATION_ERROR_START,
+    InvalidMetadata = DESERIALIZATION_ERROR_START,
 
     #[error("Migration state did not deserialize correctly")]
     InvalidMigrationState = 1 + DESERIALIZATION_ERROR_START,

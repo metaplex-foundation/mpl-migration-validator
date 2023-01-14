@@ -1,18 +1,20 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_migration_validator::errors::{MigrationError, ValidationError};
+use mpl_migration_validator::errors::{DeserializationError, MigrationError, ValidationError};
 use mpl_migration_validator::instruction::{start, UpdateArgs};
 use mpl_migration_validator::state::ProgramSigner;
 use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
-use mpl_token_metadata::pda::find_collection_authority_account;
+use mpl_token_metadata::pda::{find_collection_authority_account, find_metadata_account};
 use mpl_token_metadata::state::{CollectionAuthorityRecord, TokenMetadataAccount};
 use num_traits::FromPrimitive;
-use solana_program::pubkey::Pubkey;
-use solana_program_test::{tokio, BanksClientError};
+use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
+use solana_program_test::{tokio, BanksClientError, ProgramTest};
 use solana_sdk::signature::Keypair;
 use solana_sdk::transaction::Transaction;
-use solana_sdk::{instruction::InstructionError, signer::Signer, transaction::TransactionError};
+use solana_sdk::{
+    account::Account, instruction::InstructionError, signer::Signer, transaction::TransactionError,
+};
 use utils::*;
 
 #[tokio::test]
@@ -240,4 +242,84 @@ async fn incorrect_migration_state_fails() {
         .unwrap_err();
 
     assert_custom_error_ix!(0, err, ValidationError::InvalidMigrationStateDerivation);
+}
+
+#[tokio::test]
+async fn zeroed_state_account() {
+    let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
+    test.add_program("mpl_token_metadata", mpl_token_metadata::ID, None);
+    let mut context = test.start_with_context().await;
+
+    // This attack relies on creating accounts full of zeros and reassigning
+    // them to the migratorr program.
+    //
+    // We simulate a malicious program which creates an empty account the same
+    // length as a metadata account and assigns it be owned by token-metadat
+    // by injecting an account into our context.
+    let mint = Keypair::new();
+    mint.airdrop(&mut context, LAMPORTS_PER_SOL).await.unwrap();
+
+    let (empty_metadata_pubkey, _bump) = find_metadata_account(&mint.pubkey());
+
+    context.warp_to_slot(100).unwrap();
+
+    let lamports = context
+        .banks_client
+        .get_rent()
+        .await
+        .unwrap()
+        .minimum_balance(679);
+
+    let empty_metadata_account = Account {
+        lamports,
+        data: vec![0; 679],
+        owner: mpl_token_metadata::ID,
+        executable: false,
+        rent_epoch: 0,
+    };
+
+    context.set_account(&empty_metadata_pubkey, &empty_metadata_account.into());
+
+    context.warp_to_slot(200).unwrap();
+
+    // Now our malicious program constructs an empty migrate state account
+    // and assigns it to the mpl-migration-validator program.
+    let (empty_migrate_state_pubkey, _bump) = find_migrate_state_pda(&mint.pubkey());
+
+    context.warp_to_slot(300).unwrap();
+
+    let lamports = context
+        .banks_client
+        .get_rent()
+        .await
+        .unwrap()
+        .minimum_balance(679);
+
+    let empty_migrate_state_account = Account {
+        lamports,
+        data: vec![0; 679],
+        owner: mpl_migration_validator::ID,
+        executable: false,
+        rent_epoch: 0,
+    };
+
+    context.set_account(
+        &empty_migrate_state_pubkey,
+        &empty_migrate_state_account.into(),
+    );
+
+    context.warp_to_slot(400).unwrap();
+
+    let mut nft = NfTest::new();
+    nft.set_mint(mint.dirty_clone());
+    nft.set_metadata(empty_metadata_pubkey);
+
+    let migratorr = Migratorr::new(mint.pubkey());
+    let err = migratorr
+        .start(&mut context, &mint, &mint, &nft)
+        .await
+        .unwrap_err();
+
+    // This will be the first error it encounters.
+    assert_custom_error_ix!(0, err, DeserializationError::ZeroedMigrationState);
 }

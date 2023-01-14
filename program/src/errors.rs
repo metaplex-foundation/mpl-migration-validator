@@ -105,11 +105,14 @@ pub enum DeserializationError {
     #[error("Empty migration state account")]
     EmptyMigrationState = 2 + DESERIALIZATION_ERROR_START,
 
+    #[error("Zeroed migration state account")]
+    ZeroedMigrationState = 3 + DESERIALIZATION_ERROR_START,
+
     #[error("Program signer did not deserialize correctly")]
-    InvalidProgramSigner = 3 + DESERIALIZATION_ERROR_START,
+    InvalidProgramSigner = 4 + DESERIALIZATION_ERROR_START,
 
     #[error("Empty program signer account")]
-    EmptyProgramSigner = 4 + DESERIALIZATION_ERROR_START,
+    EmptyProgramSigner = 5 + DESERIALIZATION_ERROR_START,
 }
 
 // General Error Impls

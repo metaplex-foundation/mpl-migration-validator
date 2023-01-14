@@ -29,7 +29,7 @@ impl MigrationState {
         }
 
         if data.is_zeroed() {
-            return Err(DeserializationError::EmptyMigrationState.into());
+            return Err(DeserializationError::ZeroedMigrationState.into());
         }
 
         let ua = Self::deserialize(&mut data.as_ref())

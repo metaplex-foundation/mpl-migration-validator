@@ -14,7 +14,7 @@ pub fn update_state(
     let authority_info = next_account_info(account_info_iter)?;
     let migration_state_info = next_account_info(account_info_iter)?;
 
-    // Use peekable to check if there are any more accounts and if it it's
+    // Use peekable to check if there are any more accounts and if it's
     // owned by the expected voting/governance program.
 
     // Validate Accounts

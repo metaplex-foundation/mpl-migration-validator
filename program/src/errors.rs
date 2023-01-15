@@ -10,7 +10,7 @@ const MIGRATION_ERROR_START: isize = 25;
 const VALIDATOR_ERROR_START: isize = 50;
 const DESERIALIZATION_ERROR_START: isize = 75;
 
-#[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
+#[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
 pub enum GeneralError {
     #[error("Overflow error")]
     Overflow,
@@ -28,7 +28,7 @@ pub enum GeneralError {
     InvalidUnlockMethod,
 }
 
-#[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
+#[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
 pub enum MigrationError {
     #[error("Cannot perform this action while migration is in progress")]
     MigrationInProgress = MIGRATION_ERROR_START,
@@ -46,7 +46,7 @@ pub enum MigrationError {
     IncorrectFreezeAuthority = 4 + MIGRATION_ERROR_START,
 }
 
-#[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
+#[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
 pub enum ValidationError {
     #[error("Metadata does not match mint account")]
     MetadataMintMistmatch = VALIDATOR_ERROR_START,
@@ -94,7 +94,7 @@ pub enum ValidationError {
     IncorrectProgramOwner = 14 + VALIDATOR_ERROR_START,
 }
 
-#[derive(Error, Clone, Debug, Eq, PartialEq, FromPrimitive)]
+#[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
 pub enum DeserializationError {
     #[error("Metadata did not deserialize correctly")]
     InvalidMetadata = DESERIALIZATION_ERROR_START,
@@ -118,7 +118,12 @@ pub enum DeserializationError {
 // General Error Impls
 impl PrintProgramError for GeneralError {
     fn print<E>(&self) {
-        msg!(&self.to_string());
+        msg!(
+            "{} {}: {}",
+            <crate::errors::GeneralError as DecodeError<E>>::type_of(),
+            *self as u32,
+            &self.to_string()
+        );
     }
 }
 
@@ -137,7 +142,12 @@ impl<T> DecodeError<T> for GeneralError {
 // Migration Error Impls
 impl PrintProgramError for MigrationError {
     fn print<E>(&self) {
-        msg!(&self.to_string());
+        msg!(
+            "{} {}: {}",
+            <crate::errors::MigrationError as DecodeError<E>>::type_of(),
+            *self as u32,
+            &self.to_string()
+        );
     }
 }
 
@@ -156,7 +166,12 @@ impl<T> DecodeError<T> for MigrationError {
 // Validation Error Impls
 impl PrintProgramError for ValidationError {
     fn print<E>(&self) {
-        msg!(&self.to_string());
+        msg!(
+            "{} {}: {}",
+            <crate::errors::ValidationError as DecodeError<E>>::type_of(),
+            *self as u32,
+            &self.to_string()
+        );
     }
 }
 
@@ -175,7 +190,12 @@ impl<T> DecodeError<T> for ValidationError {
 // Deserialization Error Impls
 impl PrintProgramError for DeserializationError {
     fn print<E>(&self) {
-        msg!(&self.to_string());
+        msg!(
+            "{} {}: {}",
+            <crate::errors::DeserializationError as DecodeError<E>>::type_of(),
+            *self as u32,
+            &self.to_string()
+        );
     }
 }
 

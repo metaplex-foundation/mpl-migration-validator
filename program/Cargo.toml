@@ -14,7 +14,7 @@ mpl-utils = "0.0.5"
 serde = { version = "1.0", optional = true }
 serde_with = { version = "1.14.0", optional = true }
 shank = "0.0.10"
-solana-program = "1.13"
+solana-program = "1.14"
 spl-token = "3.5.0"
 thiserror = "~1.0"
 
@@ -26,9 +26,9 @@ serde-feature = ["serde", "serde_with"]
 [dev-dependencies]
 assert_matches = "1.5.0"
 async-trait = "0.1.60"
-solana-logger = "1.13"
-solana-program-test = "1.13"
-solana-sdk = "1.13"
+solana-logger = "1.14"
+solana-program-test = "1.14"
+solana-sdk = "1.14"
 
 [lib]
 crate-type = ["cdylib", "lib"]

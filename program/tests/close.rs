@@ -106,7 +106,10 @@ async fn cannot_close_in_progress_state() {
 
     // Update the state account on-chain. This checks the current time
     // and updates the is_unlocked field if the wait time has passed.s
-    let update_args = UpdateArgs { rule_set: None };
+    let update_args = UpdateArgs {
+        rule_set: None,
+        collection_size: None,
+    };
 
     migratorr
         .update(&mut context, &payer, None, update_args)

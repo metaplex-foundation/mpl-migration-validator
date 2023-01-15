@@ -7,11 +7,18 @@ use solana_program::{
     pubkey::Pubkey,
 };
 
+#[cfg(feature = "serde-feature")]
+use {
+    serde::{Deserialize, Serialize},
+    serde_with::{As, DisplayFromStr},
+};
+
 use crate::errors::{DeserializationError, GeneralError};
 
 pub(crate) const MIGRATION_WAIT_PERIOD: i64 = 60 * 60 * 24 * 14; // 14 days
 pub(crate) const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 
+#[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
 #[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
 // Seeds: [b"migration", collection_mint.as_ref()]
 pub struct MigrationState {
@@ -32,7 +39,7 @@ impl MigrationState {
             return Err(DeserializationError::ZeroedMigrationState.into());
         }
 
-        let ua = Self::deserialize(&mut data.as_ref())
+        let ua = <Self as BorshDeserialize>::deserialize(&mut data.as_ref())
             .map_err(|_| DeserializationError::InvalidMigrationState)?;
 
         Ok(ua)
@@ -72,15 +79,25 @@ impl Zeroed for [u8] {
     }
 }
 
+#[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
 #[derive(Clone, Default, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
 pub struct CollectionInfo {
+    #[cfg_attr(feature = "serde-feature", serde(with = "As::<DisplayFromStr>"))]
     pub authority: Pubkey,
+
+    #[cfg_attr(feature = "serde-feature", serde(with = "As::<DisplayFromStr>"))]
     pub mint: Pubkey,
+
+    #[cfg_attr(feature = "serde-feature", serde(with = "As::<DisplayFromStr>"))]
     pub rule_set: Pubkey,
+
+    #[cfg_attr(feature = "serde-feature", serde(with = "As::<DisplayFromStr>"))]
     pub delegate: Pubkey,
+
     pub size: u32,
 }
 
+#[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
 #[derive(Clone, Default, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]
 pub struct MigrationStatus {
     pub unlock_time: i64,
@@ -89,6 +106,7 @@ pub struct MigrationStatus {
     pub items_migrated: u32,
 }
 
+#[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
 #[derive(Copy, Clone, BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug)]
 pub enum UnlockMethod {
     Timed,

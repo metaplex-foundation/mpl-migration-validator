@@ -33,17 +33,20 @@ pub enum MigrationError {
     #[error("Cannot perform this action while migration is in progress")]
     MigrationInProgress = MIGRATION_ERROR_START,
 
+    #[error("Cannot be closed after migration has completed")]
+    MigrationAlreadyCompleted = 1 + MIGRATION_ERROR_START,
+
     #[error("Program signer is already initialized")]
-    AlreadyInitialized = 1 + MIGRATION_ERROR_START,
+    AlreadyInitialized = 2 + MIGRATION_ERROR_START,
 
     #[error("Migration state account is locked")]
-    MigrationLocked = 2 + MIGRATION_ERROR_START,
+    MigrationLocked = 3 + MIGRATION_ERROR_START,
 
     #[error("Immutable metadata cannot be migrated")]
-    ImmutableMetadata = 3 + MIGRATION_ERROR_START,
+    ImmutableMetadata = 4 + MIGRATION_ERROR_START,
 
     #[error("Incorrect freeze authority")]
-    IncorrectFreezeAuthority = 4 + MIGRATION_ERROR_START,
+    IncorrectFreezeAuthority = 5 + MIGRATION_ERROR_START,
 }
 
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]

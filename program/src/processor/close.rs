@@ -21,9 +21,7 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     )?;
 
     // Deserialize the migration state
-    let buffer = migration_state_info.try_borrow_data()?;
-    let migration_state = MigrationState::deserialize(&mut buffer.as_ref())
-        .map_err(|_| DeserializationError::InvalidMigrationState)?;
+    let migration_state = MigrationState::from_account_info(migration_state_info)?;
 
     // Idc about compute, check this anyway.
     assert_derivation(
@@ -34,16 +32,18 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     )?;
 
     // Ensure the authority matches
-    if migration_state.collection_info.authority != *authority_info.key {
-        return Err(ValidationError::InvalidAuthority.into());
-    }
+    incoming_collection_authority_matches_stored(authority_info, &migration_state)?;
 
     // Ensure the migration isn't in progress
     if migration_state.status.in_progress {
         return Err(MigrationError::MigrationInProgress.into());
     }
 
-    drop(buffer);
+    // Do not allow closing after the migration is complete.
+    if migration_state.status.items_migrated > 0 {
+        return Err(MigrationError::MigrationAlreadyCompleted.into());
+    }
+
     close_program_account(migration_state_info, authority_info)?;
 
     Ok(())

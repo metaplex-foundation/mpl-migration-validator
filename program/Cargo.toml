@@ -12,7 +12,7 @@ num-traits = "~0.2"
 mpl-token-metadata = { git = "https://github.com/metaplex-foundation/metaplex-program-library", branch = "feat/programmable-asset", features = ["no-entrypoint"] }
 mpl-utils = "0.0.5"
 serde = { version = "1.0", optional = true }
-serde_with = { version = "2.2.0", optional = true }
+serde_with = { version = "1.14.0", optional = true }
 shank = "0.0.10"
 solana-program = "1.13"
 spl-token = "3.5.0"

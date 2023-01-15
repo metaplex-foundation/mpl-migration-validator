@@ -30,9 +30,7 @@ pub fn update_state(
     let mut migration_state = MigrationState::from_account_info(migration_state_info)?;
 
     // Ensure the authority matches
-    if migration_state.collection_info.authority != *authority_info.key {
-        return Err(ValidationError::InvalidAuthority.into());
-    }
+    incoming_collection_authority_matches_stored(authority_info, &migration_state)?;
 
     // Ensure the migration isn't in progress
     if migration_state.status.in_progress {

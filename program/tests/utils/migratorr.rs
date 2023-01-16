@@ -1,10 +1,12 @@
 use borsh::BorshSerialize;
 use mpl_migration_validator::{
-    instruction::{initialize, start, update, InitializeArgs, UpdateArgs},
-    state::{MigrationState, ProgramSigner, UnlockMethod},
+    instruction::{initialize, start, update, InitializeArgs, MigrationInstruction, UpdateArgs},
+    state::{MigrationState, UnlockMethod},
 };
-use mpl_token_metadata::pda::find_collection_authority_account;
-use solana_program::borsh::try_from_slice_unchecked;
+use solana_program::{
+    borsh::try_from_slice_unchecked,
+    instruction::{AccountMeta, Instruction},
+};
 use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
     pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
@@ -70,14 +72,7 @@ impl Migratorr {
         nft: &NfTest,
         args: InitializeArgs,
     ) -> Result<(), BanksClientError> {
-        let instruction = initialize(
-            payer.pubkey(),
-            authority.pubkey(),
-            nft.mint_pubkey(),
-            nft.metadata_pubkey(),
-            self.pubkey,
-            args,
-        );
+        let instruction = initialize(payer.pubkey(), authority.pubkey(), nft.mint_pubkey(), args);
 
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
@@ -93,10 +88,9 @@ impl Migratorr {
         &self,
         context: &mut ProgramTestContext,
         authority: &Keypair,
-        vote_account: Option<Pubkey>,
         args: UpdateArgs,
     ) -> Result<(), BanksClientError> {
-        let instruction = update(authority.pubkey(), self.pubkey, vote_account, args);
+        let instruction = update(authority.pubkey(), self.pubkey, args);
 
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
@@ -115,18 +109,46 @@ impl Migratorr {
         authority: &Keypair,
         nft: &NfTest,
     ) -> Result<(), BanksClientError> {
-        let delegate = ProgramSigner::pubkey();
-        let (delegate_record, _) = find_collection_authority_account(&nft.mint_pubkey(), &delegate);
+        let instruction = start(payer.pubkey(), authority.pubkey(), nft.mint_pubkey());
 
-        let instruction = start(
-            payer.pubkey(),
-            authority.pubkey(),
-            nft.mint_pubkey(),
-            nft.metadata_pubkey(),
-            delegate,
-            delegate_record,
-            self.pubkey,
+        let transaction = Transaction::new_signed_with_payer(
+            &[instruction],
+            Some(&payer.pubkey()),
+            &[&*payer, &*authority],
+            context.last_blockhash,
         );
+
+        context.banks_client.process_transaction(transaction).await
+    }
+
+    pub async fn start_full(
+        &self,
+        context: &mut ProgramTestContext,
+        payer: &Keypair,
+        authority: &Keypair,
+        collection_mint: Pubkey,
+        collection_metadata: Pubkey,
+        delegate: Pubkey,
+        delegate_record: Pubkey,
+        migration_state: Pubkey,
+    ) -> Result<(), BanksClientError> {
+        let data = MigrationInstruction::Start.try_to_vec().unwrap();
+        let instruction = Instruction {
+            program_id: mpl_migration_validator::ID,
+            accounts: vec![
+                AccountMeta::new(payer.pubkey(), true),
+                AccountMeta::new_readonly(authority.pubkey(), true),
+                AccountMeta::new_readonly(collection_mint, false),
+                AccountMeta::new_readonly(collection_metadata, false),
+                AccountMeta::new_readonly(delegate, false),
+                AccountMeta::new(delegate_record, false),
+                AccountMeta::new(migration_state, false),
+                AccountMeta::new_readonly(spl_token::ID, false),
+                AccountMeta::new_readonly(solana_program::system_program::ID, false),
+                AccountMeta::new_readonly(mpl_token_metadata::ID, false),
+            ],
+            data,
+        };
 
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],

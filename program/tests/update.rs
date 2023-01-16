@@ -61,7 +61,7 @@ async fn update_rule_set() {
     };
 
     migratorr
-        .update(&mut context, &authority, None, update_args)
+        .update(&mut context, &authority, update_args)
         .await
         .unwrap();
 
@@ -120,7 +120,7 @@ async fn update_collection_size() {
     };
 
     migratorr
-        .update(&mut context, &authority, None, update_args)
+        .update(&mut context, &authority, update_args)
         .await
         .unwrap();
 

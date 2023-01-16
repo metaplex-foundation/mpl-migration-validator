@@ -2,7 +2,7 @@
 pub mod utils;
 
 use mpl_migration_validator::errors::{DeserializationError, MigrationError, ValidationError};
-use mpl_migration_validator::instruction::{start, UpdateArgs};
+use mpl_migration_validator::instruction::UpdateArgs;
 use mpl_migration_validator::state::ProgramSigner;
 use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
 use mpl_token_metadata::pda::{find_collection_authority_account, find_metadata_account};
@@ -94,7 +94,7 @@ async fn start_migration() {
     };
 
     migratorr
-        .update(&mut context, &payer, None, update_args)
+        .update(&mut context, &payer, update_args)
         .await
         .unwrap();
 
@@ -225,26 +225,19 @@ async fn incorrect_migration_state_fails() {
     let delegate = ProgramSigner::pubkey();
     let (delegate_record, _) = find_collection_authority_account(&nft.mint_pubkey(), &delegate);
 
-    let instruction = start(
-        payer.pubkey(),
-        payer.pubkey(),
-        nft.mint_pubkey(),
-        nft.metadata_pubkey(),
-        delegate,
-        delegate_record,
-        other_migratorr.pubkey(),
-    );
+    let payer = context.payer.dirty_clone();
 
-    let transaction = Transaction::new_signed_with_payer(
-        &[instruction],
-        Some(&payer.pubkey()),
-        &[&payer],
-        context.last_blockhash,
-    );
-
-    let err = context
-        .banks_client
-        .process_transaction(transaction)
+    let err = migratorr
+        .start_full(
+            &mut context,
+            &payer,
+            &payer,
+            nft.mint_pubkey(),
+            nft.metadata_pubkey(),
+            delegate,
+            delegate_record,
+            other_migratorr.pubkey(),
+        )
         .await
         .unwrap_err();
 

@@ -19,7 +19,7 @@ async fn successfully_init_signer() {
 
     let (program_signer_pubkey, bump) = find_program_signer_pda();
 
-    let instruction = init_signer(context.payer.pubkey(), program_signer_pubkey);
+    let instruction = init_signer(context.payer.pubkey());
 
     let transaction = Transaction::new_signed_with_payer(
         &[instruction],
@@ -51,7 +51,7 @@ async fn successfully_init_signer() {
     context.warp_to_slot(1000).unwrap();
 
     // Cannot initialize again.
-    let instruction = init_signer(context.payer.pubkey(), program_signer_pubkey);
+    let instruction = init_signer(context.payer.pubkey());
 
     let transaction = Transaction::new_signed_with_payer(
         &[instruction],

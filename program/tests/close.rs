@@ -112,7 +112,7 @@ async fn cannot_close_in_progress_state() {
     };
 
     migratorr
-        .update(&mut context, &payer, None, update_args)
+        .update(&mut context, &payer, update_args)
         .await
         .unwrap();
 

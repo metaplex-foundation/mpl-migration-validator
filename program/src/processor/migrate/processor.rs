@@ -15,10 +15,10 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let payer_info = next_account_info(account_info_iter)?;
+    let mint_info = next_account_info(account_info_iter)?;
     let metadata_info = next_account_info(account_info_iter)?;
     let edition_info = next_account_info(account_info_iter)?;
     let token_info = next_account_info(account_info_iter)?;
-    let mint_info = next_account_info(account_info_iter)?;
     let delegate_record_info = next_account_info(account_info_iter)?;
     let collection_metadata_info = next_account_info(account_info_iter)?;
     let migration_state_info = next_account_info(account_info_iter)?;

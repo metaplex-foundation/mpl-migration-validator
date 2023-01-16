@@ -7,7 +7,10 @@ use solana_program::{
     pubkey::Pubkey, system_program,
 };
 
-use crate::{errors::ValidationError, state::MigrationState};
+use crate::{
+    errors::ValidationError,
+    state::{MigrationState, ProgramSigner},
+};
 
 pub fn assert_valid_delegate(
     delegate_pubkey: &Pubkey,
@@ -70,4 +73,22 @@ pub fn close_program_account<'a>(
     account_info.assign(&system_program::ID);
 
     Ok(())
+}
+
+pub fn find_migration_state_pda(mint: &Pubkey) -> (Pubkey, u8) {
+    let seeds = &[b"migration", mint.as_ref()];
+    Pubkey::find_program_address(seeds, &crate::ID)
+}
+
+pub fn find_delegate_record_pda(mint: &Pubkey) -> (Pubkey, u8) {
+    let program_signer = ProgramSigner::pubkey();
+
+    let seeds = &[
+        mpl_token_metadata::state::PREFIX.as_bytes(),
+        mpl_token_metadata::ID.as_ref(),
+        mint.as_ref(),
+        mpl_token_metadata::pda::COLLECTION_AUTHORITY.as_bytes(),
+        program_signer.as_ref(),
+    ];
+    Pubkey::find_program_address(seeds, &mpl_token_metadata::ID)
 }

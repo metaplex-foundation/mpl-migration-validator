@@ -93,8 +93,17 @@ pub enum ValidationError {
     #[error("Invalid delegate")]
     InvalidDelegate = 13 + VALIDATOR_ERROR_START,
 
+    #[error("Incorrect program owner for metadata account")]
+    IncorrectMetadataProgramOwner = 14 + VALIDATOR_ERROR_START,
+
+    #[error("Incorrect program owner for mint account")]
+    IncorrectMintProgramOwner = 15 + VALIDATOR_ERROR_START,
+
     #[error("Incorrect program owner for migration state account")]
-    IncorrectProgramOwner = 14 + VALIDATOR_ERROR_START,
+    IncorrectMigrationStateProgramOwner = 16 + VALIDATOR_ERROR_START,
+
+    #[error("Incorrect program owner for delegate record account")]
+    IncorrectDelegateRecordProgramOwner = 17 + VALIDATOR_ERROR_START,
 }
 
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]

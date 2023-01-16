@@ -10,23 +10,23 @@ pub(crate) fn validate_accounts(ctx: &AccountContext) -> Result<(), ProgramError
     assert_owned_by(
         ctx.delegate_record_info,
         &mpl_token_metadata::ID,
-        ValidationError::IncorrectProgramOwner,
+        ValidationError::IncorrectDelegateRecordProgramOwner,
     )?;
 
     assert_owned_by(
         ctx.mint_info,
         &SPL_TOKEN_ID,
-        ValidationError::IncorrectProgramOwner,
+        ValidationError::IncorrectMintProgramOwner,
     )?;
     assert_owned_by(
         ctx.metadata_info,
         &mpl_token_metadata::ID,
-        ValidationError::IncorrectProgramOwner,
+        ValidationError::IncorrectMetadataProgramOwner,
     )?;
     assert_owned_by(
         ctx.migration_state_info,
         ctx.program_id,
-        ValidationError::IncorrectProgramOwner,
+        ValidationError::IncorrectMigrationStateProgramOwner,
     )?;
 
     // Programs

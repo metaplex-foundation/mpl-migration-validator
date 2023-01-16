@@ -17,7 +17,7 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     assert_owned_by(
         migration_state_info,
         program_id,
-        ValidationError::IncorrectProgramOwner,
+        ValidationError::IncorrectMigrationStateProgramOwner,
     )?;
 
     // Deserialize the migration state

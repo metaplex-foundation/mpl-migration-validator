@@ -23,7 +23,7 @@ pub fn update_state(
     assert_owned_by(
         migration_state_info,
         &crate::ID,
-        ValidationError::IncorrectProgramOwner,
+        ValidationError::IncorrectMigrationStateProgramOwner,
     )?;
 
     // Deserialize the migration state

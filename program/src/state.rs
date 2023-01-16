@@ -92,7 +92,7 @@ pub struct CollectionInfo {
     pub rule_set: Pubkey,
 
     #[cfg_attr(feature = "serde-feature", serde(with = "As::<DisplayFromStr>"))]
-    pub delegate: Pubkey,
+    pub delegate_record: Pubkey,
 
     pub size: u32,
 }

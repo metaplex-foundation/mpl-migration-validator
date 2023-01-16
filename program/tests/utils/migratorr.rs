@@ -45,8 +45,8 @@ impl Migratorr {
         self.state.collection_info.mint
     }
 
-    pub fn delegate(&self) -> Pubkey {
-        self.state.collection_info.delegate
+    pub fn delegate_record(&self) -> Pubkey {
+        self.state.collection_info.delegate_record
     }
 
     pub fn rule_set(&self) -> Pubkey {

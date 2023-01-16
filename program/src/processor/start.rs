@@ -2,7 +2,7 @@ use mpl_token_metadata::state::CollectionAuthorityRecord;
 
 use super::*;
 
-pub fn start_migration(_program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
     msg!("Migration Validator: Start");
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
@@ -21,12 +21,34 @@ pub fn start_migration(_program_id: &Pubkey, accounts: &[AccountInfo]) -> Progra
     assert_signer(payer_info)?;
     assert_signer(authority_info)?;
 
+    assert_owned_by(
+        collection_mint_info,
+        &spl_token::ID,
+        ValidationError::IncorrectMintProgramOwner,
+    )?;
+
+    assert_owned_by(
+        collection_metadata_info,
+        &mpl_token_metadata::ID,
+        ValidationError::IncorrectMetadataProgramOwner,
+    )?;
+
+    assert_owned_by(
+        migration_state_info,
+        &program_id,
+        ValidationError::IncorrectMigrationStateProgramOwner,
+    )?;
+
     // Check program ids
     if spl_token_program_info.key != &SPL_TOKEN_ID {
         return Err(ProgramError::IncorrectProgramId);
     }
 
     if system_program_info.key != &solana_program::system_program::ID {
+        return Err(ProgramError::IncorrectProgramId);
+    }
+
+    if _token_metadata_program_info.key != &mpl_token_metadata::ID {
         return Err(ProgramError::IncorrectProgramId);
     }
 
@@ -92,6 +114,7 @@ pub fn start_migration(_program_id: &Pubkey, accounts: &[AccountInfo]) -> Progra
         invoke_signed(&instruction, &account_infos, &[]).unwrap();
     }
 
+    // Check that the authority matches for the cases where we don't create the record.
     let authority_record = CollectionAuthorityRecord::from_account_info(delegate_record_info)?;
 
     if authority_record.update_authority != Some(*authority_info.key) {
@@ -108,7 +131,12 @@ pub fn start_migration(_program_id: &Pubkey, accounts: &[AccountInfo]) -> Progra
         return Err(MigrationError::MigrationLocked.into());
     }
 
-    migration_state.collection_info.delegate = *delegate_info.key;
+    // Redundant check
+    if migration_state.status.items_migrated > 0 {
+        return Err(MigrationError::MigrationInProgress.into());
+    }
+
+    migration_state.collection_info.delegate_record = *delegate_record_info.key;
     migration_state.status.in_progress = true;
     migration_state.save(migration_state_info)?;
 

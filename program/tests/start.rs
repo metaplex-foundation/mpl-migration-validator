@@ -8,7 +8,9 @@ use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
 use mpl_token_metadata::pda::{find_collection_authority_account, find_metadata_account};
 use mpl_token_metadata::state::{CollectionAuthorityRecord, TokenMetadataAccount};
 use num_traits::FromPrimitive;
-use solana_program::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
+use solana_program::program_pack::Pack;
+use solana_program::pubkey::Pubkey;
+use solana_program::system_instruction;
 use solana_program_test::{tokio, BanksClientError, ProgramTest};
 use solana_sdk::signature::Keypair;
 use solana_sdk::transaction::Transaction;
@@ -111,7 +113,7 @@ async fn start_migration() {
 
     // Ensure the collection delegate was created.
     let (delegate_record_pda, bump) =
-        find_collection_authority_account(&migratorr.mint(), &migratorr.delegate());
+        find_collection_authority_account(&migratorr.mint(), &ProgramSigner::pubkey());
 
     // This function call panics if the account doesn't exist.
     let delegate_record_account = get_account(&mut context, &delegate_record_pda).await;
@@ -126,6 +128,8 @@ async fn start_migration() {
         migratorr.authority()
     );
     assert_eq!(delegate_record.bump, bump);
+    // Record matches what was stored in the migration state.
+    assert_eq!(migratorr.delegate_record(), delegate_record_pda);
 
     context.warp_to_slot(200).unwrap();
 
@@ -251,20 +255,56 @@ async fn incorrect_migration_state_fails() {
 async fn zeroed_state_account() {
     let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
     test.add_program("mpl_token_metadata", mpl_token_metadata::ID, None);
+
     let mut context = test.start_with_context().await;
 
     // This attack relies on creating accounts full of zeros and reassigning
     // them to the migratorr program.
     //
     // We simulate a malicious program which creates an empty account the same
-    // length as a metadata account and assigns it be owned by token-metadat
+    // length as a metadata account and assigns it be owned by token-metadata
     // by injecting an account into our context.
     let mint = Keypair::new();
-    mint.airdrop(&mut context, LAMPORTS_PER_SOL).await.unwrap();
+
+    let mint_lamports = context
+        .banks_client
+        .get_rent()
+        .await
+        .unwrap()
+        .minimum_balance(spl_token::state::Mint::LEN);
+
+    let ix_create_account = system_instruction::create_account(
+        &context.payer.pubkey(),
+        &mint.pubkey(),
+        mint_lamports,
+        spl_token::state::Mint::LEN as u64,
+        &spl_token::ID,
+    );
+
+    let ix_create_mint = spl_token::instruction::initialize_mint(
+        &spl_token::ID,
+        &mint.pubkey(),
+        &mint.pubkey(),
+        None,
+        0,
+    )
+    .unwrap();
+
+    let transaction = Transaction::new_signed_with_payer(
+        &[ix_create_account, ix_create_mint],
+        Some(&context.payer.pubkey()),
+        &[&context.payer, &mint],
+        context.last_blockhash,
+    );
+    context
+        .banks_client
+        .process_transaction(transaction)
+        .await
+        .unwrap();
 
     let (empty_metadata_pubkey, _bump) = find_metadata_account(&mint.pubkey());
 
-    context.warp_to_slot(100).unwrap();
+    warp100(&mut context).await;
 
     let lamports = context
         .banks_client
@@ -282,14 +322,13 @@ async fn zeroed_state_account() {
     };
 
     context.set_account(&empty_metadata_pubkey, &empty_metadata_account.into());
+    warp100(&mut context).await;
 
-    context.warp_to_slot(200).unwrap();
-
-    // Now our malicious program constructs an empty migrate state account
+    // Now our malicious program constructs an empty migration state account
     // and assigns it to the mpl-migration-validator program.
     let (empty_migrate_state_pubkey, _bump) = find_migrate_state_pda(&mint.pubkey());
 
-    context.warp_to_slot(300).unwrap();
+    warp100(&mut context).await;
 
     let lamports = context
         .banks_client
@@ -311,15 +350,17 @@ async fn zeroed_state_account() {
         &empty_migrate_state_account.into(),
     );
 
-    context.warp_to_slot(400).unwrap();
+    warp100(&mut context).await;
 
     let mut nft = NfTest::new();
     nft.set_mint(mint.dirty_clone());
     nft.set_metadata(empty_metadata_pubkey);
 
+    let authority = context.payer.dirty_clone();
+
     let migratorr = Migratorr::new(mint.pubkey());
     let err = migratorr
-        .start(&mut context, &mint, &mint, &nft)
+        .start(&mut context, &authority, &authority, &nft)
         .await
         .unwrap_err();
 

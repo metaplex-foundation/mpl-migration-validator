@@ -52,6 +52,12 @@ impl Airdrop for Keypair {
     }
 }
 
+pub async fn warp100(context: &mut ProgramTestContext) {
+    let current_slot = context.banks_client.get_root_slot().await.unwrap();
+    print!("Warping to slot: {}", current_slot + 100);
+    context.warp_to_slot(current_slot + 100).unwrap();
+}
+
 pub async fn setup_context() -> ProgramTestContext {
     let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
     test.add_program("mpl_token_metadata", mpl_token_metadata::ID, None);

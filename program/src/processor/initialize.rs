@@ -93,7 +93,7 @@ pub fn initialize_migration(
     let collection_info = CollectionInfo {
         authority: *authority_info.key,
         mint: *collection_mint_info.key,
-        delegate: Pubkey::default(),
+        delegate_record: Pubkey::default(),
         rule_set: rule_set.unwrap_or_default(),
         size: collection_size,
     };

@@ -5,6 +5,10 @@ edition = "2021"
 license = "Apache-2.0"
 publish = false
 
+[lib]
+crate-type = ["cdylib", "lib"]
+
+
 [dependencies]
 borsh = "0.9.3"
 num-derive = "0.3.3"
@@ -30,5 +34,7 @@ solana-logger = "1.14"
 solana-program-test = "1.14"
 solana-sdk = "1.14"
 
-[lib]
-crate-type = ["cdylib", "lib"]
+[dev-dependencies.cargo-husky]
+version = "1"
+default-features = false
+features = ["precommit-hook", "user-hooks"]

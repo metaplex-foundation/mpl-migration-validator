@@ -35,7 +35,7 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
 
     assert_owned_by(
         migration_state_info,
-        &program_id,
+        program_id,
         ValidationError::IncorrectMigrationStateProgramOwner,
     )?;
 

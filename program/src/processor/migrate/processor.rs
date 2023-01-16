@@ -12,7 +12,6 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
     return Err(GeneralError::FeatureDisabled.into());
 
     msg!("Migrate Item");
-
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let payer_info = next_account_info(account_info_iter)?;

@@ -1,3 +1,5 @@
+use mpl_token_metadata::state::TokenStandard;
+
 use crate::utils::assert_valid_delegate;
 
 use super::*;
@@ -99,6 +101,12 @@ pub(crate) fn validate_eligibility(
     // The item metadata must be mutable.
     if !data.metadata.is_mutable {
         return Err(MigrationError::ImmutableMetadata.into());
+    }
+
+    if let Some(token_standard) = data.metadata.token_standard {
+        if token_standard != TokenStandard::NonFungible {
+            return Err(MigrationError::IncorrectTokenStandard.into());
+        }
     }
 
     Ok(())

@@ -47,6 +47,9 @@ pub enum MigrationError {
 
     #[error("Incorrect freeze authority")]
     IncorrectFreezeAuthority = 5 + MIGRATION_ERROR_START,
+
+    #[error("Incorrect token standard: must be NonFungible")]
+    IncorrectTokenStandard = 6 + MIGRATION_ERROR_START,
 }
 
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]

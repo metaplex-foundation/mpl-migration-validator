@@ -80,7 +80,11 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
     // Migrate the item by CPI'ing into Token Metadata.
     let args = MigrateArgs::V1 {
         migration_type: MigrationType::ProgrammableV1,
-        rule_set: Some(migration_state.collection_info.rule_set),
+        rule_set: if migration_state.collection_info.rule_set == Pubkey::default() {
+            None
+        } else {
+            Some(migration_state.collection_info.rule_set)
+        },
     };
 
     let account_infos = vec![

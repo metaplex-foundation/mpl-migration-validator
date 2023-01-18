@@ -34,22 +34,22 @@ pub enum MigrationError {
     MigrationInProgress = MIGRATION_ERROR_START,
 
     #[error("Cannot be closed after migration has completed")]
-    MigrationAlreadyCompleted = 1 + MIGRATION_ERROR_START,
+    MigrationAlreadyCompleted,
 
     #[error("Program signer is already initialized")]
-    AlreadyInitialized = 2 + MIGRATION_ERROR_START,
+    AlreadyInitialized,
 
     #[error("Migration state account is locked")]
-    MigrationLocked = 3 + MIGRATION_ERROR_START,
+    MigrationLocked,
 
     #[error("Immutable metadata cannot be migrated")]
-    ImmutableMetadata = 4 + MIGRATION_ERROR_START,
+    ImmutableMetadata,
 
     #[error("Incorrect freeze authority")]
-    IncorrectFreezeAuthority = 5 + MIGRATION_ERROR_START,
+    IncorrectFreezeAuthority,
 
     #[error("Incorrect token standard: must be NonFungible")]
-    IncorrectTokenStandard = 6 + MIGRATION_ERROR_START,
+    IncorrectTokenStandard,
 }
 
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
@@ -58,55 +58,55 @@ pub enum ValidationError {
     MetadataMintMistmatch = VALIDATOR_ERROR_START,
 
     #[error("Token does not match the mint account")]
-    TokenMintMismatch = 1 + VALIDATOR_ERROR_START,
+    TokenMintMismatch,
 
     #[error("Collection mint does not match stored value")]
-    CollectionMintMismatch = 2 + VALIDATOR_ERROR_START,
+    CollectionMintMismatch,
 
     #[error("Authority does not match the authority on the account")]
-    InvalidAuthority = 3 + VALIDATOR_ERROR_START,
+    InvalidAuthority,
 
     #[error("No collection found on item")]
-    CollectionNotFound = 4 + VALIDATOR_ERROR_START,
+    CollectionNotFound,
 
     #[error("Item is not a verified member of the collection")]
-    NotCollectionMember = 5 + VALIDATOR_ERROR_START,
+    NotCollectionMember,
 
     #[error("Invalid token standard")]
-    InvalidTokenStandard = 6 + VALIDATOR_ERROR_START,
+    InvalidTokenStandard,
 
     #[error("Missing token standard")]
-    MissingTokenStandard = 7 + VALIDATOR_ERROR_START,
+    MissingTokenStandard,
 
     #[error("The metadata derivation does not match the mint account")]
-    InvalidMetadataDerivation = 8 + VALIDATOR_ERROR_START,
+    InvalidMetadataDerivation,
 
     #[error("The edition derivation does not match the mint account")]
-    InvalidEditionDerivation = 9 + VALIDATOR_ERROR_START,
+    InvalidEditionDerivation,
 
     #[error("Migration state account derivation is in correct")]
-    InvalidMigrationStateDerivation = 10 + VALIDATOR_ERROR_START,
+    InvalidMigrationStateDerivation,
 
     #[error("Program signer account derivation is incorrect")]
-    InvalidSignerDerivation = 11 + VALIDATOR_ERROR_START,
+    InvalidSignerDerivation,
 
     #[error("Invalid delegate record derivation")]
-    InvalidDelegateRecordDerivation = 12 + VALIDATOR_ERROR_START,
+    InvalidDelegateRecordDerivation,
 
     #[error("Invalid delegate")]
-    InvalidDelegate = 13 + VALIDATOR_ERROR_START,
+    InvalidDelegate,
 
     #[error("Incorrect program owner for metadata account")]
-    IncorrectMetadataProgramOwner = 14 + VALIDATOR_ERROR_START,
+    IncorrectMetadataProgramOwner,
 
     #[error("Incorrect program owner for mint account")]
-    IncorrectMintProgramOwner = 15 + VALIDATOR_ERROR_START,
+    IncorrectMintProgramOwner,
 
     #[error("Incorrect program owner for migration state account")]
-    IncorrectMigrationStateProgramOwner = 16 + VALIDATOR_ERROR_START,
+    IncorrectMigrationStateProgramOwner,
 
     #[error("Incorrect program owner for delegate record account")]
-    IncorrectDelegateRecordProgramOwner = 17 + VALIDATOR_ERROR_START,
+    IncorrectDelegateRecordProgramOwner,
 }
 
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
@@ -115,19 +115,19 @@ pub enum DeserializationError {
     InvalidMetadata = DESERIALIZATION_ERROR_START,
 
     #[error("Migration state did not deserialize correctly")]
-    InvalidMigrationState = 1 + DESERIALIZATION_ERROR_START,
+    InvalidMigrationState,
 
     #[error("Empty migration state account")]
-    EmptyMigrationState = 2 + DESERIALIZATION_ERROR_START,
+    EmptyMigrationState,
 
     #[error("Zeroed migration state account")]
-    ZeroedMigrationState = 3 + DESERIALIZATION_ERROR_START,
+    ZeroedMigrationState,
 
     #[error("Program signer did not deserialize correctly")]
-    InvalidProgramSigner = 4 + DESERIALIZATION_ERROR_START,
+    InvalidProgramSigner,
 
     #[error("Empty program signer account")]
-    EmptyProgramSigner = 5 + DESERIALIZATION_ERROR_START,
+    EmptyProgramSigner,
 }
 
 // General Error Impls

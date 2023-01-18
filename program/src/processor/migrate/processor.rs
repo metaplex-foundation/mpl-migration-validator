@@ -1,8 +1,4 @@
-use mpl_token_metadata::instruction::MetadataInstruction;
-use solana_program::{
-    instruction::{AccountMeta, Instruction},
-    program_pack::Pack,
-};
+use solana_program::program_pack::Pack;
 use spl_token::state::Mint;
 
 use crate::errors::GeneralError;
@@ -105,29 +101,24 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
         auth_rule_set_info.clone(),
     ];
 
-    let accounts = vec![
-        AccountMeta::new(*metadata_info.key, false),
-        AccountMeta::new(*edition_info.key, false),
-        AccountMeta::new(*token_info.key, false),
-        AccountMeta::new_readonly(*token_owner_info.key, false),
-        AccountMeta::new_readonly(*mint_info.key, false),
-        AccountMeta::new(*payer_info.key, true),
-        AccountMeta::new_readonly(*program_signer_info.key, true),
-        AccountMeta::new_readonly(*collection_metadata_info.key, false),
-        AccountMeta::new_readonly(*delegate_record_info.key, false),
-        AccountMeta::new(*token_record_info.key, false),
-        AccountMeta::new_readonly(*system_program_info.key, false),
-        AccountMeta::new_readonly(*sysvar_instructions_info.key, false),
-        AccountMeta::new_readonly(*spl_token_program_info.key, false),
-        AccountMeta::new_readonly(*mpl_token_auth_rules_program_info.key, false),
-        AccountMeta::new_readonly(*auth_rule_set_info.key, false),
-    ];
+    let mut builder = Box::new(MigrateBuilder::new());
+    let migrate = Box::new(
+        builder
+            .metadata(*metadata_info.key)
+            .edition(*edition_info.key)
+            .token(*token_info.key)
+            .token_owner(*token_owner_info.key)
+            .mint(*mint_info.key)
+            .payer(*payer_info.key)
+            .authority(*program_signer_info.key)
+            .collection_metadata(*collection_metadata_info.key)
+            .delegate_record(*delegate_record_info.key)
+            .token_record(*token_record_info.key)
+            .build(args)
+            .map_err(|_| GeneralError::InvalidInstruction)?,
+    );
 
-    let instruction = Instruction {
-        program_id: mpl_token_metadata::ID,
-        accounts,
-        data: MetadataInstruction::Migrate(args).try_to_vec().unwrap(),
-    };
+    let instruction = migrate.instruction();
 
     invoke_signed(&instruction, &account_infos, &[signers_seeds]).unwrap();
 

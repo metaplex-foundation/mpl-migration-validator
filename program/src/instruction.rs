@@ -190,7 +190,7 @@ pub fn migrate_item(
     let (delegate_record, _) = find_delegate_record_pda(&collection_mint);
     let (migration_state, _) = find_migration_state_pda(&collection_mint);
 
-    let data = MigrationInstruction::Start.try_to_vec().unwrap();
+    let data = MigrationInstruction::Migrate.try_to_vec().unwrap();
     Instruction {
         program_id: crate::ID,
         accounts: vec![

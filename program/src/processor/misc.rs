@@ -19,8 +19,6 @@ pub fn init_signer(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResu
     }
 
     // Already initialized
-    let data_len = program_signer_info.data.borrow().len();
-    msg!("data_len: {}", data_len);
     if !program_signer_info.data.borrow().is_empty() {
         return Err(MigrationError::AlreadyInitialized.into());
     }

@@ -84,7 +84,7 @@ pub enum ValidationError {
     #[error("Migration state account derivation is in correct")]
     InvalidMigrationStateDerivation = 10 + VALIDATOR_ERROR_START,
 
-    #[error("Program signer account derivation is in correct")]
+    #[error("Program signer account derivation is incorrect")]
     InvalidSignerDerivation = 11 + VALIDATOR_ERROR_START,
 
     #[error("Invalid delegate record derivation")]

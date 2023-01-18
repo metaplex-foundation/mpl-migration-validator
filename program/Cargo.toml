@@ -13,7 +13,8 @@ crate-type = ["cdylib", "lib"]
 borsh = "0.9.3"
 num-derive = "0.3.3"
 num-traits = "~0.2"
-mpl-token-metadata = { git = "https://github.com/metaplex-foundation/metaplex-program-library", branch = "feat/programmable-asset", features = ["no-entrypoint"] }
+# mpl-token-metadata = { git = "https://github.com/metaplex-foundation/metaplex-program-library", branch = "feat/programmable-asset", features = ["no-entrypoint"] }
+mpl-token-metadata = { git = "https://github.com/metaplex-foundation/metaplex-program-library", branch = "feat/migrate-nft-pnft", features = ["no-entrypoint"] }
 mpl-utils = "0.0.5"
 serde = { version = "1.0", optional = true }
 serde_with = { version = "1.14.0", optional = true }

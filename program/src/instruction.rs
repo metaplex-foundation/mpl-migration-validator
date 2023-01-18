@@ -1,5 +1,7 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use mpl_token_metadata::pda::{find_master_edition_account, find_metadata_account};
+use mpl_token_metadata::pda::{
+    find_master_edition_account, find_metadata_account, find_token_record_account,
+};
 use shank::ShankInstruction;
 use solana_program::{
     instruction::{AccountMeta, Instruction},
@@ -180,6 +182,7 @@ pub fn migrate_item(
     payer: Pubkey,
     item_mint: Pubkey,
     item_token: Pubkey,
+    token_owner: Pubkey,
     collection_mint: Pubkey,
     auth_rule_set: Pubkey,
 ) -> Instruction {
@@ -188,26 +191,29 @@ pub fn migrate_item(
     let (item_edition, _) = find_master_edition_account(&item_mint);
     let (collection_metadata, _) = find_metadata_account(&collection_mint);
     let (delegate_record, _) = find_delegate_record_pda(&collection_mint);
+    let (token_record, _) = find_token_record_account(&item_mint, &token_owner);
     let (migration_state, _) = find_migration_state_pda(&collection_mint);
 
     let data = MigrationInstruction::Migrate.try_to_vec().unwrap();
     Instruction {
         program_id: crate::ID,
         accounts: vec![
-            AccountMeta::new(payer, true),
-            AccountMeta::new_readonly(item_mint, false),
             AccountMeta::new(item_metadata, false),
-            AccountMeta::new_readonly(item_edition, false),
+            AccountMeta::new(item_edition, false),
             AccountMeta::new(item_token, false),
+            AccountMeta::new_readonly(token_owner, false),
+            AccountMeta::new_readonly(item_mint, false),
+            AccountMeta::new(payer, true),
+            AccountMeta::new_readonly(program_signer, false),
             AccountMeta::new_readonly(collection_metadata, false),
             AccountMeta::new_readonly(delegate_record, false),
-            AccountMeta::new(migration_state, false),
-            AccountMeta::new_readonly(program_signer, false),
+            AccountMeta::new(token_record, false),
             AccountMeta::new_readonly(solana_program::system_program::ID, false),
             AccountMeta::new_readonly(solana_program::sysvar::instructions::ID, false),
             AccountMeta::new_readonly(SPL_TOKEN_ID, false),
             AccountMeta::new_readonly(MPL_TOKEN_AUTH_RULES_ID, false),
             AccountMeta::new_readonly(auth_rule_set, false),
+            AccountMeta::new(migration_state, false),
             AccountMeta::new_readonly(mpl_token_metadata::ID, false),
         ],
         data,

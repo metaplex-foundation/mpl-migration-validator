@@ -5,7 +5,7 @@ use crate::{
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_token_metadata::{
-    instruction::{builders::MigrateBuilder, InstructionBuilder, MigrateArgs},
+    instruction::MigrateArgs,
     state::{Metadata, MigrationType, TokenMetadataAccount, EDITION, PREFIX},
 };
 use mpl_utils::{assert_derivation, assert_owned_by, assert_signer};

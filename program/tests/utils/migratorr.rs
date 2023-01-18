@@ -1,6 +1,8 @@
 use borsh::BorshSerialize;
 use mpl_migration_validator::{
-    instruction::{initialize, start, update, InitializeArgs, MigrationInstruction, UpdateArgs},
+    instruction::{
+        initialize, migrate_item, start, update, InitializeArgs, MigrationInstruction, UpdateArgs,
+    },
     state::{MigrationState, UnlockMethod},
 };
 use solana_program::{
@@ -64,6 +66,23 @@ impl Migratorr {
     }
 
     //      *****Program Instructions*****         //
+    pub async fn init_signer(
+        &self,
+        context: &mut ProgramTestContext,
+        payer: &Keypair,
+    ) -> Result<(), BanksClientError> {
+        let instruction = mpl_migration_validator::instruction::init_signer(payer.pubkey());
+
+        let transaction = Transaction::new_signed_with_payer(
+            &[instruction],
+            Some(&payer.pubkey()),
+            &[&*payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(transaction).await
+    }
+
     pub async fn initialize(
         &self,
         context: &mut ProgramTestContext,
@@ -172,6 +191,33 @@ impl Migratorr {
             &[instruction],
             Some(&authority.pubkey()),
             &[&*authority],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(transaction).await
+    }
+
+    pub async fn migrate_item(
+        &mut self,
+        context: &mut ProgramTestContext,
+        payer: &Keypair,
+        collection_mint: Pubkey,
+        token_owner: Pubkey,
+        nft: &NfTest,
+    ) -> Result<(), BanksClientError> {
+        let instruction = migrate_item(
+            payer.pubkey(),
+            nft.mint_pubkey(),
+            nft.token_pubkey(),
+            token_owner,
+            collection_mint,
+            self.rule_set(),
+        );
+
+        let transaction = Transaction::new_signed_with_payer(
+            &[instruction],
+            Some(&payer.pubkey()),
+            &[&*payer],
             context.last_blockhash,
         );
 

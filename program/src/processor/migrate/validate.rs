@@ -46,14 +46,16 @@ pub(crate) fn validate_accounts(ctx: &AccountContext) -> Result<(), ProgramError
     Ok(())
 }
 
+#[inline(never)]
 pub(crate) fn validate_relationships(
     ctx: &AccountContext,
     data: &DataContext,
 ) -> Result<(), ProgramError> {
     // User provided
-    let item_metadata = data.metadata;
-    let collection_metadata = data.collection_metadata;
+    let item_metadata = &data.metadata;
+    let collection_metadata = &data.collection_metadata;
     let mint_pubkey = ctx.mint_info.key;
+    let collection_mint_pubkey = &collection_metadata.mint;
 
     // Migration State
     let stored_collection_mint_pubkey = &data.migration_state.collection_info.mint;
@@ -73,7 +75,7 @@ pub(crate) fn validate_relationships(
     update_authority_matches(item_metadata, stored_collection_authority_pubkey)?;
 
     // The item must actually be a verified member of the collection.
-    verified_collection_member(item_metadata, mint_pubkey)?;
+    verified_collection_member(item_metadata, collection_mint_pubkey)?;
 
     // The item's edition must be derived from the item's mint.
     edition_derived_from_mint(ctx.edition_info, ctx.mint_info)?;
@@ -84,6 +86,7 @@ pub(crate) fn validate_relationships(
     Ok(())
 }
 
+#[inline(never)]
 pub(crate) fn validate_eligibility(
     ctx: &AccountContext,
     data: &DataContext,
@@ -101,6 +104,7 @@ pub(crate) fn validate_eligibility(
     Ok(())
 }
 
+#[inline(never)]
 pub(crate) fn validate_delegate(
     ctx: &AccountContext,
     data: &DataContext,

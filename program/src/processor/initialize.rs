@@ -64,7 +64,6 @@ pub fn initialize_migration(
 
     // The Collection NFT should be a NonFungible type, meaning it has a Master Edition.
     if let Some(token_standard) = metadata.token_standard {
-        msg!("token standard: {:?}", token_standard);
         if token_standard != TokenStandard::NonFungible {
             return Err(ValidationError::InvalidTokenStandard.into());
         }

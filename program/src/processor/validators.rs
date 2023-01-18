@@ -22,7 +22,7 @@ pub(crate) fn update_authority_matches(
 
 pub(crate) fn verified_collection_member(
     item_metadata: &Metadata,
-    mint_pubkey: &Pubkey,
+    collection_mint_pubkey: &Pubkey,
 ) -> Result<(), ProgramError> {
     if item_metadata.collection.is_none() {
         return Err(ValidationError::CollectionNotFound.into());
@@ -30,7 +30,7 @@ pub(crate) fn verified_collection_member(
 
     let collection = item_metadata.collection.as_ref().unwrap();
 
-    if !collection.verified || collection.key != *mint_pubkey {
+    if !collection.verified || collection.key != *collection_mint_pubkey {
         return Err(ValidationError::NotCollectionMember.into());
     }
     Ok(())

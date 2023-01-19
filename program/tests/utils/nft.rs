@@ -1,21 +1,34 @@
 use mpl_token_metadata::{
     id, instruction,
-    state::{Collection, CollectionDetails, Creator, Uses, EDITION, PREFIX},
+    pda::find_token_record_account,
+    state::{
+        Collection, CollectionDetails, Creator, ProgrammableConfig, TokenDelegateRole,
+        TokenMetadataAccount, TokenRecord, TokenStandard, TokenState, Uses, EDITION, PREFIX,
+    },
 };
 use solana_program::borsh::try_from_slice_unchecked;
+use solana_program::program_pack::Pack;
 use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
     pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
 };
+use spl_token::state::Account as TokenAccount;
 
 use super::*;
 
+// This test struct is defined by the mint account.
+// Edition and Metadata are derived from the mint and the mint should
+// never change for this object.
+// Token accounts and token record values can be updated and can be refreshed
+// by calling nft.refresh_accounts()
 #[derive(Debug)]
 pub struct NfTest {
     mint: Keypair,
     metadata: Pubkey,
-    token: Keypair,
     edition: Option<Pubkey>,
+    token: Keypair,
+    token_account: Option<TokenAccount>,
+    token_record: Option<TokenRecord>,
 }
 
 impl NfTest {
@@ -30,8 +43,10 @@ impl NfTest {
         NfTest {
             mint,
             metadata,
-            token: Keypair::new(),
             edition: None,
+            token: Keypair::new(),
+            token_account: None,
+            token_record: None,
         }
     }
 
@@ -200,6 +215,148 @@ impl NfTest {
             context.last_blockhash,
         );
         context.banks_client.process_transaction(tx).await
+    }
+
+    pub async fn spl_delegate(
+        &self,
+        context: &mut ProgramTestContext,
+        authority: &Keypair,
+        delegate: &Pubkey,
+    ) -> Result<(), BanksClientError> {
+        let tx = Transaction::new_signed_with_payer(
+            &[spl_token::instruction::approve(
+                &spl_token::id(),
+                &self.token.pubkey(),
+                &delegate,
+                &authority.pubkey(),
+                &[],
+                1,
+            )
+            .unwrap()],
+            Some(&context.payer.pubkey()),
+            &[&context.payer, authority],
+            context.last_blockhash,
+        );
+        context.banks_client.process_transaction(tx).await
+    }
+
+    pub async fn freeze_token(
+        &self,
+        context: &mut ProgramTestContext,
+        delegate: &Keypair,
+    ) -> Result<(), BanksClientError> {
+        let instruction = mpl_token_metadata::instruction::freeze_delegated_account(
+            mpl_token_metadata::ID,
+            delegate.pubkey(),
+            self.token.pubkey(),
+            self.edition.unwrap(),
+            self.mint.pubkey(),
+        );
+
+        let tx = Transaction::new_signed_with_payer(
+            &[instruction],
+            Some(&delegate.pubkey()),
+            &[delegate],
+            context.last_blockhash,
+        );
+        context.banks_client.process_transaction(tx).await
+    }
+
+    // Manually injects a frozen state into the NFT's token account.
+    pub async fn inject_frozen_state(&self, context: &mut ProgramTestContext) {
+        let lamports = context
+            .banks_client
+            .get_account(self.token.pubkey())
+            .await
+            .unwrap()
+            .unwrap()
+            .lamports;
+
+        let account = get_account(context, &self.token.pubkey()).await;
+        let mut token_account = spl_token::state::Account::unpack(&account.data).unwrap();
+        token_account.state = spl_token::state::AccountState::Frozen;
+        let mut data = vec![0; spl_token::state::Account::LEN];
+        <spl_token::state::Account as Pack>::pack(token_account, &mut data).unwrap();
+
+        let account = Account {
+            lamports,
+            data,
+            owner: spl_token::ID,
+            executable: false,
+            rent_epoch: 0,
+        };
+
+        context.set_account(&self.token.pubkey(), &account.into())
+    }
+
+    pub async fn refresh_accounts(
+        &mut self,
+        context: &mut ProgramTestContext,
+    ) -> Result<(), BanksClientError> {
+        let account = get_account(context, &self.token.pubkey()).await;
+        let token_account = spl_token::state::Account::unpack(&account.data).unwrap();
+        let token_owner = token_account.owner;
+
+        println!("Token owner: {:?}", token_owner);
+        println!("authority: {:?}", context.payer.pubkey());
+
+        self.token_account = Some(token_account);
+
+        let (token_record_pda, _bump) =
+            find_token_record_account(&self.mint.pubkey(), &token_owner);
+
+        let token_record_account = context
+            .banks_client
+            .get_account(token_record_pda)
+            .await
+            .unwrap();
+
+        self.token_record = token_record_account
+            .map(|account| TokenRecord::safe_deserialize(&account.data).unwrap());
+
+        Ok(())
+    }
+
+    // *** TEST ASSERTIONS ***
+    pub async fn assert_pnft_migration(
+        &mut self,
+        context: &mut ProgramTestContext,
+        rule_set: Option<Pubkey>,
+        delegate: Option<Pubkey>,
+        role: Option<TokenDelegateRole>,
+        state: TokenState,
+    ) -> Result<(), BanksClientError> {
+        self.refresh_accounts(context).await?;
+
+        let md = self.get_data(context).await;
+
+        // Metadata should have the correct token standard.
+        assert_eq!(
+            md.token_standard,
+            Some(TokenStandard::ProgrammableNonFungible)
+        );
+
+        // Metadata should have the correct programmable config and rule set.
+        let ProgrammableConfig::V1 {
+            rule_set: nft_rule_set,
+        } = md.programmable_config.unwrap();
+
+        assert_eq!(nft_rule_set, rule_set);
+
+        // Token Account should have 1 token and should be frozen.
+        assert_eq!(self.token_account.as_ref().unwrap().amount, 1);
+        assert_eq!(self.token_account.as_ref().unwrap().is_frozen(), true);
+
+        // Token Record should exist and have the correct delegate, role and state.
+        if let Some(ref record) = self.token_record {
+            assert_eq!(record.delegate, delegate);
+            assert_eq!(record.delegate_role, role);
+            assert_eq!(record.state, state);
+        } else {
+            panic!("Token record account not found");
+        }
+
+        Ok(())
     }
 }
 

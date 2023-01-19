@@ -255,4 +255,37 @@ impl Migratorr {
 
         context.set_account(&self.pubkey(), &account.into())
     }
+
+    pub async fn unlock_collection(
+        &mut self,
+        context: &mut ProgramTestContext,
+        authority: &Keypair,
+    ) {
+        self.refresh_state(context).await.unwrap();
+
+        // We need to inject the account with the state set to a timestamp
+        // that allows our migration to start.
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_secs() as u64;
+
+        let mut state = self.state().clone();
+        state.status.unlock_time = now as i64 - 2;
+
+        // Set the state on the account.
+        self.inject_state(context, state).await;
+
+        // Warp ahead to ensure account is updated.
+        warp100(context).await;
+
+        // Update the state account on-chain. This checks the current time
+        // and updates the is_unlocked field if the wait time has passed.s
+        let update_args = UpdateArgs {
+            rule_set: None,
+            collection_size: None, // leave collection size unchanged
+        };
+
+        self.update(context, &authority, update_args).await.unwrap();
+    }
 }

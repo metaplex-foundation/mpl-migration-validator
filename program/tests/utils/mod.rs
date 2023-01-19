@@ -6,10 +6,12 @@ use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transacti
 mod assert;
 mod migratorr;
 mod nft;
+mod programmable;
 
 pub use assert::*;
 pub use migratorr::*;
 pub use nft::*;
+pub use programmable::*;
 
 pub trait DirtyClone {
     fn dirty_clone(&self) -> Self;
@@ -54,13 +56,20 @@ impl Airdrop for Keypair {
 
 pub async fn warp100(context: &mut ProgramTestContext) {
     let current_slot = context.banks_client.get_root_slot().await.unwrap();
-    print!("Warping to slot: {}", current_slot + 100);
+    println!("Warping to slot: {}", current_slot + 100);
     context.warp_to_slot(current_slot + 100).unwrap();
 }
 
 pub async fn setup_context() -> ProgramTestContext {
     let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
     test.add_program("mpl_token_metadata", mpl_token_metadata::ID, None);
+    test.start_with_context().await
+}
+
+pub async fn setup_pnft_context() -> ProgramTestContext {
+    let mut test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
+    test.add_program("mpl_token_metadata", mpl_token_metadata::ID, None);
+    test.add_program("mpl_token_auth_rules", mpl_token_auth_rules::ID, None);
     test.start_with_context().await
 }
 

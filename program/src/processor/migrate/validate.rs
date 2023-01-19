@@ -103,6 +103,11 @@ pub(crate) fn validate_eligibility(
         return Err(MigrationError::ImmutableMetadata.into());
     }
 
+    msg!(
+        "Validating token standard... {:?}",
+        data.metadata.token_standard
+    );
+
     if let Some(token_standard) = data.metadata.token_standard {
         if token_standard != TokenStandard::NonFungible {
             return Err(MigrationError::IncorrectTokenStandard.into());

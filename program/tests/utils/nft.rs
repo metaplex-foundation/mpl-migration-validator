@@ -188,6 +188,39 @@ impl NfTest {
         Ok(())
     }
 
+    pub async fn mint_master_with_supply(
+        &mut self,
+        context: &mut ProgramTestContext,
+        authority: Option<&Keypair>,
+        supply: u64,
+    ) -> Result<(), BanksClientError> {
+        self.mint(
+            context,
+            authority.unwrap_or(&context.payer.dirty_clone()),
+            "name".to_string(),
+            "symbol".to_string(),
+            "uri".to_string(),
+            None,
+            0,
+            true,
+            None,
+            None,
+            None,
+        )
+        .await
+        .unwrap();
+
+        let master_edition = MasterEditionV2::new(&self);
+        master_edition
+            .create_v3(context, authority, Some(supply))
+            .await
+            .unwrap();
+
+        self.edition = Some(master_edition.pubkey);
+
+        Ok(())
+    }
+
     pub async fn set_and_verify_collection(
         &self,
         context: &mut ProgramTestContext,
@@ -296,9 +329,6 @@ impl NfTest {
         let account = get_account(context, &self.token.pubkey()).await;
         let token_account = spl_token::state::Account::unpack(&account.data).unwrap();
         let token_owner = token_account.owner;
-
-        println!("Token owner: {:?}", token_owner);
-        println!("authority: {:?}", context.payer.pubkey());
 
         self.token_account = Some(token_account);
 

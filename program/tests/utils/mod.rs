@@ -4,13 +4,17 @@ use solana_program_test::{BanksClientError, ProgramTest, ProgramTestContext};
 use solana_sdk::{account::Account, signature::Keypair, signer::Signer, transaction::Transaction};
 
 mod assert;
+mod asset;
 mod migratorr;
 mod nft;
+mod print_edition;
 mod programmable;
 
 pub use assert::*;
+pub use asset::*;
 pub use migratorr::*;
 pub use nft::*;
+pub use print_edition::*;
 pub use programmable::*;
 
 pub trait DirtyClone {

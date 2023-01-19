@@ -13,6 +13,7 @@ use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
     pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
 };
+use spl_associated_token_account::get_associated_token_address;
 
 use super::*;
 
@@ -209,6 +210,64 @@ impl Migratorr {
             payer.pubkey(),
             nft.mint_pubkey(),
             nft.token_pubkey(),
+            token_owner,
+            collection_mint,
+            self.rule_set(),
+        );
+
+        let transaction = Transaction::new_signed_with_payer(
+            &[instruction],
+            Some(&payer.pubkey()),
+            &[&*payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(transaction).await
+    }
+
+    pub async fn migrate_asset(
+        &mut self,
+        context: &mut ProgramTestContext,
+        payer: &Keypair,
+        collection_mint: Pubkey,
+        token_owner: Pubkey,
+        asset: &TestAsset,
+    ) -> Result<(), BanksClientError> {
+        let token = get_associated_token_address(&token_owner, &asset.mint.pubkey());
+
+        let instruction = migrate_item(
+            payer.pubkey(),
+            asset.mint.pubkey(),
+            token,
+            token_owner,
+            collection_mint,
+            self.rule_set(),
+        );
+
+        let transaction = Transaction::new_signed_with_payer(
+            &[instruction],
+            Some(&payer.pubkey()),
+            &[&*payer],
+            context.last_blockhash,
+        );
+
+        context.banks_client.process_transaction(transaction).await
+    }
+
+    pub async fn migrate_print_edition(
+        &mut self,
+        context: &mut ProgramTestContext,
+        payer: &Keypair,
+        collection_mint: Pubkey,
+        token_owner: Pubkey,
+        asset: &TestPrintEdition,
+    ) -> Result<(), BanksClientError> {
+        // let token = get_associated_token_address(&token_owner, &asset.print_mint.pubkey());
+
+        let instruction = migrate_item(
+            payer.pubkey(),
+            asset.print_mint.pubkey(),
+            asset.print_token.pubkey(),
             token_owner,
             collection_mint,
             self.rule_set(),

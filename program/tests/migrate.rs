@@ -7,10 +7,14 @@ use mpl_token_metadata::pda::find_collection_authority_account;
 use mpl_token_metadata::state::{
     CollectionAuthorityRecord, TokenDelegateRole, TokenMetadataAccount, TokenState,
 };
+use num_traits::FromPrimitive;
 use solana_program::native_token::LAMPORTS_PER_SOL;
-use solana_program_test::tokio;
-use solana_sdk::signature::Keypair;
-use solana_sdk::signer::Signer;
+use solana_program_test::{tokio, BanksClientError};
+use solana_sdk::{
+    instruction::InstructionError, signature::Keypair, signer::Signer,
+    transaction::TransactionError,
+};
+
 use utils::*;
 
 mod eligible_scenarios {
@@ -544,5 +548,224 @@ mod eligible_scenarios {
         )
         .await
         .unwrap();
+    }
+}
+
+mod ineligible_scenarios {
+    use mpl_migration_validator::errors::MigrationError;
+
+    use super::*;
+
+    #[tokio::test]
+    async fn only_nonfungible_can_migrate() {
+        // Attempt to migrate the following asset types:
+        // * Fungible
+        // * FungibleAsset
+        // * NonFungibleEdition
+        // * ProgrammableNonFungible
+        // These should all fail.
+        let mut context = setup_pnft_context().await;
+
+        let collection_authority = context.payer.dirty_clone();
+
+        // We create a collection to contain the various asset types.
+        let mut collection_nft = NfTest::new();
+        collection_nft
+            .mint_default(&mut context, None)
+            .await
+            .unwrap();
+
+        let authority = context.payer.dirty_clone();
+
+        // Create NonFungible asset to migrate to a ProgrammableNonFungible
+        // to test a second migration and to print an edition from.
+        let mut nft = NfTest::new();
+        nft.mint_master_with_supply(&mut context, None, 1)
+            .await
+            .unwrap();
+        nft.set_and_verify_collection(
+            &mut context,
+            collection_nft.metadata_pubkey(),
+            &collection_authority,
+            collection_authority.pubkey(),
+            collection_nft.mint_pubkey(),
+            collection_nft.edition_pubkey().unwrap(),
+            None,
+        )
+        .await
+        .unwrap();
+
+        let print_edition = TestPrintEdition::new(&nft, 1);
+        print_edition.create(&mut context).await.unwrap();
+        print_edition
+            .set_and_verify_collection(
+                &mut context,
+                collection_nft.metadata_pubkey(),
+                &collection_authority,
+                collection_authority.pubkey(),
+                collection_nft.mint_pubkey(),
+                collection_nft.edition_pubkey().unwrap(),
+                None,
+            )
+            .await
+            .unwrap();
+
+        let fungible = TestAsset::new();
+        fungible
+            .mint_default_fungible(&mut context, &authority)
+            .await
+            .unwrap();
+
+        fungible
+            .set_and_verify_collection(
+                &mut context,
+                collection_nft.metadata_pubkey(),
+                &collection_authority,
+                collection_authority.pubkey(),
+                collection_nft.mint_pubkey(),
+                collection_nft.edition_pubkey().unwrap(),
+                None,
+            )
+            .await
+            .unwrap();
+
+        let fungible_asset = TestAsset::new();
+        fungible_asset
+            .mint_default_fungible_asset(&mut context, &authority)
+            .await
+            .unwrap();
+
+        fungible_asset
+            .set_and_verify_collection(
+                &mut context,
+                collection_nft.metadata_pubkey(),
+                &collection_authority,
+                collection_authority.pubkey(),
+                collection_nft.mint_pubkey(),
+                collection_nft.edition_pubkey().unwrap(),
+                None,
+            )
+            .await
+            .unwrap();
+
+        // Create default rule set to apply to migrated NFTs.
+        let (rule_set, _auth_rules) =
+            create_default_metaplex_rule_set(&mut context, authority).await;
+
+        // Create our migration state manager.
+        let mut migratorr = Migratorr::new(collection_nft.mint_pubkey());
+
+        let payer = context.payer.dirty_clone();
+
+        // Initialize the program signer
+        migratorr.init_signer(&mut context, &payer).await.unwrap();
+
+        let args = InitializeArgs {
+            rule_set: Some(rule_set), // this defaults to the default public key
+            unlock_method: UnlockMethod::Timed,
+            collection_size: 1,
+        };
+
+        // Initialize the migration state account on-chain
+        migratorr
+            .initialize(&mut context, &payer, &payer, &collection_nft, args)
+            .await
+            .unwrap();
+
+        // Artificially update the timestamp to allow the migration to start
+        // and call update to unlock the collection.
+        migratorr
+            .unlock_collection(&mut context, &collection_authority)
+            .await;
+
+        // Enable migration
+        migratorr
+            .start(&mut context, &payer, &payer, &collection_nft)
+            .await
+            .unwrap();
+
+        // Attempt to migrate the Fungible
+        // Error: IncorrectFreezeAuthority
+        let err = migratorr
+            .migrate_asset(
+                &mut context,
+                &payer,
+                collection_nft.mint_pubkey(),
+                payer.pubkey(),
+                &fungible,
+            )
+            .await
+            .unwrap_err();
+
+        assert_custom_error_ix!(0, err, MigrationError::IncorrectFreezeAuthority);
+
+        // Attempt to migrate the Fungible Asset
+        // Error: IncorrectFreezeAuthority
+        let err = migratorr
+            .migrate_asset(
+                &mut context,
+                &payer,
+                collection_nft.mint_pubkey(),
+                payer.pubkey(),
+                &fungible_asset,
+            )
+            .await
+            .unwrap_err();
+
+        assert_custom_error_ix!(0, err, MigrationError::IncorrectFreezeAuthority);
+
+        // Attempt to migrate the Print Edition
+        // Error: ImmutableMetadata
+        let err = migratorr
+            .migrate_print_edition(
+                &mut context,
+                &payer,
+                collection_nft.mint_pubkey(),
+                payer.pubkey(),
+                &print_edition,
+            )
+            .await
+            .unwrap_err();
+
+        assert_custom_error_ix!(0, err, MigrationError::ImmutableMetadata);
+
+        // Migrate the NonFungible.
+        migratorr
+            .migrate_item(
+                &mut context,
+                &payer,
+                collection_nft.mint_pubkey(),
+                payer.pubkey(),
+                &nft,
+            )
+            .await
+            .unwrap();
+
+        // It is now a pNFT, migrating it again should fail.
+        // Error: IncorrectTokenStandard
+        nft.assert_pnft_migration(
+            &mut context,
+            Some(rule_set),
+            None,
+            None,
+            TokenState::Unlocked,
+        )
+        .await
+        .unwrap();
+
+        warp100(&mut context).await;
+
+        let err = migratorr
+            .migrate_item(
+                &mut context,
+                &payer,
+                collection_nft.mint_pubkey(),
+                payer.pubkey(),
+                &nft,
+            )
+            .await
+            .unwrap_err();
+
+        assert_custom_error_ix!(0, err, MigrationError::IncorrectTokenStandard);
     }
 }

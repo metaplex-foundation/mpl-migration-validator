@@ -27,6 +27,18 @@ pub struct MigrationState {
     pub status: MigrationStatus,
 }
 
+/// See if a slice contains all zeroes.  Useful for checking an account's data.
+pub fn is_zeroed_chunks(buf: &[u8]) -> bool {
+    const ZEROS_LEN: usize = 1024;
+    const ZEROS: [u8; ZEROS_LEN] = [0; ZEROS_LEN];
+    let mut chunks = buf.chunks_exact(ZEROS_LEN);
+
+    {
+        chunks.all(|chunk| chunk == &ZEROS[..])
+            && chunks.remainder() == &ZEROS[..chunks.remainder().len()]
+    }
+}
+
 impl MigrationState {
     pub fn from_account_info(a: &AccountInfo) -> Result<Self, ProgramError> {
         let data = a.try_borrow_data()?;
@@ -35,7 +47,7 @@ impl MigrationState {
             return Err(MigrationError::EmptyMigrationState.into());
         }
 
-        if data.is_zeroed() {
+        if is_zeroed_chunks(&data) {
             return Err(MigrationError::ZeroedMigrationState.into());
         }
 
@@ -66,16 +78,6 @@ impl Default for MigrationState {
             unlock_method: UnlockMethod::Timed,
             status: MigrationStatus::default(),
         }
-    }
-}
-
-trait Zeroed {
-    fn is_zeroed(&self) -> bool;
-}
-
-impl Zeroed for [u8] {
-    fn is_zeroed(&self) -> bool {
-        self.iter().all(|&x| x == 0)
     }
 }
 
@@ -131,9 +133,6 @@ pub struct ProgramSigner {
 }
 
 impl ProgramSigner {
-    pub fn pubkey() -> Pubkey {
-        pubkey!("4fDQAj27ahBfXw3ZQumg5gJrMRUCzPUW6RxrRPFMC8Av")
-    }
     pub fn from_account_info(a: &AccountInfo) -> Result<Self, ProgramError> {
         let data = a.try_borrow_data()?;
 

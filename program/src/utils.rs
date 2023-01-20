@@ -7,10 +7,7 @@ use solana_program::{
     pubkey::Pubkey, system_program,
 };
 
-use crate::{
-    errors::MigrationError,
-    state::{MigrationState, ProgramSigner},
-};
+use crate::{errors::MigrationError, state::MigrationState, PROGRAM_SIGNER};
 
 pub fn assert_valid_delegate(
     delegate_pubkey: &Pubkey,
@@ -81,14 +78,12 @@ pub fn find_migration_state_pda(mint: &Pubkey) -> (Pubkey, u8) {
 }
 
 pub fn find_delegate_record_pda(mint: &Pubkey) -> (Pubkey, u8) {
-    let program_signer = ProgramSigner::pubkey();
-
     let seeds = &[
         mpl_token_metadata::state::PREFIX.as_bytes(),
         mpl_token_metadata::ID.as_ref(),
         mint.as_ref(),
         mpl_token_metadata::pda::COLLECTION_AUTHORITY.as_bytes(),
-        program_signer.as_ref(),
+        PROGRAM_SIGNER.as_ref(),
     ];
     Pubkey::find_program_address(seeds, &mpl_token_metadata::ID)
 }

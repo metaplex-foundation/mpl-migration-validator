@@ -1,4 +1,5 @@
-use mpl_token_metadata::state::TokenStandard;
+use mpl_token_metadata::{state::TokenStandard, utils::is_master_edition};
+use mpl_utils::token::{get_mint_decimals, get_mint_supply};
 use solana_program::bpf_loader_upgradeable::UpgradeableLoaderState;
 
 use crate::utils::assert_valid_delegate;
@@ -83,6 +84,11 @@ pub(crate) fn validate_relationships(
     // The item's edition must be derived from the item's mint.
     edition_derived_from_mint(ctx.edition_info, ctx.mint_info)?;
 
+    // The item's edition must be a master edition.
+    let mint_decimals = get_mint_decimals(ctx.mint_info)?;
+    let mint_supply = get_mint_supply(ctx.mint_info)?;
+    is_master_edition(ctx.edition_info, mint_decimals, mint_supply);
+
     // The token must belong to the mint
     token_belongs_to_mint(data.token, mint_pubkey)?;
 
@@ -99,15 +105,19 @@ pub(crate) fn validate_relationships(
     // The token owner program buffer must be the correct one.
     // We only check upgradeble loader programs as we don't want to skip
     // anything owned by e.g. the SystemProgram.
-    let state: Option<UpgradeableLoaderState> =
+    let state_opt: Option<UpgradeableLoaderState> =
         bincode::deserialize(&ctx.token_owner_program_info.data.borrow()).ok();
 
-    if let Some(UpgradeableLoaderState::Program {
-        programdata_address,
-    }) = state
-    {
-        if programdata_address != *ctx.token_owner_program_buffer_info.key {
-            return Err(MigrationError::IncorrectTokenOwnerProgramBuffer.into());
+    if let Some(state) = state_opt {
+        match state {
+            UpgradeableLoaderState::Program {
+                programdata_address,
+            } => {
+                if programdata_address != *ctx.token_owner_program_buffer_info.key {
+                    return Err(MigrationError::IncorrectTokenOwnerProgramBuffer.into());
+                }
+            }
+            _ => return Err(MigrationError::IncorrectTokenOwnerProgramOwner.into()),
         }
     }
 
@@ -142,19 +152,25 @@ pub(crate) fn validate_eligibility(
 
     if ctx.token_owner_program_buffer_info.key != &crate::ID {
         // Do not migrate items owned by immutable programs.
-        let state: Option<UpgradeableLoaderState> =
-            bincode::deserialize(&ctx.token_owner_program_buffer_info.data.borrow()).ok();
+        let state: UpgradeableLoaderState = bincode::deserialize(
+            &ctx.token_owner_program_buffer_info.data.borrow(),
+        )
+        .map_err(|_| {
+            msg!("Failed to deserialize token owner program buffer");
+            MigrationError::IncorrectTokenOwnerProgramBuffer
+        })?;
 
-        // We only check programs uploaded by the UpgradeableLoader as
-        // we don't want to skip items owned by SystemProgram.
-        if let Some(UpgradeableLoaderState::ProgramData {
-            slot: _,
-            upgrade_authority_address,
-        }) = state
-        {
-            if upgrade_authority_address.is_none() {
-                return Err(MigrationError::ImmutableProgramOwner.into());
+        match state {
+            UpgradeableLoaderState::ProgramData {
+                slot: _,
+                upgrade_authority_address,
+            } => {
+                if upgrade_authority_address.is_none() {
+                    return Err(MigrationError::ImmutableProgramOwner.into());
+                }
             }
+            // If this isn't a ProgramData variant something is wrong.
+            _ => return Err(MigrationError::IncorrectTokenOwnerProgramBuffer.into()),
         }
     }
 

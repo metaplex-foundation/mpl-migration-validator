@@ -9,9 +9,9 @@ use solana_program::{
 };
 
 use crate::{
-    state::{ProgramSigner, UnlockMethod, SPL_TOKEN_ID},
+    state::{UnlockMethod, SPL_TOKEN_ID},
     utils::{find_delegate_record_pda, find_migration_state_pda},
-    MPL_TOKEN_AUTH_RULES_ID,
+    MPL_TOKEN_AUTH_RULES_ID, PROGRAM_SIGNER,
 };
 
 #[repr(C)]
@@ -139,14 +139,12 @@ pub fn close(authority: Pubkey, migration_state: Pubkey) -> Instruction {
 }
 
 pub fn init_signer(payer: Pubkey) -> Instruction {
-    let program_signer = ProgramSigner::pubkey();
-
     let data = MigrationInstruction::InitSigner.try_to_vec().unwrap();
     Instruction {
         program_id: crate::ID,
         accounts: vec![
             AccountMeta::new(payer, true),
-            AccountMeta::new(program_signer, false),
+            AccountMeta::new(PROGRAM_SIGNER, false),
             AccountMeta::new_readonly(solana_program::system_program::ID, false),
         ],
         data,
@@ -157,7 +155,6 @@ pub fn start(payer: Pubkey, authority: Pubkey, collection_mint: Pubkey) -> Instr
     let (collection_metadata, _) = find_metadata_account(&collection_mint);
     let (delegate_record, _) = find_delegate_record_pda(&collection_mint);
     let (migration_state, _) = find_migration_state_pda(&collection_mint);
-    let delegate = ProgramSigner::pubkey();
 
     let data = MigrationInstruction::Start.try_to_vec().unwrap();
     Instruction {
@@ -167,7 +164,7 @@ pub fn start(payer: Pubkey, authority: Pubkey, collection_mint: Pubkey) -> Instr
             AccountMeta::new_readonly(authority, true),
             AccountMeta::new_readonly(collection_mint, false),
             AccountMeta::new_readonly(collection_metadata, false),
-            AccountMeta::new_readonly(delegate, false),
+            AccountMeta::new_readonly(PROGRAM_SIGNER, false),
             AccountMeta::new(delegate_record, false),
             AccountMeta::new(migration_state, false),
             AccountMeta::new_readonly(SPL_TOKEN_ID, false),
@@ -189,7 +186,6 @@ pub fn migrate_item(
     collection_mint: Pubkey,
     auth_rule_set: Pubkey,
 ) -> Instruction {
-    let program_signer = ProgramSigner::pubkey();
     let (item_metadata, _) = find_metadata_account(&item_mint);
     let (item_edition, _) = find_master_edition_account(&item_mint);
     let (collection_metadata, _) = find_metadata_account(&collection_mint);
@@ -209,7 +205,7 @@ pub fn migrate_item(
             AccountMeta::new_readonly(token_owner_program_buffer.unwrap_or(crate::ID), false),
             AccountMeta::new_readonly(item_mint, false),
             AccountMeta::new(payer, true),
-            AccountMeta::new_readonly(program_signer, false),
+            AccountMeta::new_readonly(PROGRAM_SIGNER, false),
             AccountMeta::new_readonly(collection_metadata, false),
             AccountMeta::new_readonly(delegate_record, false),
             AccountMeta::new(token_record, false),

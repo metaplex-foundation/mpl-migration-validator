@@ -1,5 +1,7 @@
 use mpl_token_metadata::state::CollectionAuthorityRecord;
 
+use crate::PROGRAM_SIGNER;
+
 use super::*;
 
 pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
@@ -52,24 +54,22 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    // The migration state account must must match the correct derivation
+    // Relationship validation
+
+    metadata_derived_from_mint(collection_metadata_info, collection_mint_info)?;
     migration_state_derived_from_mint(migration_state_info, collection_mint_info)?;
 
-    // Deserialize needed accounts
+    // Deserialize needed account states.
     let mut migration_state = MigrationState::from_account_info(migration_state_info)?;
     let collection_metadata = Metadata::from_account_info(collection_metadata_info)?;
 
-    // Relationship validation
     incoming_collection_mint_matches_stored(collection_mint_info, &migration_state)?;
     incoming_collection_authority_matches_stored(authority_info, &migration_state)?;
-    metadata_derived_from_mint(collection_metadata_info, collection_mint_info)?;
     // Update authority on collection metadata matches the authority stored in the migration state.
     update_authority_matches(
         &collection_metadata,
         &migration_state.collection_info.authority,
     )?;
-
-    let program_signer = ProgramSigner::pubkey();
 
     // The delegate record must match the correct derivation
     // with the mint from the migration state account and the
@@ -82,7 +82,7 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
             mpl_token_metadata::ID.as_ref(),
             migration_state.collection_info.mint.as_ref(),
             mpl_token_metadata::pda::COLLECTION_AUTHORITY.as_bytes(),
-            program_signer.as_ref(),
+            PROGRAM_SIGNER.as_ref(),
         ],
         MigrationError::InvalidDelegateRecordDerivation,
     )?;
@@ -94,7 +94,7 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
         let instruction = mpl_token_metadata::instruction::approve_collection_authority(
             mpl_token_metadata::ID,
             *delegate_record_info.key,
-            program_signer,
+            PROGRAM_SIGNER,
             *authority_info.key,
             *payer_info.key,
             *collection_metadata_info.key,

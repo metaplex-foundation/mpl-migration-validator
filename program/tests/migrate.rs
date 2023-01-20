@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_migration_validator::state::ProgramSigner;
+use mpl_migration_validator::PROGRAM_SIGNER;
 use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
 use mpl_token_metadata::pda::find_collection_authority_account;
 use mpl_token_metadata::state::{
@@ -131,7 +131,7 @@ mod eligible_scenarios {
 
         // Ensure the collection delegate was created.
         let (delegate_record_pda, bump) =
-            find_collection_authority_account(&migratorr.mint(), &ProgramSigner::pubkey());
+            find_collection_authority_account(&migratorr.mint(), &PROGRAM_SIGNER);
 
         // This function call panics if the account doesn't exist.
         let delegate_record_account = get_account(&mut context, &delegate_record_pda).await;

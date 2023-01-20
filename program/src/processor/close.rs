@@ -8,10 +8,14 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     let account_info_iter = &mut accounts.iter();
     let authority_info = next_account_info(account_info_iter)?;
     let migration_state_info = next_account_info(account_info_iter)?;
-    let _system_program_info = next_account_info(account_info_iter)?;
+    let system_program_info = next_account_info(account_info_iter)?;
 
     // Validate Accounts
     assert_signer(authority_info)?;
+
+    if system_program_info.key != &solana_program::system_program::ID {
+        return Err(ProgramError::IncorrectProgramId);
+    }
 
     // Paranoia.
     assert_owned_by(

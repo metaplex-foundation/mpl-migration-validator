@@ -60,7 +60,7 @@ impl TestAsset {
         let ix = CreateBuilder::new()
             .mint(self.mint.pubkey())
             .metadata(self.metadata)
-            .mint_authority(authority.pubkey())
+            .authority(authority.pubkey())
             .payer(payer.pubkey())
             .update_authority(authority.pubkey())
             .initialize_mint(true)

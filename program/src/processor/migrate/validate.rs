@@ -1,4 +1,5 @@
 use mpl_token_metadata::state::TokenStandard;
+use solana_program::bpf_loader_upgradeable::UpgradeableLoaderState;
 
 use crate::utils::assert_valid_delegate;
 
@@ -85,6 +86,31 @@ pub(crate) fn validate_relationships(
     // The token must belong to the mint
     token_belongs_to_mint(data.token, mint_pubkey)?;
 
+    // The token must be owned by the specified owner
+    token_owned_by(data.token, ctx.token_owner_info.key)?;
+
+    // Token owner must be owned by the specified program
+    assert_owned_by(
+        ctx.token_owner_info,
+        ctx.token_owner_program_info.key,
+        ValidationError::IncorrectTokenOwnerProgramOwner,
+    )?;
+
+    // The token owner program buffer must be the correct one.
+    // We only check upgradeble loader programs as we don't want to skip
+    // anything owned by e.g. the SystemProgram.
+    let state: Option<UpgradeableLoaderState> =
+        bincode::deserialize(&ctx.token_owner_program_info.data.borrow()).ok();
+
+    if let Some(UpgradeableLoaderState::Program {
+        programdata_address,
+    }) = state
+    {
+        if programdata_address != *ctx.token_owner_program_buffer_info.key {
+            return Err(ValidationError::IncorrectTokenOwnerProgramBuffer.into());
+        }
+    }
+
     Ok(())
 }
 
@@ -111,6 +137,24 @@ pub(crate) fn validate_eligibility(
     if let Some(token_standard) = data.metadata.token_standard {
         if token_standard != TokenStandard::NonFungible {
             return Err(MigrationError::IncorrectTokenStandard.into());
+        }
+    }
+
+    if ctx.token_owner_program_buffer_info.key != &crate::ID {
+        // Do not migrate items owned by immutable programs.
+        let state: Option<UpgradeableLoaderState> =
+            bincode::deserialize(&ctx.token_owner_program_buffer_info.data.borrow()).ok();
+
+        // We only check programs uploaded by the UpgradeableLoader as
+        // we don't want to skip items owned by SystemProgram.
+        if let Some(UpgradeableLoaderState::ProgramData {
+            slot: _,
+            upgrade_authority_address,
+        }) = state
+        {
+            if upgrade_authority_address.is_none() {
+                return Err(MigrationError::ImmutableProgramOwner.into());
+            }
         }
     }
 

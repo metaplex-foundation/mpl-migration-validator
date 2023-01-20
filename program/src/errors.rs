@@ -50,6 +50,9 @@ pub enum MigrationError {
 
     #[error("Incorrect token standard: must be NonFungible")]
     IncorrectTokenStandard,
+
+    #[error("Cannot migrate an item owned by an immutable program")]
+    ImmutableProgramOwner,
 }
 
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
@@ -107,6 +110,15 @@ pub enum ValidationError {
 
     #[error("Incorrect program owner for delegate record account")]
     IncorrectDelegateRecordProgramOwner,
+
+    #[error("Incorrect owner for SPL token account")]
+    TokenOwnerMismatch,
+
+    #[error("Incorrect program owner for token owner account")]
+    IncorrectTokenOwnerProgramOwner,
+
+    #[error("Incorrect program owner for token owner account buffer")]
+    IncorrectTokenOwnerProgramBuffer,
 }
 
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
@@ -128,6 +140,9 @@ pub enum DeserializationError {
 
     #[error("Empty program signer account")]
     EmptyProgramSigner,
+
+    #[error("Failed to deserialize UpgradeableLoaderState")]
+    InvalidUpgradeableLoaderState,
 }
 
 // General Error Impls

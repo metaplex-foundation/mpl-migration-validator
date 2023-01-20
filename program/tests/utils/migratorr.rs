@@ -7,11 +7,13 @@ use mpl_migration_validator::{
 };
 use solana_program::{
     borsh::try_from_slice_unchecked,
+    bpf_loader_upgradeable::UpgradeableLoaderState,
     instruction::{AccountMeta, Instruction},
 };
 use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
-    pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,
+    account_utils::StateMut, pubkey::Pubkey, signature::Signer, signer::keypair::Keypair,
+    transaction::Transaction,
 };
 use spl_associated_token_account::get_associated_token_address;
 
@@ -206,11 +208,39 @@ impl Migratorr {
         token_owner: Pubkey,
         nft: &NfTest,
     ) -> Result<(), BanksClientError> {
+        let token_owner_program = context
+            .banks_client
+            .get_account(token_owner)
+            .await
+            .unwrap()
+            .unwrap()
+            .owner;
+
+        let bpf_upgradeable_state: Option<UpgradeableLoaderState> = context
+            .banks_client
+            .get_account(token_owner_program)
+            .await
+            .unwrap()
+            .unwrap()
+            .state()
+            .ok();
+
+        let token_owner_program_buffer = if let Some(UpgradeableLoaderState::Program {
+            programdata_address,
+        }) = bpf_upgradeable_state
+        {
+            Some(programdata_address)
+        } else {
+            None
+        };
+
         let instruction = migrate_item(
             payer.pubkey(),
             nft.mint_pubkey(),
             nft.token_pubkey(),
             token_owner,
+            token_owner_program,
+            token_owner_program_buffer,
             collection_mint,
             self.rule_set(),
         );
@@ -234,12 +264,39 @@ impl Migratorr {
         asset: &TestAsset,
     ) -> Result<(), BanksClientError> {
         let token = get_associated_token_address(&token_owner, &asset.mint.pubkey());
+        let token_owner_program = context
+            .banks_client
+            .get_account(token_owner)
+            .await
+            .unwrap()
+            .unwrap()
+            .owner;
+
+        let bpf_upgradeable_state: Option<UpgradeableLoaderState> = context
+            .banks_client
+            .get_account(token_owner_program)
+            .await
+            .unwrap()
+            .unwrap()
+            .state()
+            .ok();
+
+        let token_owner_program_buffer = if let Some(UpgradeableLoaderState::Program {
+            programdata_address,
+        }) = bpf_upgradeable_state
+        {
+            Some(programdata_address)
+        } else {
+            None
+        };
 
         let instruction = migrate_item(
             payer.pubkey(),
             asset.mint.pubkey(),
             token,
             token_owner,
+            token_owner_program,
+            token_owner_program_buffer,
             collection_mint,
             self.rule_set(),
         );
@@ -262,13 +319,39 @@ impl Migratorr {
         token_owner: Pubkey,
         asset: &TestPrintEdition,
     ) -> Result<(), BanksClientError> {
-        // let token = get_associated_token_address(&token_owner, &asset.print_mint.pubkey());
+        let token_owner_program = context
+            .banks_client
+            .get_account(token_owner)
+            .await
+            .unwrap()
+            .unwrap()
+            .owner;
+
+        let bpf_upgradeable_state: Option<UpgradeableLoaderState> = context
+            .banks_client
+            .get_account(token_owner_program)
+            .await
+            .unwrap()
+            .unwrap()
+            .state()
+            .ok();
+
+        let token_owner_program_buffer = if let Some(UpgradeableLoaderState::Program {
+            programdata_address,
+        }) = bpf_upgradeable_state
+        {
+            Some(programdata_address)
+        } else {
+            None
+        };
 
         let instruction = migrate_item(
             payer.pubkey(),
             asset.print_mint.pubkey(),
             asset.print_token.pubkey(),
             token_owner,
+            token_owner_program,
+            token_owner_program_buffer,
             collection_mint,
             self.rule_set(),
         );

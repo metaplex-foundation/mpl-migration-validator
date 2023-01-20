@@ -178,11 +178,14 @@ pub fn start(payer: Pubkey, authority: Pubkey, collection_mint: Pubkey) -> Instr
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn migrate_item(
     payer: Pubkey,
     item_mint: Pubkey,
     item_token: Pubkey,
     token_owner: Pubkey,
+    token_owner_program: Pubkey,
+    token_owner_program_buffer: Option<Pubkey>,
     collection_mint: Pubkey,
     auth_rule_set: Pubkey,
 ) -> Instruction {
@@ -202,6 +205,8 @@ pub fn migrate_item(
             AccountMeta::new(item_edition, false),
             AccountMeta::new(item_token, false),
             AccountMeta::new_readonly(token_owner, false),
+            AccountMeta::new_readonly(token_owner_program, false),
+            AccountMeta::new_readonly(token_owner_program_buffer.unwrap_or(crate::ID), false),
             AccountMeta::new_readonly(item_mint, false),
             AccountMeta::new(payer, true),
             AccountMeta::new_readonly(program_signer, false),

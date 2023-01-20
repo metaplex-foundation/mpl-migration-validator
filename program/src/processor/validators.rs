@@ -113,3 +113,10 @@ pub(crate) fn incoming_collection_authority_matches_stored(
     }
     Ok(())
 }
+
+pub(crate) fn token_owned_by(token: &TokenAccount, owner: &Pubkey) -> Result<(), ProgramError> {
+    if token.owner != *owner {
+        return Err(ValidationError::TokenOwnerMismatch.into());
+    }
+    Ok(())
+}

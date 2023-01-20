@@ -13,6 +13,8 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
     let edition_info = next_account_info(account_info_iter)?;
     let token_info = next_account_info(account_info_iter)?;
     let token_owner_info = next_account_info(account_info_iter)?;
+    let token_owner_program_info = next_account_info(account_info_iter)?;
+    let token_owner_program_buffer_info = next_account_info(account_info_iter)?;
     let mint_info = next_account_info(account_info_iter)?;
     let payer_info = next_account_info(account_info_iter)?;
     let program_signer_info = next_account_info(account_info_iter)?;
@@ -33,6 +35,9 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
         metadata_info,
         edition_info,
         mint_info,
+        token_owner_info,
+        token_owner_program_info,
+        token_owner_program_buffer_info,
         delegate_record_info,
         migration_state_info,
         program_signer_info,

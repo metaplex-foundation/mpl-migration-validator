@@ -24,10 +24,10 @@ export const StartStruct = new beet.BeetArgsStruct<{ instructionDiscriminator: n
  * @property [**signer**] authority The collection authority
  * @property [] collectionMint The mint account of the collection parent NFT
  * @property [] collectionMetadata The metadata account of the collection parent NFT
- * @property [] delegate The collection delegate. This should be the program signer.
- * @property [] delegateRecord The collection delegate record of for the program signer and the collection
+ * @property [_writable_] delegateRecord The collection delegate record of for the program signer and the collection
  * @property [_writable_] migrationState The migration state account
  * @property [] splTokenProgram Token Program
+ * @property [] tokenMetadataProgram Token Metadata program for the CPI call
  * @category Instructions
  * @category Start
  * @category generated
@@ -37,14 +37,14 @@ export type StartInstructionAccounts = {
   authority: web3.PublicKey;
   collectionMint: web3.PublicKey;
   collectionMetadata: web3.PublicKey;
-  delegate: web3.PublicKey;
   delegateRecord: web3.PublicKey;
   migrationState: web3.PublicKey;
   splTokenProgram: web3.PublicKey;
   systemProgram?: web3.PublicKey;
+  tokenMetadataProgram: web3.PublicKey;
 };
 
-export const startInstructionDiscriminator = 3;
+export const startInstructionDiscriminator = 4;
 
 /**
  * Creates a _Start_ instruction.
@@ -83,13 +83,8 @@ export function createStartInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.delegate,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
       pubkey: accounts.delegateRecord,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
     },
     {
@@ -104,6 +99,11 @@ export function createStartInstruction(
     },
     {
       pubkey: accounts.systemProgram ?? web3.SystemProgram.programId,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.tokenMetadataProgram,
       isWritable: false,
       isSigner: false,
     },

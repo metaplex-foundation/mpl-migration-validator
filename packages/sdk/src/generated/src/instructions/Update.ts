@@ -36,9 +36,8 @@ export const UpdateStruct = new beet.FixableBeetArgsStruct<
 /**
  * Accounts required by the _Update_ instruction
  *
- * @property [**signer**] authority The collection authority
+ * @property [_writable_, **signer**] authority The collection authority
  * @property [_writable_] migrationState The migration state account
- * @property [] voteAccount (optional) SPL governance vote account
  * @category Instructions
  * @category Update
  * @category generated
@@ -46,18 +45,12 @@ export const UpdateStruct = new beet.FixableBeetArgsStruct<
 export type UpdateInstructionAccounts = {
   authority: web3.PublicKey;
   migrationState: web3.PublicKey;
-  voteAccount?: web3.PublicKey;
 };
 
 export const updateInstructionDiscriminator = 2;
 
 /**
  * Creates a _Update_ instruction.
- *
- * Optional accounts that are not provided will be omitted from the accounts
- * array passed with the instruction.
- * An optional account that is set cannot follow an optional account that is unset.
- * Otherwise an Error is raised.
  *
  * @param accounts that will be accessed while the instruction is processed
  * @param args to provide as instruction data to the program
@@ -78,7 +71,7 @@ export function createUpdateInstruction(
   const keys: web3.AccountMeta[] = [
     {
       pubkey: accounts.authority,
-      isWritable: false,
+      isWritable: true,
       isSigner: true,
     },
     {
@@ -87,14 +80,6 @@ export function createUpdateInstruction(
       isSigner: false,
     },
   ];
-
-  if (accounts.voteAccount != null) {
-    keys.push({
-      pubkey: accounts.voteAccount,
-      isWritable: false,
-      isSigner: false,
-    });
-  }
 
   const ix = new web3.TransactionInstruction({
     programId,

@@ -88,7 +88,7 @@
       "accounts": [
         {
           "name": "authority",
-          "isMut": false,
+          "isMut": true,
           "isSigner": true,
           "desc": "The collection authority"
         },
@@ -97,13 +97,6 @@
           "isMut": true,
           "isSigner": false,
           "desc": "The migration state account"
-        },
-        {
-          "name": "voteAccount",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "SPL governance vote account",
-          "optional": true
         }
       ],
       "args": [
@@ -117,6 +110,34 @@
       "discriminant": {
         "type": "u8",
         "value": 2
+      }
+    },
+    {
+      "name": "InitSigner",
+      "accounts": [
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Paying account for initiate migration"
+        },
+        {
+          "name": "programSigner",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Program signer account"
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "System program"
+        }
+      ],
+      "args": [],
+      "discriminant": {
+        "type": "u8",
+        "value": 3
       }
     },
     {
@@ -147,14 +168,8 @@
           "desc": "The metadata account of the collection parent NFT"
         },
         {
-          "name": "delegate",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "The collection delegate. This should be the program signer."
-        },
-        {
           "name": "delegateRecord",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "desc": "The collection delegate record of for the program signer and the collection"
         },
@@ -175,12 +190,18 @@
           "isMut": false,
           "isSigner": false,
           "desc": "System program"
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token Metadata program for the CPI call"
         }
       ],
       "args": [],
       "discriminant": {
         "type": "u8",
-        "value": 3
+        "value": 4
       }
     },
     {
@@ -193,40 +214,40 @@
           "desc": "Pays for migration costs"
         },
         {
-          "name": "metadata",
-          "isMut": true,
-          "isSigner": false,
-          "desc": "Metadata account"
-        },
-        {
-          "name": "edition",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "Edition account"
-        },
-        {
-          "name": "token",
-          "isMut": true,
-          "isSigner": false,
-          "desc": "Token account"
-        },
-        {
-          "name": "mint",
+          "name": "itemMint",
           "isMut": false,
           "isSigner": false,
           "desc": "Mint account"
         },
         {
-          "name": "delegateRecord",
+          "name": "itemMetadata",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Metadata account"
+        },
+        {
+          "name": "itemEdition",
           "isMut": false,
           "isSigner": false,
-          "desc": "Update authority or delegate"
+          "desc": "Edition account"
+        },
+        {
+          "name": "itemToken",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "Token account"
         },
         {
           "name": "collectionMetadata",
           "isMut": false,
           "isSigner": false,
           "desc": "Collection metadata account"
+        },
+        {
+          "name": "delegateRecord",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Update authority or delegate"
         },
         {
           "name": "migrationState",
@@ -259,12 +280,6 @@
           "desc": "Token Program"
         },
         {
-          "name": "tokenMetadataProgram",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "Token Metadata program for the CPI call"
-        },
-        {
           "name": "authorizationRulesProgram",
           "isMut": false,
           "isSigner": false,
@@ -277,38 +292,16 @@
           "isSigner": false,
           "desc": "Token Authorization Rules account",
           "optional": true
+        },
+        {
+          "name": "tokenMetadataProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token Metadata program for the CPI call"
         }
       ],
       "args": [],
       "defaultOptionalAccounts": true,
-      "discriminant": {
-        "type": "u8",
-        "value": 4
-      }
-    },
-    {
-      "name": "InitSigner",
-      "accounts": [
-        {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "desc": "Paying account for initiate migration"
-        },
-        {
-          "name": "programSigner",
-          "isMut": true,
-          "isSigner": false,
-          "desc": "Program signer account"
-        },
-        {
-          "name": "systemProgram",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "System program"
-        }
-      ],
-      "args": [],
       "discriminant": {
         "type": "u8",
         "value": 5
@@ -360,7 +353,7 @@
             "type": "publicKey"
           },
           {
-            "name": "delegate",
+            "name": "delegateRecord",
             "type": "publicKey"
           },
           {
@@ -442,6 +435,12 @@
             "type": {
               "option": "publicKey"
             }
+          },
+          {
+            "name": "collectionSize",
+            "type": {
+              "option": "u32"
+            }
           }
         ]
       }
@@ -464,123 +463,208 @@
   "errors": [
     {
       "code": 0,
-      "name": "MetadataMintMistmatch",
-      "msg": "Metadata does not match mint account"
-    },
-    {
-      "code": 1,
-      "name": "InvalidMetadata",
-      "msg": "Metadata did not deserialize correctly"
-    },
-    {
-      "code": 2,
-      "name": "InvalidAuthority",
-      "msg": "Authority does not match the authority on the account"
-    },
-    {
-      "code": 3,
-      "name": "InvalidStateDerivation",
-      "msg": "Migration state account derivation is in correct"
-    },
-    {
-      "code": 4,
-      "name": "InvalidStateDeserialization",
-      "msg": "Migration state did not deserialize correctly"
-    },
-    {
-      "code": 5,
-      "name": "MigrationInProgress",
-      "msg": "Cannot close while migration is in progress"
-    },
-    {
-      "code": 6,
-      "name": "IncorrectProgramOwner",
-      "msg": "Incorrect program owner for migration state account"
-    },
-    {
-      "code": 7,
       "name": "Overflow",
       "msg": "Overflow error"
     },
     {
-      "code": 8,
+      "code": 1,
       "name": "InvalidInstruction",
       "msg": "Failed to build Migrate instruction"
     },
     {
-      "code": 9,
+      "code": 2,
       "name": "NoRuleSet",
       "msg": "No rule set provided"
     },
     {
-      "code": 10,
-      "name": "InvalidSignerDerivation",
-      "msg": "Program signer account derivation is in correct"
-    },
-    {
-      "code": 11,
-      "name": "AlreadyInitialized",
-      "msg": "Program signer is already initialized"
-    },
-    {
-      "code": 12,
-      "name": "InvalidDelegate",
-      "msg": "Invalid delegate"
-    },
-    {
-      "code": 13,
+      "code": 3,
       "name": "FeatureDisabled",
       "msg": "This feature is currently disabled"
     },
     {
-      "code": 14,
-      "name": "InvalidDelegateRecordDerivation",
-      "msg": "Invalid delegate record derivation"
-    },
-    {
-      "code": 15,
-      "name": "CollectionMintMismatch",
-      "msg": "Collection mint does not match state account"
-    },
-    {
-      "code": 16,
-      "name": "MigrationLocked",
-      "msg": "Migration state account is locked"
-    },
-    {
-      "code": 17,
-      "name": "ImmutableMetadata",
-      "msg": "Immutable metadata cannot be migrated"
-    },
-    {
-      "code": 18,
-      "name": "IncorrectFreezeAuthority",
-      "msg": "Incorrect freeze authority"
-    },
-    {
-      "code": 19,
-      "name": "InvalidEditionDerivation",
-      "msg": "The edition derivation does not match the edition key"
-    },
-    {
-      "code": 20,
-      "name": "InvalidTokenMint",
-      "msg": "The token does not belong to the mint"
-    },
-    {
-      "code": 21,
+      "code": 4,
       "name": "InvalidUnlockMethod",
       "msg": "Invalid unlock method"
     },
     {
-      "code": 22,
+      "code": 5,
+      "name": "MigrationInProgress",
+      "msg": "Cannot perform this action while migration is in progress"
+    },
+    {
+      "code": 6,
+      "name": "MigrationAlreadyCompleted",
+      "msg": "Cannot be closed after migration has completed"
+    },
+    {
+      "code": 7,
+      "name": "AlreadyInitialized",
+      "msg": "Program signer is already initialized"
+    },
+    {
+      "code": 8,
+      "name": "MigrationLocked",
+      "msg": "Migration state account is locked"
+    },
+    {
+      "code": 9,
+      "name": "ImmutableMetadata",
+      "msg": "Immutable metadata cannot be migrated"
+    },
+    {
+      "code": 10,
+      "name": "IncorrectFreezeAuthority",
+      "msg": "Incorrect freeze authority"
+    },
+    {
+      "code": 11,
+      "name": "IncorrectTokenStandard",
+      "msg": "Incorrect token standard: must be NonFungible"
+    },
+    {
+      "code": 12,
+      "name": "ImmutableProgramOwner",
+      "msg": "Cannot migrate an item owned by an immutable program"
+    },
+    {
+      "code": 13,
+      "name": "MetadataMintMistmatch",
+      "msg": "Metadata does not match mint account"
+    },
+    {
+      "code": 14,
+      "name": "TokenMintMismatch",
+      "msg": "Token does not match the mint account"
+    },
+    {
+      "code": 15,
+      "name": "CollectionMintMismatch",
+      "msg": "Collection mint does not match stored value"
+    },
+    {
+      "code": 16,
+      "name": "InvalidAuthority",
+      "msg": "Authority does not match the authority on the account"
+    },
+    {
+      "code": 17,
+      "name": "CollectionNotFound",
+      "msg": "No collection found on item"
+    },
+    {
+      "code": 18,
+      "name": "NotCollectionMember",
+      "msg": "Item is not a verified member of the collection"
+    },
+    {
+      "code": 19,
       "name": "InvalidTokenStandard",
       "msg": "Invalid token standard"
     },
     {
-      "code": 23,
+      "code": 20,
       "name": "MissingTokenStandard",
       "msg": "Missing token standard"
+    },
+    {
+      "code": 21,
+      "name": "InvalidMetadataDerivation",
+      "msg": "The metadata derivation does not match the mint account"
+    },
+    {
+      "code": 22,
+      "name": "InvalidEditionDerivation",
+      "msg": "The edition derivation does not match the mint account"
+    },
+    {
+      "code": 23,
+      "name": "InvalidMigrationStateDerivation",
+      "msg": "Migration state account derivation is in correct"
+    },
+    {
+      "code": 24,
+      "name": "InvalidSignerDerivation",
+      "msg": "Program signer account derivation is incorrect"
+    },
+    {
+      "code": 25,
+      "name": "InvalidDelegateRecordDerivation",
+      "msg": "Invalid delegate record derivation"
+    },
+    {
+      "code": 26,
+      "name": "InvalidDelegate",
+      "msg": "Invalid delegate"
+    },
+    {
+      "code": 27,
+      "name": "IncorrectMetadataProgramOwner",
+      "msg": "Incorrect program owner for metadata account"
+    },
+    {
+      "code": 28,
+      "name": "IncorrectMintProgramOwner",
+      "msg": "Incorrect program owner for mint account"
+    },
+    {
+      "code": 29,
+      "name": "IncorrectMigrationStateProgramOwner",
+      "msg": "Incorrect program owner for migration state account"
+    },
+    {
+      "code": 30,
+      "name": "IncorrectDelegateRecordProgramOwner",
+      "msg": "Incorrect program owner for delegate record account"
+    },
+    {
+      "code": 31,
+      "name": "TokenOwnerMismatch",
+      "msg": "Incorrect owner for SPL token account"
+    },
+    {
+      "code": 32,
+      "name": "IncorrectTokenOwnerProgramOwner",
+      "msg": "Incorrect program owner for token owner account"
+    },
+    {
+      "code": 33,
+      "name": "IncorrectTokenOwnerProgramBuffer",
+      "msg": "Incorrect program owner for token owner account buffer"
+    },
+    {
+      "code": 34,
+      "name": "InvalidMetadata",
+      "msg": "Metadata did not deserialize correctly"
+    },
+    {
+      "code": 35,
+      "name": "InvalidMigrationState",
+      "msg": "Migration state did not deserialize correctly"
+    },
+    {
+      "code": 36,
+      "name": "EmptyMigrationState",
+      "msg": "Empty migration state account"
+    },
+    {
+      "code": 37,
+      "name": "ZeroedMigrationState",
+      "msg": "Zeroed migration state account"
+    },
+    {
+      "code": 38,
+      "name": "InvalidProgramSigner",
+      "msg": "Program signer did not deserialize correctly"
+    },
+    {
+      "code": 39,
+      "name": "EmptyProgramSigner",
+      "msg": "Empty program signer account"
+    },
+    {
+      "code": 40,
+      "name": "InvalidUpgradeableLoaderState",
+      "msg": "Failed to deserialize UpgradeableLoaderState"
     }
   ],
   "metadata": {

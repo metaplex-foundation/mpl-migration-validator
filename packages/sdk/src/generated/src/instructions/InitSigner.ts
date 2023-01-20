@@ -32,7 +32,7 @@ export type InitSignerInstructionAccounts = {
   systemProgram?: web3.PublicKey;
 };
 
-export const initSignerInstructionDiscriminator = 5;
+export const initSignerInstructionDiscriminator = 3;
 
 /**
  * Creates a _InitSigner_ instruction.

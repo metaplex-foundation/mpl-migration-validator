@@ -10,6 +10,7 @@ import * as beet from '@metaplex-foundation/beet';
 import * as beetSolana from '@metaplex-foundation/beet-solana';
 export type UpdateArgs = {
   ruleSet: beet.COption<web3.PublicKey>;
+  collectionSize: beet.COption<number>;
 };
 
 /**
@@ -17,6 +18,9 @@ export type UpdateArgs = {
  * @category generated
  */
 export const updateArgsBeet = new beet.FixableBeetArgsStruct<UpdateArgs>(
-  [['ruleSet', beet.coption(beetSolana.publicKey)]],
+  [
+    ['ruleSet', beet.coption(beetSolana.publicKey)],
+    ['collectionSize', beet.coption(beet.u32)],
+  ],
   'UpdateArgs',
 );

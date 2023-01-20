@@ -18,7 +18,7 @@ export type CollectionInfoArgs = {
   authority: web3.PublicKey;
   mint: web3.PublicKey;
   ruleSet: web3.PublicKey;
-  delegate: web3.PublicKey;
+  delegateRecord: web3.PublicKey;
   size: number;
 };
 /**
@@ -33,7 +33,7 @@ export class CollectionInfo implements CollectionInfoArgs {
     readonly authority: web3.PublicKey,
     readonly mint: web3.PublicKey,
     readonly ruleSet: web3.PublicKey,
-    readonly delegate: web3.PublicKey,
+    readonly delegateRecord: web3.PublicKey,
     readonly size: number,
   ) {}
 
@@ -41,7 +41,13 @@ export class CollectionInfo implements CollectionInfoArgs {
    * Creates a {@link CollectionInfo} instance from the provided args.
    */
   static fromArgs(args: CollectionInfoArgs) {
-    return new CollectionInfo(args.authority, args.mint, args.ruleSet, args.delegate, args.size);
+    return new CollectionInfo(
+      args.authority,
+      args.mint,
+      args.ruleSet,
+      args.delegateRecord,
+      args.size,
+    );
   }
 
   /**
@@ -139,7 +145,7 @@ export class CollectionInfo implements CollectionInfoArgs {
       authority: this.authority.toBase58(),
       mint: this.mint.toBase58(),
       ruleSet: this.ruleSet.toBase58(),
-      delegate: this.delegate.toBase58(),
+      delegateRecord: this.delegateRecord.toBase58(),
       size: this.size,
     };
   }
@@ -154,7 +160,7 @@ export const collectionInfoBeet = new beet.BeetStruct<CollectionInfo, Collection
     ['authority', beetSolana.publicKey],
     ['mint', beetSolana.publicKey],
     ['ruleSet', beetSolana.publicKey],
-    ['delegate', beetSolana.publicKey],
+    ['delegateRecord', beetSolana.publicKey],
     ['size', beet.u32],
   ],
   CollectionInfo.fromArgs,

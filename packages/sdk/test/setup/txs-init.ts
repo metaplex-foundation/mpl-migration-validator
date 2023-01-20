@@ -24,7 +24,7 @@ import {
   UpdateInstructionAccounts,
   createUpdateInstruction,
   UpdateInstructionArgs,
-} from '../../src/generated';
+} from '../../src/generated/src';
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
   TOKEN_PROGRAM_ID,

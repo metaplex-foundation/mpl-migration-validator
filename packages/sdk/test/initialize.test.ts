@@ -8,7 +8,7 @@ import {
   InitializeInstructionArgs,
   MigrationState,
   UnlockMethod,
-} from '../src/generated';
+} from '../src/generated/src';
 import { amman, InitTransactions, killStuckProcess } from './setup';
 import { findMetadataAddress, findMigrationState } from './utils/pdas';
 
@@ -43,7 +43,7 @@ test('Initialize: successfully create migration state', async (t) => {
     authority: payer.publicKey,
     mint: mint,
     ruleSet: defaultKey,
-    delegate: defaultKey,
+    delegateRecord: defaultKey,
     size: 0,
   });
   spok(t, state.status, {
@@ -81,7 +81,7 @@ test('Initialize: Cannot initialize twice', async (t) => {
     authority: payer.publicKey,
     mint: mint,
     ruleSet: defaultKey,
-    delegate: defaultKey,
+    delegateRecord: defaultKey,
     size: 0,
   });
   spok(t, state.status, {

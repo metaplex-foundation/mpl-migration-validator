@@ -41,15 +41,15 @@ pub enum MigrationInstruction {
     #[account(5, name="system_program", desc = "System program")]
     Initialize(InitializeArgs),
 
-    #[account(0, writable, signer, name="authority", desc = "The collection authority")]
-    #[account(1, writable, name="migration_state", desc = "The migration state account")]
-    Update(UpdateArgs),
-
     /// Close a migration state account, if the migration is not in progress.
     #[account(0, writable, signer, name="authority", desc="The collection authority")]
     #[account(1, writable, name="migration_state", desc = "The migration state account")]
     #[account(2, name="system_program", desc = "System program")]
     Close,
+
+    #[account(0, writable, signer, name="authority", desc = "The collection authority")]
+    #[account(1, writable, name="migration_state", desc = "The migration state account")]
+    Update(UpdateArgs),
 
     /// Permissionless handler to initialize the program signer
     #[account(0, writable, signer, name="payer", desc="Paying account for initiate migration")]

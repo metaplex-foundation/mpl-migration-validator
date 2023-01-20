@@ -17,18 +17,18 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     assert_owned_by(
         migration_state_info,
         program_id,
-        ValidationError::IncorrectMigrationStateProgramOwner,
+        MigrationError::IncorrectMigrationStateProgramOwner,
     )?;
 
     // Deserialize the migration state
     let migration_state = MigrationState::from_account_info(migration_state_info)?;
 
-    // Idc about compute, check this anyway.
+    msg!("Checking migration state derivation");
     assert_derivation(
         program_id,
         migration_state_info,
         &[b"migration", migration_state.collection_info.mint.as_ref()],
-        ValidationError::InvalidMigrationStateDerivation,
+        MigrationError::InvalidMigrationStateDerivation,
     )?;
 
     // Ensure the authority matches

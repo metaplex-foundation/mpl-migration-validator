@@ -13,23 +13,23 @@ pub(crate) fn validate_accounts(ctx: &AccountContext) -> Result<(), ProgramError
     assert_owned_by(
         ctx.delegate_record_info,
         &mpl_token_metadata::ID,
-        ValidationError::IncorrectDelegateRecordProgramOwner,
+        MigrationError::IncorrectDelegateRecordProgramOwner,
     )?;
 
     assert_owned_by(
         ctx.mint_info,
         &SPL_TOKEN_ID,
-        ValidationError::IncorrectMintProgramOwner,
+        MigrationError::IncorrectMintProgramOwner,
     )?;
     assert_owned_by(
         ctx.metadata_info,
         &mpl_token_metadata::ID,
-        ValidationError::IncorrectMetadataProgramOwner,
+        MigrationError::IncorrectMetadataProgramOwner,
     )?;
     assert_owned_by(
         ctx.migration_state_info,
         ctx.program_id,
-        ValidationError::IncorrectMigrationStateProgramOwner,
+        MigrationError::IncorrectMigrationStateProgramOwner,
     )?;
 
     // Programs
@@ -93,7 +93,7 @@ pub(crate) fn validate_relationships(
     assert_owned_by(
         ctx.token_owner_info,
         ctx.token_owner_program_info.key,
-        ValidationError::IncorrectTokenOwnerProgramOwner,
+        MigrationError::IncorrectTokenOwnerProgramOwner,
     )?;
 
     // The token owner program buffer must be the correct one.
@@ -107,7 +107,7 @@ pub(crate) fn validate_relationships(
     }) = state
     {
         if programdata_address != *ctx.token_owner_program_buffer_info.key {
-            return Err(ValidationError::IncorrectTokenOwnerProgramBuffer.into());
+            return Err(MigrationError::IncorrectTokenOwnerProgramBuffer.into());
         }
     }
 

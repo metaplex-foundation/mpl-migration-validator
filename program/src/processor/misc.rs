@@ -10,7 +10,7 @@ pub fn init_signer(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResu
         program_id,
         program_signer_info,
         &[b"signer"],
-        ValidationError::InvalidSignerDerivation,
+        MigrationError::InvalidSignerDerivation,
     )?;
     let signer_seeds: &[&[u8]] = &[b"signer", &[bump]];
 

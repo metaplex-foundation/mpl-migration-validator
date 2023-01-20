@@ -5,7 +5,7 @@ pub(crate) fn metadata_belongs_to_mint(
     mint: &Pubkey,
 ) -> Result<(), ProgramError> {
     if metadata.mint != *mint {
-        return Err(ValidationError::MetadataMintMistmatch.into());
+        return Err(MigrationError::MetadataMintMistmatch.into());
     }
     Ok(())
 }
@@ -15,7 +15,7 @@ pub(crate) fn update_authority_matches(
     authority: &Pubkey,
 ) -> Result<(), ProgramError> {
     if metadata.update_authority != *authority {
-        return Err(ValidationError::InvalidAuthority.into());
+        return Err(MigrationError::InvalidAuthority.into());
     }
     Ok(())
 }
@@ -25,13 +25,13 @@ pub(crate) fn verified_collection_member(
     collection_mint_pubkey: &Pubkey,
 ) -> Result<(), ProgramError> {
     if item_metadata.collection.is_none() {
-        return Err(ValidationError::CollectionNotFound.into());
+        return Err(MigrationError::CollectionNotFound.into());
     }
 
     let collection = item_metadata.collection.as_ref().unwrap();
 
     if !collection.verified || collection.key != *collection_mint_pubkey {
-        return Err(ValidationError::NotCollectionMember.into());
+        return Err(MigrationError::NotCollectionMember.into());
     }
     Ok(())
 }
@@ -48,7 +48,7 @@ pub(crate) fn metadata_derived_from_mint(
             mpl_token_metadata::ID.as_ref(),
             mint_info.key.as_ref(),
         ],
-        ValidationError::MetadataMintMistmatch,
+        MigrationError::MetadataMintMistmatch,
     )?;
     Ok(())
 }
@@ -66,7 +66,7 @@ pub(crate) fn edition_derived_from_mint(
             mint_info.key.as_ref(),
             EDITION.as_bytes(),
         ],
-        ValidationError::InvalidEditionDerivation,
+        MigrationError::InvalidEditionDerivation,
     )?;
     Ok(())
 }
@@ -79,7 +79,7 @@ pub(crate) fn migration_state_derived_from_mint(
         &crate::ID,
         migration_state_info,
         &[b"migration", mint_info.key.as_ref()],
-        ValidationError::InvalidMigrationStateDerivation,
+        MigrationError::InvalidMigrationStateDerivation,
     )?;
     Ok(())
 }
@@ -89,7 +89,7 @@ pub(crate) fn token_belongs_to_mint(
     mint_pubkey: &Pubkey,
 ) -> Result<(), ProgramError> {
     if token.mint != *mint_pubkey {
-        return Err(ValidationError::TokenMintMismatch.into());
+        return Err(MigrationError::TokenMintMismatch.into());
     }
     Ok(())
 }
@@ -99,7 +99,7 @@ pub(crate) fn incoming_collection_mint_matches_stored(
     migration_state: &MigrationState,
 ) -> Result<(), ProgramError> {
     if migration_state.collection_info.mint != *collection_mint_info.key {
-        return Err(ValidationError::CollectionMintMismatch.into());
+        return Err(MigrationError::CollectionMintMismatch.into());
     }
     Ok(())
 }
@@ -109,14 +109,14 @@ pub(crate) fn incoming_collection_authority_matches_stored(
     migration_state: &MigrationState,
 ) -> Result<(), ProgramError> {
     if migration_state.collection_info.authority != *collection_authority_info.key {
-        return Err(ValidationError::InvalidAuthority.into());
+        return Err(MigrationError::InvalidAuthority.into());
     }
     Ok(())
 }
 
 pub(crate) fn token_owned_by(token: &TokenAccount, owner: &Pubkey) -> Result<(), ProgramError> {
     if token.owner != *owner {
-        return Err(ValidationError::TokenOwnerMismatch.into());
+        return Err(MigrationError::TokenOwnerMismatch.into());
     }
     Ok(())
 }

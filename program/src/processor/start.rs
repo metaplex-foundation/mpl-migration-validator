@@ -24,19 +24,19 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
     assert_owned_by(
         collection_mint_info,
         &spl_token::ID,
-        ValidationError::IncorrectMintProgramOwner,
+        MigrationError::IncorrectMintProgramOwner,
     )?;
 
     assert_owned_by(
         collection_metadata_info,
         &mpl_token_metadata::ID,
-        ValidationError::IncorrectMetadataProgramOwner,
+        MigrationError::IncorrectMetadataProgramOwner,
     )?;
 
     assert_owned_by(
         migration_state_info,
         program_id,
-        ValidationError::IncorrectMigrationStateProgramOwner,
+        MigrationError::IncorrectMigrationStateProgramOwner,
     )?;
 
     // Check program ids
@@ -84,7 +84,7 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
             mpl_token_metadata::pda::COLLECTION_AUTHORITY.as_bytes(),
             program_signer.as_ref(),
         ],
-        ValidationError::InvalidDelegateRecordDerivation,
+        MigrationError::InvalidDelegateRecordDerivation,
     )?;
 
     // If the delegate record is unitialized, then we CPI into
@@ -118,7 +118,7 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
     let authority_record = CollectionAuthorityRecord::from_account_info(delegate_record_info)?;
 
     if authority_record.update_authority != Some(*authority_info.key) {
-        return Err(ValidationError::InvalidAuthority.into());
+        return Err(MigrationError::InvalidAuthority.into());
     }
 
     // Migration must not be in progress

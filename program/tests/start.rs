@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_migration_validator::errors::{DeserializationError, MigrationError, ValidationError};
+use mpl_migration_validator::errors::MigrationError;
 use mpl_migration_validator::instruction::UpdateArgs;
 use mpl_migration_validator::state::ProgramSigner;
 use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
@@ -172,7 +172,7 @@ async fn wrong_authority_fails() {
         .await
         .unwrap_err();
 
-    assert_custom_error_ix!(0, err, ValidationError::InvalidAuthority);
+    assert_custom_error_ix!(0, err, MigrationError::InvalidAuthority);
 }
 
 #[tokio::test]
@@ -241,7 +241,7 @@ async fn incorrect_migration_state_fails() {
         .await
         .unwrap_err();
 
-    assert_custom_error_ix!(0, err, ValidationError::InvalidMigrationStateDerivation);
+    assert_custom_error_ix!(0, err, MigrationError::InvalidMigrationStateDerivation);
 }
 
 #[tokio::test]
@@ -358,5 +358,5 @@ async fn zeroed_state_account() {
         .unwrap_err();
 
     // This will be the first error it encounters.
-    assert_custom_error_ix!(0, err, DeserializationError::ZeroedMigrationState);
+    assert_custom_error_ix!(0, err, MigrationError::ZeroedMigrationState);
 }

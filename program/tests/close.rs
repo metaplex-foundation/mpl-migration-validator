@@ -1,7 +1,7 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_migration_validator::errors::{MigrationError, ValidationError};
+use mpl_migration_validator::errors::MigrationError;
 use mpl_migration_validator::instruction::UpdateArgs;
 use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
 use num_traits::FromPrimitive;
@@ -256,7 +256,7 @@ async fn authority_must_match() {
         .await
         .unwrap_err();
 
-    assert_custom_error_ix!(0, err, ValidationError::InvalidAuthority);
+    assert_custom_error_ix!(0, err, MigrationError::InvalidAuthority);
 
     // The account should not exist.
     assert!(context

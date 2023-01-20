@@ -1,7 +1,7 @@
 use solana_program::program_pack::Pack;
 use spl_token::state::Mint;
 
-use crate::errors::GeneralError;
+use crate::errors::MigrationError;
 
 use super::*;
 
@@ -52,10 +52,10 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
 
     // Deserialize accounts
     let metadata = Metadata::from_account_info(ctx.metadata_info)
-        .map_err(|_| DeserializationError::InvalidMetadata)?;
+        .map_err(|_| MigrationError::InvalidMetadata)?;
 
     let collection_metadata = Metadata::from_account_info(collection_metadata_info)
-        .map_err(|_| DeserializationError::InvalidMetadata)?;
+        .map_err(|_| MigrationError::InvalidMetadata)?;
 
     let mut migration_state = MigrationState::from_account_info(ctx.migration_state_info)?;
 
@@ -124,7 +124,7 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
             .delegate_record(*delegate_record_info.key)
             .token_record(*token_record_info.key)
             .build(args)
-            .map_err(|_| GeneralError::InvalidInstruction)?,
+            .map_err(|_| MigrationError::InvalidInstruction)?,
     );
 
     let instruction = migrate.instruction();
@@ -136,7 +136,7 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
         .status
         .items_migrated
         .checked_add(1)
-        .ok_or(GeneralError::Overflow)?;
+        .ok_or(MigrationError::Overflow)?;
 
     Ok(())
 }

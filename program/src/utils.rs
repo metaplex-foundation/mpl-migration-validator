@@ -8,7 +8,7 @@ use solana_program::{
 };
 
 use crate::{
-    errors::ValidationError,
+    errors::MigrationError,
     state::{MigrationState, ProgramSigner},
 };
 
@@ -21,11 +21,11 @@ pub fn assert_valid_delegate(
     let info = &migration_state.collection_info;
     // Mint is the correct one for the metadata account.
     if collection_metadata.mint != info.mint {
-        return Err(ValidationError::MetadataMintMistmatch.into());
+        return Err(MigrationError::MetadataMintMistmatch.into());
     }
 
     if collection_metadata.update_authority != info.authority {
-        return Err(ValidationError::InvalidAuthority.into());
+        return Err(MigrationError::InvalidAuthority.into());
     }
 
     let bump = assert_is_collection_delegated_authority(
@@ -36,21 +36,21 @@ pub fn assert_valid_delegate(
 
     let data = delegate_record_info.try_borrow_data()?;
     if data.len() == 0 {
-        return Err(ValidationError::InvalidDelegate.into());
+        return Err(MigrationError::InvalidDelegate.into());
     }
 
     let record = CollectionAuthorityRecord::from_bytes(&data)?;
 
     if record.bump != bump {
-        return Err(ValidationError::InvalidDelegate.into());
+        return Err(MigrationError::InvalidDelegate.into());
     }
 
     if let Some(update_authority) = record.update_authority {
         if update_authority != collection_metadata.update_authority {
-            return Err(ValidationError::InvalidDelegate.into());
+            return Err(MigrationError::InvalidDelegate.into());
         }
     } else {
-        return Err(ValidationError::InvalidDelegate.into());
+        return Err(MigrationError::InvalidDelegate.into());
     }
 
     Ok(())

@@ -6,12 +6,8 @@ use solana_program::{
 };
 use thiserror::Error;
 
-const MIGRATION_ERROR_START: isize = 25;
-const VALIDATOR_ERROR_START: isize = 50;
-const DESERIALIZATION_ERROR_START: isize = 75;
-
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
-pub enum GeneralError {
+pub enum MigrationError {
     #[error("Overflow error")]
     Overflow,
 
@@ -26,12 +22,10 @@ pub enum GeneralError {
 
     #[error("Invalid unlock method")]
     InvalidUnlockMethod,
-}
 
-#[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
-pub enum MigrationError {
+    // Migration Errors
     #[error("Cannot perform this action while migration is in progress")]
-    MigrationInProgress = MIGRATION_ERROR_START,
+    MigrationInProgress,
 
     #[error("Cannot be closed after migration has completed")]
     MigrationAlreadyCompleted,
@@ -53,12 +47,10 @@ pub enum MigrationError {
 
     #[error("Cannot migrate an item owned by an immutable program")]
     ImmutableProgramOwner,
-}
 
-#[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
-pub enum ValidationError {
+    // Validation Errors
     #[error("Metadata does not match mint account")]
-    MetadataMintMistmatch = VALIDATOR_ERROR_START,
+    MetadataMintMistmatch,
 
     #[error("Token does not match the mint account")]
     TokenMintMismatch,
@@ -119,12 +111,10 @@ pub enum ValidationError {
 
     #[error("Incorrect program owner for token owner account buffer")]
     IncorrectTokenOwnerProgramBuffer,
-}
 
-#[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
-pub enum DeserializationError {
+    // Deserialization Errors
     #[error("Metadata did not deserialize correctly")]
-    InvalidMetadata = DESERIALIZATION_ERROR_START,
+    InvalidMetadata,
 
     #[error("Migration state did not deserialize correctly")]
     InvalidMigrationState,
@@ -145,39 +135,10 @@ pub enum DeserializationError {
     InvalidUpgradeableLoaderState,
 }
 
-// General Error Impls
-impl PrintProgramError for GeneralError {
-    fn print<E>(&self) {
-        msg!(
-            "{} {}: {}",
-            <crate::errors::GeneralError as DecodeError<E>>::type_of(),
-            *self as u32,
-            &self.to_string()
-        );
-    }
-}
-
-impl From<GeneralError> for ProgramError {
-    fn from(e: GeneralError) -> Self {
-        ProgramError::Custom(e as u32)
-    }
-}
-
-impl<T> DecodeError<T> for GeneralError {
-    fn type_of() -> &'static str {
-        "General Error"
-    }
-}
-
 // Migration Error Impls
 impl PrintProgramError for MigrationError {
     fn print<E>(&self) {
-        msg!(
-            "{} {}: {}",
-            <crate::errors::MigrationError as DecodeError<E>>::type_of(),
-            *self as u32,
-            &self.to_string()
-        );
+        msg!("Error {}: {}", *self as u32, &self.to_string());
     }
 }
 
@@ -190,53 +151,5 @@ impl From<MigrationError> for ProgramError {
 impl<T> DecodeError<T> for MigrationError {
     fn type_of() -> &'static str {
         "Migration Error"
-    }
-}
-
-// Validation Error Impls
-impl PrintProgramError for ValidationError {
-    fn print<E>(&self) {
-        msg!(
-            "{} {}: {}",
-            <crate::errors::ValidationError as DecodeError<E>>::type_of(),
-            *self as u32,
-            &self.to_string()
-        );
-    }
-}
-
-impl From<ValidationError> for ProgramError {
-    fn from(e: ValidationError) -> Self {
-        ProgramError::Custom(e as u32)
-    }
-}
-
-impl<T> DecodeError<T> for ValidationError {
-    fn type_of() -> &'static str {
-        "Validation Error"
-    }
-}
-
-// Deserialization Error Impls
-impl PrintProgramError for DeserializationError {
-    fn print<E>(&self) {
-        msg!(
-            "{} {}: {}",
-            <crate::errors::DeserializationError as DecodeError<E>>::type_of(),
-            *self as u32,
-            &self.to_string()
-        );
-    }
-}
-
-impl From<DeserializationError> for ProgramError {
-    fn from(e: DeserializationError) -> Self {
-        ProgramError::Custom(e as u32)
-    }
-}
-
-impl<T> DecodeError<T> for DeserializationError {
-    fn type_of() -> &'static str {
-        "Deserialization Error"
     }
 }

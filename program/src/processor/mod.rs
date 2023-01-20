@@ -1,5 +1,5 @@
 use crate::{
-    errors::{MigrationError, ValidationError},
+    errors::MigrationError,
     instruction::{InitializeArgs, MigrationInstruction, UpdateArgs},
     state::{MigrationState, ProgramSigner, UnlockMethod, MIGRATION_WAIT_PERIOD, SPL_TOKEN_ID},
 };
@@ -32,7 +32,6 @@ mod start;
 mod update;
 mod validators;
 
-use crate::errors::*;
 use close::close_migration_state;
 use initialize::initialize_migration;
 use migrate::migrate_item;
@@ -53,25 +52,12 @@ impl Processor {
 
         match instruction {
             MigrationInstruction::Initialize(args) => {
-                // handle instruction
                 initialize_migration(program_id, accounts, args)
             }
-            MigrationInstruction::Update(args) => {
-                // handle instruction
-                update_state(program_id, accounts, args)
-            }
-            MigrationInstruction::Close => {
-                // handle instruction
-                close_migration_state(program_id, accounts)
-            }
-            MigrationInstruction::Start => {
-                // handle instruction
-                start_migration(program_id, accounts)
-            }
-            MigrationInstruction::Migrate => {
-                // handle instruction
-                migrate_item(program_id, accounts)
-            }
+            MigrationInstruction::Update(args) => update_state(program_id, accounts, args),
+            MigrationInstruction::Close => close_migration_state(program_id, accounts),
+            MigrationInstruction::Start => start_migration(program_id, accounts),
+            MigrationInstruction::Migrate => migrate_item(program_id, accounts),
             MigrationInstruction::InitSigner => init_signer(program_id, accounts),
         }
     }

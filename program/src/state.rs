@@ -13,7 +13,7 @@ use {
     serde_with::{As, DisplayFromStr},
 };
 
-use crate::errors::{DeserializationError, GeneralError};
+use crate::errors::MigrationError;
 
 pub(crate) const MIGRATION_WAIT_PERIOD: i64 = 60 * 60 * 24 * 14; // 14 days
 pub(crate) const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
@@ -32,15 +32,15 @@ impl MigrationState {
         let data = a.try_borrow_data()?;
 
         if data.is_empty() {
-            return Err(DeserializationError::EmptyMigrationState.into());
+            return Err(MigrationError::EmptyMigrationState.into());
         }
 
         if data.is_zeroed() {
-            return Err(DeserializationError::ZeroedMigrationState.into());
+            return Err(MigrationError::ZeroedMigrationState.into());
         }
 
         let ua = <Self as BorshDeserialize>::deserialize(&mut data.as_ref())
-            .map_err(|_| DeserializationError::InvalidMigrationState)?;
+            .map_err(|_| MigrationError::InvalidMigrationState)?;
 
         Ok(ua)
     }
@@ -114,13 +114,13 @@ pub enum UnlockMethod {
 }
 
 impl FromStr for UnlockMethod {
-    type Err = GeneralError;
+    type Err = MigrationError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "timed" => Ok(UnlockMethod::Timed),
             "vote" => Ok(UnlockMethod::Vote),
-            _ => Err(GeneralError::InvalidUnlockMethod),
+            _ => Err(MigrationError::InvalidUnlockMethod),
         }
     }
 }
@@ -138,11 +138,11 @@ impl ProgramSigner {
         let data = a.try_borrow_data()?;
 
         if data.is_empty() {
-            return Err(DeserializationError::EmptyProgramSigner.into());
+            return Err(MigrationError::EmptyProgramSigner.into());
         }
 
         let ua = Self::deserialize(&mut data.as_ref())
-            .map_err(|_| DeserializationError::InvalidProgramSigner)?;
+            .map_err(|_| MigrationError::InvalidProgramSigner)?;
 
         Ok(ua)
     }

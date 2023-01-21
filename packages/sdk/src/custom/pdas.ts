@@ -1,5 +1,5 @@
 import { PublicKey } from '@solana/web3.js';
-import { PROGRAM_ID } from '../../src/generated/';
+import { PROGRAM_ID } from '../../src/generated/src';
 import { PROGRAM_ID as TOKEN_METADATA_ID } from '@metaplex-foundation/mpl-token-metadata';
 
 export function findMigrationState(collectionMint: PublicKey): PublicKey {

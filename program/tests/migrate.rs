@@ -165,6 +165,7 @@ mod eligible_scenarios {
             .await
             .unwrap();
 
+        // NFT 2
         migratorr
             .migrate_item(
                 &mut context,
@@ -176,6 +177,7 @@ mod eligible_scenarios {
             .await
             .unwrap();
 
+        // NFT 3
         migratorr
             .migrate_item(
                 &mut context,
@@ -183,6 +185,18 @@ mod eligible_scenarios {
                 collection_nft.mint_pubkey(),
                 token_owner,
                 &nft3,
+            )
+            .await
+            .unwrap();
+
+        // Migrate the collection NFT at the end.
+        migratorr
+            .migrate_item(
+                &mut context,
+                &payer,
+                collection_nft.mint_pubkey(),
+                token_owner,
+                &collection_nft,
             )
             .await
             .unwrap();
@@ -323,7 +337,7 @@ mod eligible_scenarios {
             Some(rule_set),
             Some(delegate.pubkey()),
             // TODO: refactor to MigrationDelegate once that's enabled in TokenMetadata
-            Some(TokenDelegateRole::Utility),
+            Some(TokenDelegateRole::Migration),
             TokenState::Unlocked,
         )
         .await
@@ -438,7 +452,7 @@ mod eligible_scenarios {
             &mut context,
             Some(rule_set),
             Some(delegate.pubkey()),
-            Some(TokenDelegateRole::Utility),
+            Some(TokenDelegateRole::Migration),
             TokenState::Locked,
         )
         .await

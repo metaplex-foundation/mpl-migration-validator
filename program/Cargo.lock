@@ -1983,7 +1983,7 @@ dependencies = [
 [[package]]
 name = "mpl-token-metadata"
 version = "1.7.0-alpha.2"
-source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/migrate-nft-pnft#aeebf70392541a5adec1fa09fd5480c15ff6dd6a"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/migrate-nft-pnft#bba9b228790499c528dcd08826b7cd064db4d039"
 dependencies = [
  "arrayref",
  "borsh",
@@ -2033,7 +2033,7 @@ dependencies = [
 [[package]]
 name = "mpl-token-metadata-context-derive"
 version = "0.1.0"
-source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/migrate-nft-pnft#aeebf70392541a5adec1fa09fd5480c15ff6dd6a"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/migrate-nft-pnft#bba9b228790499c528dcd08826b7cd064db4d039"
 dependencies = [
  "quote 1.0.23",
  "syn 1.0.107",
@@ -2077,7 +2077,7 @@ dependencies = [
 [[package]]
 name = "mpl-utils"
 version = "0.0.6"
-source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/migrate-nft-pnft#aeebf70392541a5adec1fa09fd5480c15ff6dd6a"
+source = "git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/migrate-nft-pnft#bba9b228790499c528dcd08826b7cd064db4d039"
 dependencies = [
  "arrayref",
  "borsh",

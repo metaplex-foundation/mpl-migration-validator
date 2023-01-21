@@ -78,8 +78,11 @@ pub(crate) fn validate_relationships(
     // The item's update authority must match that of the collection.
     update_authority_matches(item_metadata, stored_collection_authority_pubkey)?;
 
-    // The item must actually be a verified member of the collection.
-    verified_collection_member(item_metadata, collection_mint_pubkey)?;
+    // The item must actually be a verified member of the collection or must
+    // be the collection NFT itself.
+    if &item_metadata.mint != collection_mint_pubkey {
+        verified_collection_member(item_metadata, collection_mint_pubkey)?;
+    }
 
     // The item's edition must be derived from the item's mint.
     edition_derived_from_mint(ctx.edition_info, ctx.mint_info)?;
@@ -138,11 +141,6 @@ pub(crate) fn validate_eligibility(
     if !data.metadata.is_mutable {
         return Err(MigrationError::ImmutableMetadata.into());
     }
-
-    msg!(
-        "Validating token standard... {:?}",
-        data.metadata.token_standard
-    );
 
     if let Some(token_standard) = data.metadata.token_standard {
         if token_standard != TokenStandard::NonFungible {

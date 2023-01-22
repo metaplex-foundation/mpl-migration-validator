@@ -111,22 +111,20 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
         auth_rule_set_info.clone(),
     ];
 
-    let mut builder = Box::new(MigrateBuilder::new());
-    let migrate = Box::new(
-        builder
-            .metadata(*metadata_info.key)
-            .edition(*edition_info.key)
-            .token(*token_info.key)
-            .token_owner(*token_owner_info.key)
-            .mint(*mint_info.key)
-            .payer(*payer_info.key)
-            .authority(*program_signer_info.key)
-            .collection_metadata(*collection_metadata_info.key)
-            .delegate_record(*delegate_record_info.key)
-            .token_record(*token_record_info.key)
-            .build(args)
-            .map_err(|_| MigrationError::InvalidInstruction)?,
-    );
+    let mut builder = MigrateBuilder::new();
+    let migrate = builder
+        .metadata(*metadata_info.key)
+        .edition(*edition_info.key)
+        .token(*token_info.key)
+        .token_owner(*token_owner_info.key)
+        .mint(*mint_info.key)
+        .payer(*payer_info.key)
+        .authority(*program_signer_info.key)
+        .collection_metadata(*collection_metadata_info.key)
+        .delegate_record(*delegate_record_info.key)
+        .token_record(*token_record_info.key)
+        .build(args)
+        .map_err(|_| MigrationError::InvalidInstruction)?;
 
     let instruction = migrate.instruction();
 

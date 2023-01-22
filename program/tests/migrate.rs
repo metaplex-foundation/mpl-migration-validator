@@ -535,7 +535,6 @@ mod eligible_scenarios {
             .await
             .unwrap();
 
-        // Assign a spl token delegate to the NFT
         let owner = context.payer.dirty_clone();
 
         // Simulate a frozen NFT with no delegate by directly injecting the frozen state.

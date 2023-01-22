@@ -1938,7 +1938,7 @@ dependencies = [
  "borsh",
  "cargo-husky",
  "mpl-token-auth-rules",
- "mpl-token-metadata",
+ "mpl-token-metadata 1.7.0-beta.1",
  "mpl-utils 0.0.5",
  "num-derive",
  "num-traits",
@@ -1983,7 +1983,28 @@ dependencies = [
  "mpl-token-auth-rules",
  "mpl-token-metadata-context-derive 0.1.0",
  "mpl-token-vault",
- "mpl-utils 0.0.6",
+ "mpl-utils 0.0.6 (git+https://github.com/metaplex-foundation/metaplex-program-library?branch=feat/programmable-asset)",
+ "num-derive",
+ "num-traits",
+ "shank 0.0.11",
+ "solana-program",
+ "spl-associated-token-account",
+ "spl-token",
+ "thiserror",
+]
+
+[[package]]
+name = "mpl-token-metadata"
+version = "1.7.0-beta.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a80496bd2d781bf2b5b406847e1f9422c87334dc9c1273474465989d36e4238d"
+dependencies = [
+ "arrayref",
+ "borsh",
+ "mpl-token-auth-rules",
+ "mpl-token-metadata-context-derive 0.1.1",
+ "mpl-token-vault",
+ "mpl-utils 0.0.6 (registry+https://github.com/rust-lang/crates.io-index)",
  "num-derive",
  "num-traits",
  "shank 0.0.11",
@@ -2013,6 +2034,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "mpl-token-metadata-context-derive"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e6f84ee9941d37274d5148d6ecc7a34773368216ceab150851a5c231308c4ab"
+dependencies = [
+ "quote 1.0.23",
+ "syn 1.0.107",
+]
+
+[[package]]
 name = "mpl-token-vault"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2031,6 +2062,18 @@ name = "mpl-utils"
 version = "0.0.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "330468b3ea93d306ed5ae5e389b0b64cfbc43fcd29a4eeae74e20f13c979e7a5"
+dependencies = [
+ "arrayref",
+ "borsh",
+ "solana-program",
+ "spl-token",
+]
+
+[[package]]
+name = "mpl-utils"
+version = "0.0.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d6195ce98b92f1d0ea06d0cc9b2392d81673e02b8fb063589926fa73ee6b071a"
 dependencies = [
  "arrayref",
  "borsh",
@@ -2846,7 +2889,7 @@ version = "0.1.0"
 source = "git+https://github.com/metaplex-foundation/rooster#f8d3a57dfcb5414b2fe818ceeea5edccbdf4e8b9"
 dependencies = [
  "borsh",
- "mpl-token-metadata",
+ "mpl-token-metadata 1.7.0-alpha.3",
  "mpl-utils 0.0.5",
  "num-derive",
  "num-traits",

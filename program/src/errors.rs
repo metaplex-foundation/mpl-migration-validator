@@ -133,6 +133,9 @@ pub enum MigrationError {
 
     #[error("Failed to deserialize UpgradeableLoaderState")]
     InvalidUpgradeableLoaderState,
+
+    #[error("Authorization rules does not match the rule set stored on the state")]
+    InvalidRuleSet,
 }
 
 // Migration Error Impls

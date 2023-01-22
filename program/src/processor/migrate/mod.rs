@@ -19,6 +19,7 @@ pub(crate) struct AccountContext<'a> {
     pub(crate) delegate_record_info: &'a AccountInfo<'a>,
     pub(crate) migration_state_info: &'a AccountInfo<'a>,
     pub(crate) program_signer_info: &'a AccountInfo<'a>,
+    pub(crate) auth_rule_set_info: &'a AccountInfo<'a>,
     pub(crate) system_program_info: &'a AccountInfo<'a>,
     pub(crate) sysvar_instructions_info: &'a AccountInfo<'a>,
     pub(crate) token_metadata_program_info: &'a AccountInfo<'a>,

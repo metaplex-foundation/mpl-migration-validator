@@ -114,6 +114,16 @@ pub(crate) fn incoming_collection_authority_matches_stored(
     Ok(())
 }
 
+pub(crate) fn incoming_auth_rules_matches_stored(
+    auth_rules_info: &AccountInfo,
+    migration_state: &MigrationState,
+) -> Result<(), ProgramError> {
+    if migration_state.collection_info.rule_set != *auth_rules_info.key {
+        return Err(MigrationError::InvalidRuleSet.into());
+    }
+    Ok(())
+}
+
 pub(crate) fn token_owned_by(token: &TokenAccount, owner: &Pubkey) -> Result<(), ProgramError> {
     if token.owner != *owner {
         return Err(MigrationError::TokenOwnerMismatch.into());

@@ -84,6 +84,9 @@ pub(crate) fn validate_relationships(
         verified_collection_member(item_metadata, collection_mint_pubkey)?;
     }
 
+    // The passed in auth_rules account must match the one on the migration state.
+    incoming_auth_rules_matches_stored(ctx.auth_rule_set_info, data.migration_state)?;
+
     // The item's edition must be derived from the item's mint.
     edition_derived_from_mint(ctx.edition_info, ctx.mint_info)?;
 

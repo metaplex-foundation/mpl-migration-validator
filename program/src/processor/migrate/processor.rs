@@ -41,6 +41,7 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
         delegate_record_info,
         migration_state_info,
         program_signer_info,
+        auth_rule_set_info,
         system_program_info,
         sysvar_instructions_info,
         spl_token_program_info,

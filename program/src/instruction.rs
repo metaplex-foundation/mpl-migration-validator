@@ -190,7 +190,7 @@ pub fn migrate_item(
     let (item_edition, _) = find_master_edition_account(&item_mint);
     let (collection_metadata, _) = find_metadata_account(&collection_mint);
     let (delegate_record, _) = find_delegate_record_pda(&collection_mint);
-    let (token_record, _) = find_token_record_account(&item_mint, &token_owner);
+    let (token_record, _) = find_token_record_account(&item_mint, &item_token);
     let (migration_state, _) = find_migration_state_pda(&collection_mint);
 
     let data = MigrationInstruction::Migrate.try_to_vec().unwrap();

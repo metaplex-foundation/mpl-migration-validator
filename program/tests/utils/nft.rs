@@ -328,12 +328,11 @@ impl NfTest {
     ) -> Result<(), BanksClientError> {
         let account = get_account(context, &self.token.pubkey()).await;
         let token_account = spl_token::state::Account::unpack(&account.data).unwrap();
-        let token_owner = token_account.owner;
 
         self.token_account = Some(token_account);
 
         let (token_record_pda, _bump) =
-            find_token_record_account(&self.mint.pubkey(), &token_owner);
+            find_token_record_account(&self.mint.pubkey(), &self.token.pubkey());
 
         let token_record_account = context
             .banks_client

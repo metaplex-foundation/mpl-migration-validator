@@ -151,6 +151,8 @@ pub(crate) fn validate_eligibility(
         }
     }
 
+    // token owner program buffer defaults to crate ID if not provided,
+    // so skip this check if that's the case.
     if ctx.token_owner_program_buffer_info.key != &crate::ID {
         // Do not migrate items owned by immutable programs.
         let state: UpgradeableLoaderState = bincode::deserialize(

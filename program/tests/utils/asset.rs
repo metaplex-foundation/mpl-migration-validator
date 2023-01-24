@@ -8,7 +8,7 @@ use mpl_token_metadata::{
         CreateArgs, InstructionBuilder, MintArgs,
     },
     pda::find_metadata_account,
-    state::{AssetData, TokenStandard},
+    state::{AssetData, PrintSupply, TokenStandard},
 };
 use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
@@ -46,6 +46,7 @@ impl TestAsset {
         authority: &Keypair,
         token_standard: TokenStandard,
         decimals: u8,
+        print_supply: Option<PrintSupply>,
     ) -> Result<(), BanksClientError> {
         let name = "Test Asset".to_string();
         let symbol = "TST".to_string();
@@ -54,7 +55,7 @@ impl TestAsset {
         let args = CreateArgs::V1 {
             asset_data: AssetData::new(token_standard, name, symbol, uri, authority.pubkey()),
             decimals: Some(decimals),
-            max_supply: None,
+            print_supply,
         };
 
         let ix = CreateBuilder::new()
@@ -119,8 +120,15 @@ impl TestAsset {
         context: &mut ProgramTestContext,
         authority: &Keypair,
     ) -> Result<(), BanksClientError> {
-        self.create(context, authority, authority, TokenStandard::Fungible, 0)
-            .await?;
+        self.create(
+            context,
+            authority,
+            authority,
+            TokenStandard::Fungible,
+            0,
+            None,
+        )
+        .await?;
         self.mint(context, authority, authority.pubkey(), 1).await
     }
 
@@ -135,6 +143,7 @@ impl TestAsset {
             authority,
             TokenStandard::FungibleAsset,
             0,
+            None,
         )
         .await?;
         self.mint(context, authority, authority.pubkey(), 1).await

@@ -1,5 +1,5 @@
 {
-  "version": "0.2.0",
+  "version": "0.2.1",
   "name": "mpl_migration_validator",
   "instructions": [
     {
@@ -665,6 +665,11 @@
       "code": 40,
       "name": "InvalidUpgradeableLoaderState",
       "msg": "Failed to deserialize UpgradeableLoaderState"
+    },
+    {
+      "code": 41,
+      "name": "InvalidRuleSet",
+      "msg": "Authorization rules does not match the rule set stored on the state"
     }
   ],
   "metadata": {

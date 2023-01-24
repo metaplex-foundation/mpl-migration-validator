@@ -871,6 +871,26 @@ createErrorFromNameLookup.set(
 );
 
 /**
+ * InvalidRuleSet: 'Authorization rules does not match the rule set stored on the state'
+ *
+ * @category Errors
+ * @category generated
+ */
+export class InvalidRuleSetError extends Error {
+  readonly code: number = 0x29;
+  readonly name: string = 'InvalidRuleSet';
+  constructor() {
+    super('Authorization rules does not match the rule set stored on the state');
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, InvalidRuleSetError);
+    }
+  }
+}
+
+createErrorFromCodeLookup.set(0x29, () => new InvalidRuleSetError());
+createErrorFromNameLookup.set('InvalidRuleSet', () => new InvalidRuleSetError());
+
+/**
  * Attempts to resolve a custom program error from the provided error code.
  * @category Errors
  * @category generated

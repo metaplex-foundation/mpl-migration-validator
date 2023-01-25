@@ -1,7 +1,7 @@
 import { Keypair, PublicKey } from '@solana/web3.js';
 import spok from 'spok';
 import test from 'tape';
-import { InitializeArgs, UpdateArgs, MigrationState, UnlockMethod } from '../src/generated/src';
+import { InitializeArgs, UpdateArgs, MigrationState, UnlockMethod } from '../src/generated';
 import { InitTransactions, killStuckProcess } from './setup';
 
 killStuckProcess();

@@ -8,7 +8,7 @@ import {
   InitializeInstructionArgs,
   MigrationState,
   UnlockMethod,
-} from '../src/generated/src';
+} from '../src/generated';
 import { amman, InitTransactions, killStuckProcess } from './setup';
 import { findMetadataAddress, findMigrationState } from './utils/pdas';
 

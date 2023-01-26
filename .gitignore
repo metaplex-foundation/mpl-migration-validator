@@ -5,6 +5,9 @@ target/
 .anchor/
 .crates/
 
+build.sh
+
+test-programs/*
 
 node_modules/
 **/*.rs.bk
@@ -33,6 +36,5 @@ packages/sdk/docs/
 !.yarn/versions
 .vercel
 
-test-programs/*
 **/*-keypair.json
 

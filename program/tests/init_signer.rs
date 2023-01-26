@@ -2,27 +2,24 @@
 pub mod utils;
 
 use borsh::BorshDeserialize;
-use mpl_migration_validator::{error::MigrationError, instruction::init_signer};
+use mpl_migration_validator::{errors::MigrationError, instruction::init_signer};
 use num_traits::FromPrimitive;
-use solana_program_test::{tokio, BanksClientError, ProgramTest};
+use solana_program_test::{tokio, BanksClientError};
 use solana_sdk::{
     instruction::InstructionError,
     signer::Signer,
     transaction::{Transaction, TransactionError},
 };
 
-use crate::utils::find_program_signer_pda;
-
-const METADATA_RENT: u64 = 5616720;
+use crate::utils::*;
 
 #[tokio::test]
 async fn successfully_init_signer() {
-    let test = ProgramTest::new("mpl_migration_validator", mpl_migration_validator::ID, None);
-    let mut context = test.start_with_context().await;
+    let mut context = setup_context().await;
 
     let (program_signer_pubkey, bump) = find_program_signer_pda();
 
-    let instruction = init_signer(context.payer.pubkey(), program_signer_pubkey);
+    let instruction = init_signer(context.payer.pubkey());
 
     let transaction = Transaction::new_signed_with_payer(
         &[instruction],
@@ -54,7 +51,7 @@ async fn successfully_init_signer() {
     context.warp_to_slot(1000).unwrap();
 
     // Cannot initialize again.
-    let instruction = init_signer(context.payer.pubkey(), program_signer_pubkey);
+    let instruction = init_signer(context.payer.pubkey());
 
     let transaction = Transaction::new_signed_with_payer(
         &[instruction],

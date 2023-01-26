@@ -35,7 +35,7 @@ test('Update: successfully update state account', async (t) => {
     authority: payer.publicKey,
     mint: mint,
     ruleSet: defaultKey,
-    delegate: defaultKey,
+    delegateRecord: defaultKey,
     size: 0,
   });
   spok(t, state.status, {
@@ -48,6 +48,7 @@ test('Update: successfully update state account', async (t) => {
 
   const updateArgs: UpdateArgs = {
     ruleSet: newRuleSet,
+    collectionSize: null,
   };
 
   const { tx: updateTx } = await API.update(handler, payer, migrationState, updateArgs);
@@ -58,7 +59,7 @@ test('Update: successfully update state account', async (t) => {
     authority: payer.publicKey,
     mint: mint,
     ruleSet: newRuleSet,
-    delegate: defaultKey,
+    delegateRecord: defaultKey,
     size: 0,
   });
   spok(t, state.status, {

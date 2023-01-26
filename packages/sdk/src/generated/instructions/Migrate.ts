@@ -21,42 +21,42 @@ export const MigrateStruct = new beet.BeetArgsStruct<{ instructionDiscriminator:
  * Accounts required by the _Migrate_ instruction
  *
  * @property [_writable_, **signer**] payer Pays for migration costs
- * @property [_writable_] metadata Metadata account
- * @property [] edition Edition account
- * @property [_writable_] token Token account
- * @property [] mint Mint account
- * @property [] delegateRecord Update authority or delegate
+ * @property [] itemMint Mint account
+ * @property [_writable_] itemMetadata Metadata account
+ * @property [] itemEdition Edition account
+ * @property [_writable_] itemToken Token account
  * @property [] collectionMetadata Collection metadata account
+ * @property [] delegateRecord Update authority or delegate
  * @property [_writable_] migrationState The migration state account
  * @property [] programSigner Program signer PDA
  * @property [] sysvarInstructions Instruction sysvar account
  * @property [] splTokenProgram Token Program
- * @property [] tokenMetadataProgram Token Metadata program for the CPI call
  * @property [] authorizationRulesProgram (optional) Token Authorization Rules Program
  * @property [] authorizationRules (optional) Token Authorization Rules account
+ * @property [] tokenMetadataProgram Token Metadata program for the CPI call
  * @category Instructions
  * @category Migrate
  * @category generated
  */
 export type MigrateInstructionAccounts = {
   payer: web3.PublicKey;
-  metadata: web3.PublicKey;
-  edition: web3.PublicKey;
-  token: web3.PublicKey;
-  mint: web3.PublicKey;
-  delegateRecord: web3.PublicKey;
+  itemMint: web3.PublicKey;
+  itemMetadata: web3.PublicKey;
+  itemEdition: web3.PublicKey;
+  itemToken: web3.PublicKey;
   collectionMetadata: web3.PublicKey;
+  delegateRecord: web3.PublicKey;
   migrationState: web3.PublicKey;
   programSigner: web3.PublicKey;
   systemProgram?: web3.PublicKey;
   sysvarInstructions: web3.PublicKey;
   splTokenProgram: web3.PublicKey;
-  tokenMetadataProgram: web3.PublicKey;
   authorizationRulesProgram?: web3.PublicKey;
   authorizationRules?: web3.PublicKey;
+  tokenMetadataProgram: web3.PublicKey;
 };
 
-export const migrateInstructionDiscriminator = 4;
+export const migrateInstructionDiscriminator = 5;
 
 /**
  * Creates a _Migrate_ instruction.
@@ -83,32 +83,32 @@ export function createMigrateInstruction(
       isSigner: true,
     },
     {
-      pubkey: accounts.metadata,
-      isWritable: true,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.edition,
+      pubkey: accounts.itemMint,
       isWritable: false,
       isSigner: false,
     },
     {
-      pubkey: accounts.token,
+      pubkey: accounts.itemMetadata,
       isWritable: true,
       isSigner: false,
     },
     {
-      pubkey: accounts.mint,
+      pubkey: accounts.itemEdition,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.itemToken,
+      isWritable: true,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.collectionMetadata,
       isWritable: false,
       isSigner: false,
     },
     {
       pubkey: accounts.delegateRecord,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
-      pubkey: accounts.collectionMetadata,
       isWritable: false,
       isSigner: false,
     },
@@ -138,17 +138,17 @@ export function createMigrateInstruction(
       isSigner: false,
     },
     {
-      pubkey: accounts.tokenMetadataProgram,
-      isWritable: false,
-      isSigner: false,
-    },
-    {
       pubkey: accounts.authorizationRulesProgram ?? programId,
       isWritable: false,
       isSigner: false,
     },
     {
       pubkey: accounts.authorizationRules ?? programId,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.tokenMetadataProgram,
       isWritable: false,
       isSigner: false,
     },

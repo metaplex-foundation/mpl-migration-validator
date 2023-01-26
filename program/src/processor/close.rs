@@ -1,32 +1,54 @@
+use crate::utils::close_program_account;
+
 use super::*;
 
-pub fn close_migration_state(_program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
+    msg!("Migration Validator: Close");
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let authority_info = next_account_info(account_info_iter)?;
     let migration_state_info = next_account_info(account_info_iter)?;
+    let system_program_info = next_account_info(account_info_iter)?;
 
     // Validate Accounts
     assert_signer(authority_info)?;
 
-    {
-        // Deserialize the migration state
-        let buffer = migration_state_info.try_borrow_data()?;
-        let migration_state = MigrationState::deserialize(&mut buffer.as_ref())
-            .map_err(|_| MigrationError::InvalidStateDeserialization)?;
-
-        // Ensure the authority matches
-        if migration_state.collection_info.authority != *authority_info.key {
-            return Err(MigrationError::InvalidAuthority.into());
-        }
-
-        // Ensure the migration isn't in progress
-        if migration_state.status.in_progress {
-            return Err(MigrationError::MigrationInProgress.into());
-        }
+    if system_program_info.key != &solana_program::system_program::ID {
+        return Err(ProgramError::IncorrectProgramId);
     }
 
-    mpl_utils::close_account_raw(authority_info, migration_state_info)?;
+    // Paranoia.
+    assert_owned_by(
+        migration_state_info,
+        program_id,
+        MigrationError::IncorrectMigrationStateProgramOwner,
+    )?;
+
+    // Deserialize the migration state
+    let migration_state = MigrationState::from_account_info(migration_state_info)?;
+
+    msg!("Checking migration state derivation");
+    assert_derivation(
+        program_id,
+        migration_state_info,
+        &[b"migration", migration_state.collection_info.mint.as_ref()],
+        MigrationError::InvalidMigrationStateDerivation,
+    )?;
+
+    // Ensure the authority matches
+    incoming_collection_authority_matches_stored(authority_info, &migration_state)?;
+
+    // Ensure the migration isn't in progress
+    if migration_state.status.in_progress {
+        return Err(MigrationError::MigrationInProgress.into());
+    }
+
+    // Do not allow closing after the migration is complete.
+    if migration_state.status.items_migrated > 0 {
+        return Err(MigrationError::MigrationAlreadyCompleted.into());
+    }
+
+    close_program_account(migration_state_info, authority_info)?;
 
     Ok(())
 }

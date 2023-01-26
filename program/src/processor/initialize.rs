@@ -32,6 +32,10 @@ pub fn initialize_migration(
     assert_signer(payer_info)?;
     assert_signer(authority_info)?;
 
+    if system_program_info.key != &solana_program::system_program::ID {
+        return Err(ProgramError::IncorrectProgramId);
+    }
+
     // Ensure that these accounts all belong together
     // * Metadata must be derived from the mint address
     // * Authority must be the update_authority on the metadata struct
@@ -49,21 +53,22 @@ pub fn initialize_migration(
     )?;
 
     // This ensures the account isn't empty as the deserialization fails if the account doesn't have the correct size.
-    let metadata = Metadata::from_account_info(collection_metadata_info)
+    // It also checks that the account is actually owned by the Token Metadata program.
+    let collection_metadata = Metadata::from_account_info(collection_metadata_info)
         .map_err(|_| MigrationError::InvalidMetadata)?;
 
     // Ensure that the authority is the update authority on the metadata
-    if metadata.update_authority != *authority_info.key {
+    if collection_metadata.update_authority != *authority_info.key {
         return Err(MigrationError::InvalidAuthority.into());
     }
 
     // For good measure we check that the mint is the mint on the metadata.
-    if metadata.mint != *collection_mint_info.key {
+    if collection_metadata.mint != *collection_mint_info.key {
         return Err(MigrationError::MetadataMintMistmatch.into());
     }
 
     // The Collection NFT should be a NonFungible type, meaning it has a Master Edition.
-    if let Some(token_standard) = metadata.token_standard {
+    if let Some(token_standard) = collection_metadata.token_standard {
         if token_standard != TokenStandard::NonFungible {
             return Err(MigrationError::InvalidTokenStandard.into());
         }
@@ -77,7 +82,7 @@ pub fn initialize_migration(
         program_id,
         migration_state_info,
         &[b"migration", collection_mint_info.key.as_ref()],
-        MigrationError::InvalidStateDerivation,
+        MigrationError::InvalidMigrationStateDerivation,
     )?;
     let state_seeds = &[b"migration", collection_mint_info.key.as_ref(), &[bump]];
 
@@ -92,7 +97,7 @@ pub fn initialize_migration(
     let collection_info = CollectionInfo {
         authority: *authority_info.key,
         mint: *collection_mint_info.key,
-        delegate: Pubkey::default(),
+        delegate_record: Pubkey::default(),
         rule_set: rule_set.unwrap_or_default(),
         size: collection_size,
     };

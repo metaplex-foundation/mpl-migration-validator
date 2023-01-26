@@ -53,7 +53,7 @@ impl TestAsset {
         let uri = "https://test.com".to_string();
 
         let args = CreateArgs::V1 {
-            asset_data: AssetData::new(token_standard, name, symbol, uri, authority.pubkey()),
+            asset_data: AssetData::new(token_standard, name, symbol, uri),
             decimals: Some(decimals),
             print_supply,
         };

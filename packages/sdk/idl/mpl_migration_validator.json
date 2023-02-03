@@ -250,6 +250,12 @@
           "desc": "Update authority or delegate"
         },
         {
+          "name": "tokenRecord",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Update authority or delegate"
+        },
+        {
           "name": "migrationState",
           "isMut": true,
           "isSigner": false,

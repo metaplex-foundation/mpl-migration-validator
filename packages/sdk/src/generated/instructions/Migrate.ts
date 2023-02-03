@@ -27,6 +27,7 @@ export const MigrateStruct = new beet.BeetArgsStruct<{ instructionDiscriminator:
  * @property [_writable_] itemToken Token account
  * @property [] collectionMetadata Collection metadata account
  * @property [] delegateRecord Update authority or delegate
+ * @property [] tokenRecord Update authority or delegate
  * @property [_writable_] migrationState The migration state account
  * @property [] programSigner Program signer PDA
  * @property [] sysvarInstructions Instruction sysvar account
@@ -46,6 +47,7 @@ export type MigrateInstructionAccounts = {
   itemToken: web3.PublicKey;
   collectionMetadata: web3.PublicKey;
   delegateRecord: web3.PublicKey;
+  tokenRecord: web3.PublicKey;
   migrationState: web3.PublicKey;
   programSigner: web3.PublicKey;
   systemProgram?: web3.PublicKey;
@@ -109,6 +111,11 @@ export function createMigrateInstruction(
     },
     {
       pubkey: accounts.delegateRecord,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.tokenRecord,
       isWritable: false,
       isSigner: false,
     },

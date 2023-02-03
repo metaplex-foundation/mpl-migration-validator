@@ -72,7 +72,7 @@ pub enum MigrationInstruction {
 
     /// Migrate an asset.    
     #[account(0, writable, name="item_metadata", desc="Metadata account")]
-    #[account(1, name="item_edition", desc="Edition account")]
+    #[account(1, writable, name="item_edition", desc="Edition account")]
     #[account(2, writable, name="item_token", desc="Token account")]
     #[account(3, name="token_owner", desc="Token owner")]
     #[account(4, name="token_owner_program,", desc="Program that owns the token owner")]

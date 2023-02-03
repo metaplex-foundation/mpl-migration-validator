@@ -21,7 +21,7 @@ export const MigrateStruct = new beet.BeetArgsStruct<{ instructionDiscriminator:
  * Accounts required by the _Migrate_ instruction
  *
  * @property [_writable_] itemMetadata Metadata account
- * @property [] itemEdition Edition account
+ * @property [_writable_] itemEdition Edition account
  * @property [_writable_] itemToken Token account
  * @property [] tokenOwner Token owner
  * @property [] tokenOwnerProgram Program that owns the token owner
@@ -92,7 +92,7 @@ export function createMigrateInstruction(
     },
     {
       pubkey: accounts.itemEdition,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
     },
     {

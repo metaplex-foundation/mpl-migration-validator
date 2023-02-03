@@ -1930,7 +1930,7 @@ dependencies = [
 
 [[package]]
 name = "mpl-migration-validator"
-version = "0.3.4"
+version = "0.3.5"
 dependencies = [
  "assert_matches",
  "async-trait",

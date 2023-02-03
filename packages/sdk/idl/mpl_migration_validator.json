@@ -1,5 +1,5 @@
 {
-  "version": "0.3.3",
+  "version": "0.3.5",
   "name": "mpl_migration_validator",
   "instructions": [
     {
@@ -221,7 +221,7 @@
         },
         {
           "name": "itemEdition",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "desc": "Edition account"
         },

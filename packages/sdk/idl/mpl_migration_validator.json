@@ -1,5 +1,5 @@
 {
-  "version": "0.3.2",
+  "version": "0.3.3",
   "name": "mpl_migration_validator",
   "instructions": [
     {
@@ -214,18 +214,6 @@
       "name": "Migrate",
       "accounts": [
         {
-          "name": "payer",
-          "isMut": true,
-          "isSigner": true,
-          "desc": "Pays for migration costs"
-        },
-        {
-          "name": "itemMint",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "Mint account"
-        },
-        {
           "name": "itemMetadata",
           "isMut": true,
           "isSigner": false,
@@ -262,6 +250,24 @@
           "desc": "Executable buffer account of the program owner"
         },
         {
+          "name": "itemMint",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Mint account"
+        },
+        {
+          "name": "payer",
+          "isMut": true,
+          "isSigner": true,
+          "desc": "Pays for migration costs"
+        },
+        {
+          "name": "programSigner",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Program signer PDA"
+        },
+        {
           "name": "collectionMetadata",
           "isMut": false,
           "isSigner": false,
@@ -278,18 +284,6 @@
           "isMut": true,
           "isSigner": false,
           "desc": "Update authority or delegate"
-        },
-        {
-          "name": "migrationState",
-          "isMut": true,
-          "isSigner": false,
-          "desc": "The migration state account"
-        },
-        {
-          "name": "programSigner",
-          "isMut": false,
-          "isSigner": false,
-          "desc": "Program signer PDA"
         },
         {
           "name": "systemProgram",
@@ -322,6 +316,12 @@
           "isSigner": false,
           "desc": "Token Authorization Rules account",
           "optional": true
+        },
+        {
+          "name": "migrationState",
+          "isMut": true,
+          "isSigner": false,
+          "desc": "The migration state account"
         },
         {
           "name": "tokenMetadataProgram",

@@ -62,11 +62,12 @@ pub enum MigrationInstruction {
     #[account(1, signer, name="authority", desc = "The collection authority")]
     #[account(2, name="collection_mint", desc = "The mint account of the collection parent NFT")]
     #[account(3, name="collection_metadata", desc = "The metadata account of the collection parent NFT")]
-    #[account(4, writable, name="delegate_record", desc = "The collection delegate record of for the program signer and the collection")]
-    #[account(5, writable, name="migration_state", desc = "The migration state account")]
-    #[account(6, name="spl_token_program", desc="Token Program")]
-    #[account(7, name="system_program", desc = "System program")]
-    #[account(8, name="token_metadata_program", desc = "Token Metadata program for the CPI call")]
+    #[account(4, name="program_signer", desc="Program signer PDA")]
+    #[account(5, writable, name="delegate_record", desc = "The collection delegate record of for the program signer and the collection")]
+    #[account(6, writable, name="migration_state", desc = "The migration state account")]
+    #[account(7, name="spl_token_program", desc="Token Program")]
+    #[account(8, name="system_program", desc = "System program")]
+    #[account(9, name="token_metadata_program", desc = "Token Metadata program for the CPI call")]
     Start,
 
     /// Migrate an asset.    

@@ -24,6 +24,7 @@ export const StartStruct = new beet.BeetArgsStruct<{ instructionDiscriminator: n
  * @property [**signer**] authority The collection authority
  * @property [] collectionMint The mint account of the collection parent NFT
  * @property [] collectionMetadata The metadata account of the collection parent NFT
+ * @property [] programSigner Program signer PDA
  * @property [_writable_] delegateRecord The collection delegate record of for the program signer and the collection
  * @property [_writable_] migrationState The migration state account
  * @property [] splTokenProgram Token Program
@@ -37,6 +38,7 @@ export type StartInstructionAccounts = {
   authority: web3.PublicKey;
   collectionMint: web3.PublicKey;
   collectionMetadata: web3.PublicKey;
+  programSigner: web3.PublicKey;
   delegateRecord: web3.PublicKey;
   migrationState: web3.PublicKey;
   splTokenProgram: web3.PublicKey;
@@ -79,6 +81,11 @@ export function createStartInstruction(
     },
     {
       pubkey: accounts.collectionMetadata,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.programSigner,
       isWritable: false,
       isSigner: false,
     },

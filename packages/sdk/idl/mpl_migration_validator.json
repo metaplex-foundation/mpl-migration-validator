@@ -168,6 +168,12 @@
           "desc": "The metadata account of the collection parent NFT"
         },
         {
+          "name": "programSigner",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Program signer PDA"
+        },
+        {
           "name": "delegateRecord",
           "isMut": true,
           "isSigner": false,

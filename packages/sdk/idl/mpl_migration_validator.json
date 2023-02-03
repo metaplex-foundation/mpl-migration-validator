@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.3.2",
   "name": "mpl_migration_validator",
   "instructions": [
     {
@@ -238,6 +238,24 @@
           "desc": "Token account"
         },
         {
+          "name": "tokenOwner",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Token owner"
+        },
+        {
+          "name": "tokenOwnerProgram",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Program that owns the token owner"
+        },
+        {
+          "name": "tokenOwnerProgramBuffer",
+          "isMut": false,
+          "isSigner": false,
+          "desc": "Executable buffer account of the program owner"
+        },
+        {
           "name": "collectionMetadata",
           "isMut": false,
           "isSigner": false,
@@ -251,7 +269,7 @@
         },
         {
           "name": "tokenRecord",
-          "isMut": false,
+          "isMut": true,
           "isSigner": false,
           "desc": "Update authority or delegate"
         },

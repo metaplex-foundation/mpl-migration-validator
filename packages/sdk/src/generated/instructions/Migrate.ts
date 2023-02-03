@@ -25,9 +25,12 @@ export const MigrateStruct = new beet.BeetArgsStruct<{ instructionDiscriminator:
  * @property [_writable_] itemMetadata Metadata account
  * @property [] itemEdition Edition account
  * @property [_writable_] itemToken Token account
+ * @property [] tokenOwner Token owner
+ * @property [] tokenOwnerProgram Program that owns the token owner
+ * @property [] tokenOwnerProgramBuffer Executable buffer account of the program owner
  * @property [] collectionMetadata Collection metadata account
  * @property [] delegateRecord Update authority or delegate
- * @property [] tokenRecord Update authority or delegate
+ * @property [_writable_] tokenRecord Update authority or delegate
  * @property [_writable_] migrationState The migration state account
  * @property [] programSigner Program signer PDA
  * @property [] sysvarInstructions Instruction sysvar account
@@ -45,6 +48,9 @@ export type MigrateInstructionAccounts = {
   itemMetadata: web3.PublicKey;
   itemEdition: web3.PublicKey;
   itemToken: web3.PublicKey;
+  tokenOwner: web3.PublicKey;
+  tokenOwnerProgram: web3.PublicKey;
+  tokenOwnerProgramBuffer: web3.PublicKey;
   collectionMetadata: web3.PublicKey;
   delegateRecord: web3.PublicKey;
   tokenRecord: web3.PublicKey;
@@ -105,6 +111,21 @@ export function createMigrateInstruction(
       isSigner: false,
     },
     {
+      pubkey: accounts.tokenOwner,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.tokenOwnerProgram,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
+      pubkey: accounts.tokenOwnerProgramBuffer,
+      isWritable: false,
+      isSigner: false,
+    },
+    {
       pubkey: accounts.collectionMetadata,
       isWritable: false,
       isSigner: false,
@@ -116,7 +137,7 @@ export function createMigrateInstruction(
     },
     {
       pubkey: accounts.tokenRecord,
-      isWritable: false,
+      isWritable: true,
       isSigner: false,
     },
     {

@@ -14,7 +14,7 @@ bincode = "1.3.3"
 borsh = "0.9.3"
 num-derive = "0.3.3"
 num-traits = "~0.2"
-mpl-token-metadata = { version = "1.7.0", features = ["no-entrypoint"] }
+mpl-token-metadata = { version = "1.8.0", features = ["no-entrypoint"] }
 mpl-utils = "0.0.5"
 serde = { version = "1.0", optional = true }
 serde_with = { version = "1.14.0", optional = true }

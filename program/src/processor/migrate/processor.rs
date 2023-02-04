@@ -137,5 +137,8 @@ pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>])
         .checked_add(1)
         .ok_or(MigrationError::Overflow)?;
 
+    // Serialize the migration state
+    migration_state.save(migration_state_info)?;
+
     Ok(())
 }

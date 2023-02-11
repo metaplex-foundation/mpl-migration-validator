@@ -5,8 +5,6 @@ pub fn update_state(
     accounts: &[AccountInfo],
     args: UpdateArgs,
 ) -> ProgramResult {
-    msg!("Update State");
-
     let UpdateArgs {
         rule_set,
         collection_size,
@@ -56,7 +54,6 @@ pub fn update_state(
     }
 
     // write updated state if there was a change
-    msg!("Updating state");
     migration_state.save(migration_state_info)?;
 
     Ok(())

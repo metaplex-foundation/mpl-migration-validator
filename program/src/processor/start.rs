@@ -5,7 +5,6 @@ use crate::PROGRAM_SIGNER;
 use super::*;
 
 pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    msg!("Migration Validator: Start");
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let payer_info = next_account_info(account_info_iter)?;

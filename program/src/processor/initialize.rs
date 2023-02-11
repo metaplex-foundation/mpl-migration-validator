@@ -9,7 +9,6 @@ pub fn initialize_migration(
     accounts: &[AccountInfo],
     args: InitializeArgs,
 ) -> ProgramResult {
-    msg!("Initiate Migration");
     let InitializeArgs {
         rule_set,
         unlock_method,
@@ -90,8 +89,6 @@ pub fn initialize_migration(
         return Err(ProgramError::IncorrectProgramId);
     }
 
-    msg!("accounts validated");
-
     let unlock_time = Clock::get()?.unix_timestamp + MIGRATION_WAIT_PERIOD;
 
     let collection_info = CollectionInfo {
@@ -127,7 +124,6 @@ pub fn initialize_migration(
         state_seeds,
     )?;
 
-    msg!("writing state");
     sol_memcpy(
         &mut migration_state_info.data.borrow_mut(),
         serialized_data.as_slice(),

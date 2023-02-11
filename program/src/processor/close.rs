@@ -3,7 +3,6 @@ use crate::utils::close_program_account;
 use super::*;
 
 pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
-    msg!("Migration Validator: Close");
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let authority_info = next_account_info(account_info_iter)?;
@@ -27,7 +26,6 @@ pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> P
     // Deserialize the migration state
     let migration_state = MigrationState::from_account_info(migration_state_info)?;
 
-    msg!("Checking migration state derivation");
     assert_derivation(
         program_id,
         migration_state_info,

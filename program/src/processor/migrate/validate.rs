@@ -53,7 +53,6 @@ pub(crate) fn validate_accounts(ctx: &AccountContext) -> Result<(), ProgramError
     Ok(())
 }
 
-#[inline(never)]
 pub(crate) fn validate_relationships(
     ctx: &AccountContext,
     data: &DataContext,
@@ -133,7 +132,6 @@ pub(crate) fn validate_relationships(
     Ok(())
 }
 
-#[inline(never)]
 pub(crate) fn validate_eligibility(
     ctx: &AccountContext,
     data: &DataContext,
@@ -188,7 +186,6 @@ pub(crate) fn validate_eligibility(
     Ok(())
 }
 
-#[inline(never)]
 pub(crate) fn validate_delegate(
     ctx: &AccountContext,
     data: &DataContext,

@@ -6,7 +6,6 @@ use crate::errors::MigrationError;
 use super::*;
 
 pub fn migrate_item<'a>(program_id: &'a Pubkey, accounts: &'a [AccountInfo<'a>]) -> ProgramResult {
-    msg!("Migrate Item");
     // Fetch accounts
     let account_info_iter = &mut accounts.iter();
     let metadata_info = next_account_info(account_info_iter)?;

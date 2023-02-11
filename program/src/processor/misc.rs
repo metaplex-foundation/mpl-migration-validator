@@ -37,7 +37,6 @@ pub fn init_signer(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResu
         signer_seeds,
     )?;
 
-    msg!("writing state");
     sol_memcpy(
         &mut program_signer_info.data.borrow_mut(),
         serialized_data.as_slice(),

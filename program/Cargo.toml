@@ -44,3 +44,6 @@ spl-associated-token-account = { version = "1.1.2", features = ["no-entrypoint"]
 version = "1"
 default-features = false
 features = ["precommit-hook", "user-hooks"]
+
+[profile.release]
+strip = true  # Automatically strip symbols from the binary.

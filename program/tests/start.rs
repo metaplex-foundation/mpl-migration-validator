@@ -91,6 +91,7 @@ async fn start_migration() {
     let update_args = UpdateArgs {
         rule_set: None,
         collection_size: None,
+        new_update_authority: None,
     };
 
     migratorr

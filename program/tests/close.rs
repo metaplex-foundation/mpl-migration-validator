@@ -109,6 +109,7 @@ async fn cannot_close_in_progress_state() {
     let update_args = UpdateArgs {
         rule_set: None,
         collection_size: None,
+        new_update_authority: None,
     };
 
     migratorr

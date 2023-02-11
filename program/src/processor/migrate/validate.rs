@@ -1,4 +1,7 @@
-use mpl_token_metadata::{state::TokenStandard, utils::is_master_edition};
+use mpl_token_metadata::{
+    state::TokenStandard,
+    utils::{check_token_standard, is_master_edition},
+};
 use mpl_utils::token::{get_mint_decimals, get_mint_supply};
 use solana_program::bpf_loader_upgradeable::UpgradeableLoaderState;
 
@@ -147,6 +150,11 @@ pub(crate) fn validate_eligibility(
 
     if let Some(token_standard) = data.metadata.token_standard {
         if token_standard != TokenStandard::NonFungible {
+            return Err(MigrationError::IncorrectTokenStandard.into());
+        }
+    } else {
+        let standard = check_token_standard(ctx.mint_info, Some(ctx.edition_info))?;
+        if standard != TokenStandard::NonFungible {
             return Err(MigrationError::IncorrectTokenStandard.into());
         }
     }

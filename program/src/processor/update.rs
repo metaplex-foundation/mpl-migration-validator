@@ -8,6 +8,7 @@ pub fn update_state(
     let UpdateArgs {
         rule_set,
         collection_size,
+        new_update_authority,
     } = args;
 
     // Fetch accounts
@@ -43,6 +44,11 @@ pub fn update_state(
     // If given a collection_size, update the state.
     if let Some(collection_size) = collection_size {
         migration_state.collection_info.size = collection_size;
+    }
+
+    // If given a new_update_authority, update the state.
+    if let Some(new_update_authority) = new_update_authority {
+        migration_state.collection_info.authority = new_update_authority;
     }
 
     // Perform a time check to check eligibility for migration

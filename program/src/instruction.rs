@@ -27,6 +27,7 @@ pub struct InitializeArgs {
 pub struct UpdateArgs {
     pub rule_set: Option<Pubkey>,
     pub collection_size: Option<u32>,
+    pub new_update_authority: Option<Pubkey>,
 }
 
 #[derive(Debug, Clone, ShankInstruction, BorshSerialize, BorshDeserialize)]

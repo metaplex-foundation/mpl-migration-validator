@@ -426,6 +426,7 @@ impl Migratorr {
         let update_args = UpdateArgs {
             rule_set: None,
             collection_size: None, // leave collection size unchanged
+            new_update_authority: None,
         };
 
         self.update(context, &authority, update_args).await.unwrap();

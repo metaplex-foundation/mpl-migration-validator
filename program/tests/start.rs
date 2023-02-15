@@ -1,21 +1,25 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_migration_validator::errors::MigrationError;
-use mpl_migration_validator::instruction::UpdateArgs;
-use mpl_migration_validator::PROGRAM_SIGNER;
-use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
-use mpl_token_metadata::pda::{find_collection_authority_account, find_metadata_account};
-use mpl_token_metadata::state::{CollectionAuthorityRecord, TokenMetadataAccount};
+use mpl_migration_validator::{
+    errors::MigrationError,
+    instruction::{InitializeArgs, UpdateArgs},
+    state::UnlockMethod,
+    PROGRAM_SIGNER,
+};
+use mpl_token_metadata::{
+    pda::{find_collection_authority_account, find_metadata_account},
+    state::{CollectionAuthorityRecord, TokenMetadataAccount},
+};
 use num_traits::FromPrimitive;
-use solana_program::program_pack::Pack;
-use solana_program::pubkey::Pubkey;
-use solana_program::system_instruction;
+use solana_program::{program_pack::Pack, pubkey::Pubkey, system_instruction};
 use solana_program_test::{tokio, BanksClientError, ProgramTest};
-use solana_sdk::signature::Keypair;
-use solana_sdk::transaction::Transaction;
 use solana_sdk::{
-    account::Account, instruction::InstructionError, signer::Signer, transaction::TransactionError,
+    account::Account,
+    instruction::InstructionError,
+    signature::Keypair,
+    signer::Signer,
+    transaction::{Transaction, TransactionError},
 };
 use utils::*;
 

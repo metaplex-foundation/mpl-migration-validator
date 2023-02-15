@@ -4,8 +4,10 @@ pub mod utils;
 use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
 use num_traits::FromPrimitive;
 use solana_program_test::{tokio, BanksClientError};
-use solana_sdk::signature::Keypair;
-use solana_sdk::{instruction::InstructionError, signer::Signer, transaction::TransactionError};
+use solana_sdk::{
+    instruction::InstructionError, signature::Keypair, signer::Signer,
+    transaction::TransactionError,
+};
 use utils::*;
 
 #[tokio::test]

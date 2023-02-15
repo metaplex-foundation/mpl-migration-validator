@@ -37,16 +37,19 @@ pub fn update_state(
     }
 
     // Only allow updating rule set or update authority if no items have been migrated yet.
-    if migration_state.status.items_migrated == 0 {
-        // If given a rule_set, update the state.
-        if let Some(rule_set) = rule_set {
-            migration_state.collection_info.rule_set = rule_set;
-        }
 
-        // If given a new_update_authority, update the state.
-        if let Some(new_update_authority) = new_update_authority {
-            migration_state.collection_info.authority = new_update_authority;
+    if let Some(rule_set) = rule_set {
+        if migration_state.status.items_migrated > 0 {
+            return Err(MigrationError::MigrationInProgress.into());
         }
+        migration_state.collection_info.rule_set = rule_set;
+    }
+
+    if let Some(new_update_authority) = new_update_authority {
+        if migration_state.status.items_migrated > 0 {
+            return Err(MigrationError::MigrationInProgress.into());
+        }
+        migration_state.collection_info.authority = new_update_authority;
     }
 
     // Perform a time check to check eligibility for migration

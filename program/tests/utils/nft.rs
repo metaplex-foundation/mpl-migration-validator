@@ -6,8 +6,7 @@ use mpl_token_metadata::{
         TokenMetadataAccount, TokenRecord, TokenStandard, TokenState, Uses, EDITION, PREFIX,
     },
 };
-use solana_program::borsh::try_from_slice_unchecked;
-use solana_program::program_pack::Pack;
+use solana_program::{borsh::try_from_slice_unchecked, program_pack::Pack};
 use solana_program_test::{BanksClientError, ProgramTestContext};
 use solana_sdk::{
     pubkey::Pubkey, signature::Signer, signer::keypair::Keypair, transaction::Transaction,

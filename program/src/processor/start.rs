@@ -86,8 +86,6 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
         MigrationError::InvalidDelegateRecordDerivation,
     )?;
 
-    msg!("authority record: {:?}", delegate_record_info.key);
-
     // If the delegate record is unitialized, then we CPI into
     // the token metadata program to initialize it.
     if delegate_record_info.data_is_empty() {

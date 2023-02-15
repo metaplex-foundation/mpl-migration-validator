@@ -167,7 +167,7 @@ pub fn start(payer: Pubkey, authority: Pubkey, collection_mint: Pubkey) -> Instr
         program_id: crate::ID,
         accounts: vec![
             AccountMeta::new(payer, true),
-            AccountMeta::new_readonly(authority, true),
+            AccountMeta::new(authority, true),
             AccountMeta::new_readonly(collection_mint, false),
             AccountMeta::new_readonly(collection_metadata, false),
             AccountMeta::new_readonly(PROGRAM_SIGNER, false),

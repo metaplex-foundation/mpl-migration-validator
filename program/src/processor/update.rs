@@ -31,23 +31,24 @@ pub fn update_state(
     // Ensure the authority matches
     incoming_collection_authority_matches_stored(authority_info, &migration_state)?;
 
-    // Ensure the migration isn't in progress or finished.
-    if migration_state.status.in_progress || migration_state.status.items_migrated > 0 {
-        return Err(MigrationError::MigrationInProgress.into());
-    }
-
-    // If given a rule_set, update the state.
-    if let Some(rule_set) = rule_set {
-        migration_state.collection_info.rule_set = rule_set;
-    }
-
     // If given a collection_size, update the state.
     if let Some(collection_size) = collection_size {
         migration_state.collection_info.size = collection_size;
     }
 
-    // If given a new_update_authority, update the state.
+    // Only allow updating rule set or update authority if no items have been migrated yet.
+
+    if let Some(rule_set) = rule_set {
+        if migration_state.status.items_migrated > 0 {
+            return Err(MigrationError::MigrationInProgress.into());
+        }
+        migration_state.collection_info.rule_set = rule_set;
+    }
+
     if let Some(new_update_authority) = new_update_authority {
+        if migration_state.status.items_migrated > 0 {
+            return Err(MigrationError::MigrationInProgress.into());
+        }
         migration_state.collection_info.authority = new_update_authority;
     }
 
@@ -55,7 +56,10 @@ pub fn update_state(
     let now = Clock::get()?.unix_timestamp;
     let wait_period_over = now >= migration_state.status.unlock_time;
 
-    if migration_state.unlock_method == UnlockMethod::Timed && wait_period_over {
+    if migration_state.unlock_method == UnlockMethod::Timed
+        && wait_period_over
+        && migration_state.status.is_locked
+    {
         migration_state.status.is_locked = false;
     }
 

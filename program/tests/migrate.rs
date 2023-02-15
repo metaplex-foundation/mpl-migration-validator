@@ -1,11 +1,10 @@
 #![cfg(feature = "test-bpf")]
 pub mod utils;
 
-use mpl_migration_validator::PROGRAM_SIGNER;
-use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod};
-use mpl_token_metadata::pda::find_collection_authority_account;
-use mpl_token_metadata::state::{
-    CollectionAuthorityRecord, TokenDelegateRole, TokenMetadataAccount, TokenState,
+use mpl_migration_validator::{instruction::InitializeArgs, state::UnlockMethod, PROGRAM_SIGNER};
+use mpl_token_metadata::{
+    pda::find_collection_authority_account,
+    state::{CollectionAuthorityRecord, TokenDelegateRole, TokenMetadataAccount, TokenState},
 };
 use num_traits::FromPrimitive;
 use solana_program::native_token::LAMPORTS_PER_SOL;

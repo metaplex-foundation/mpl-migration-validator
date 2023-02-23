@@ -197,7 +197,7 @@ async fn incorrect_migration_state_fails() {
     // NFT for someone else's migration state account.
     let mut other_nft = NfTest::new();
     other_nft
-        .mint_default(&mut context, Some(&other_authority))
+        .mint_default(&mut context, Some(other_authority.dirty_clone()))
         .await
         .unwrap();
 

@@ -33,6 +33,7 @@ mod eligible_scenarios {
         let mut context = setup_pnft_context().await;
 
         let collection_authority = context.payer.dirty_clone();
+        let collection_authority_pubkey = collection_authority.pubkey();
 
         // We create a collection with three NFTs in it.
         let mut collection_nft = NfTest::new();
@@ -45,12 +46,14 @@ mod eligible_scenarios {
         nft1.mint_default(&mut context, None).await.unwrap();
         nft1.set_and_verify_collection(
             &mut context,
-            collection_nft.metadata_pubkey(),
-            &collection_authority,
-            collection_authority.pubkey(),
-            collection_nft.mint_pubkey(),
-            collection_nft.edition_pubkey().unwrap(),
-            None,
+            SetAndVerifyCollectionArgs {
+                collection_metadata: collection_nft.metadata_pubkey(),
+                collection_authority: collection_authority.dirty_clone(),
+                nft_update_authority: collection_authority.pubkey(),
+                collection_mint: collection_nft.mint_pubkey(),
+                collection_master_edition_account: collection_nft.edition_pubkey().unwrap(),
+                collection_authority_record: None,
+            },
         )
         .await
         .unwrap();
@@ -59,12 +62,14 @@ mod eligible_scenarios {
         nft2.mint_default(&mut context, None).await.unwrap();
         nft2.set_and_verify_collection(
             &mut context,
-            collection_nft.metadata_pubkey(),
-            &collection_authority,
-            collection_authority.pubkey(),
-            collection_nft.mint_pubkey(),
-            collection_nft.edition_pubkey().unwrap(),
-            None,
+            SetAndVerifyCollectionArgs {
+                collection_metadata: collection_nft.metadata_pubkey(),
+                collection_authority: collection_authority.dirty_clone(),
+                nft_update_authority: collection_authority_pubkey,
+                collection_mint: collection_nft.mint_pubkey(),
+                collection_master_edition_account: collection_nft.edition_pubkey().unwrap(),
+                collection_authority_record: None,
+            },
         )
         .await
         .unwrap();
@@ -73,12 +78,14 @@ mod eligible_scenarios {
         nft3.mint_default(&mut context, None).await.unwrap();
         nft3.set_and_verify_collection(
             &mut context,
-            collection_nft.metadata_pubkey(),
-            &collection_authority,
-            collection_authority.pubkey(),
-            collection_nft.mint_pubkey(),
-            collection_nft.edition_pubkey().unwrap(),
-            None,
+            SetAndVerifyCollectionArgs {
+                collection_metadata: collection_nft.metadata_pubkey(),
+                collection_authority: collection_authority.dirty_clone(),
+                nft_update_authority: collection_authority_pubkey,
+                collection_mint: collection_nft.mint_pubkey(),
+                collection_master_edition_account: collection_nft.edition_pubkey().unwrap(),
+                collection_authority_record: None,
+            },
         )
         .await
         .unwrap();
@@ -251,6 +258,7 @@ mod eligible_scenarios {
         let mut context = setup_pnft_context().await;
 
         let collection_authority = context.payer.dirty_clone();
+        let collection_authority_pubkey = collection_authority.pubkey();
 
         // We create a collection to contain the NFT.
         let mut collection_nft = NfTest::new();
@@ -263,12 +271,14 @@ mod eligible_scenarios {
         nft.mint_default(&mut context, None).await.unwrap();
         nft.set_and_verify_collection(
             &mut context,
-            collection_nft.metadata_pubkey(),
-            &collection_authority,
-            collection_authority.pubkey(),
-            collection_nft.mint_pubkey(),
-            collection_nft.edition_pubkey().unwrap(),
-            None,
+            SetAndVerifyCollectionArgs {
+                collection_metadata: collection_nft.metadata_pubkey(),
+                collection_authority: collection_authority.dirty_clone(),
+                nft_update_authority: collection_authority_pubkey,
+                collection_mint: collection_nft.mint_pubkey(),
+                collection_master_edition_account: collection_nft.edition_pubkey().unwrap(),
+                collection_authority_record: None,
+            },
         )
         .await
         .unwrap();
@@ -360,6 +370,7 @@ mod eligible_scenarios {
         let mut context = setup_pnft_context().await;
 
         let collection_authority = context.payer.dirty_clone();
+        let collection_authority_pubkey = collection_authority.pubkey();
 
         // We create a collection to contain the NFT.
         let mut collection_nft = NfTest::new();
@@ -372,12 +383,14 @@ mod eligible_scenarios {
         nft.mint_default(&mut context, None).await.unwrap();
         nft.set_and_verify_collection(
             &mut context,
-            collection_nft.metadata_pubkey(),
-            &collection_authority,
-            collection_authority.pubkey(),
-            collection_nft.mint_pubkey(),
-            collection_nft.edition_pubkey().unwrap(),
-            None,
+            SetAndVerifyCollectionArgs {
+                collection_metadata: collection_nft.metadata_pubkey(),
+                collection_authority: collection_authority.dirty_clone(),
+                nft_update_authority: collection_authority_pubkey,
+                collection_mint: collection_nft.mint_pubkey(),
+                collection_master_edition_account: collection_nft.edition_pubkey().unwrap(),
+                collection_authority_record: None,
+            },
         )
         .await
         .unwrap();
@@ -475,6 +488,7 @@ mod eligible_scenarios {
         let mut context = setup_pnft_context().await;
 
         let collection_authority = context.payer.dirty_clone();
+        let collection_authority_pubkey = collection_authority.pubkey();
 
         // We create a collection to contain the NFT.
         let mut collection_nft = NfTest::new();
@@ -487,12 +501,14 @@ mod eligible_scenarios {
         nft.mint_default(&mut context, None).await.unwrap();
         nft.set_and_verify_collection(
             &mut context,
-            collection_nft.metadata_pubkey(),
-            &collection_authority,
-            collection_authority.pubkey(),
-            collection_nft.mint_pubkey(),
-            collection_nft.edition_pubkey().unwrap(),
-            None,
+            SetAndVerifyCollectionArgs {
+                collection_metadata: collection_nft.metadata_pubkey(),
+                collection_authority: collection_authority.dirty_clone(),
+                nft_update_authority: collection_authority_pubkey,
+                collection_mint: collection_nft.mint_pubkey(),
+                collection_master_edition_account: collection_nft.edition_pubkey().unwrap(),
+                collection_authority_record: None,
+            },
         )
         .await
         .unwrap();
@@ -597,12 +613,14 @@ mod ineligible_scenarios {
             .unwrap();
         nft.set_and_verify_collection(
             &mut context,
-            collection_nft.metadata_pubkey(),
-            &collection_authority,
-            collection_authority.pubkey(),
-            collection_nft.mint_pubkey(),
-            collection_nft.edition_pubkey().unwrap(),
-            None,
+            SetAndVerifyCollectionArgs {
+                collection_metadata: collection_nft.metadata_pubkey(),
+                collection_authority: collection_authority.dirty_clone(),
+                nft_update_authority: collection_authority.pubkey(),
+                collection_mint: collection_nft.mint_pubkey(),
+                collection_master_edition_account: collection_nft.edition_pubkey().unwrap(),
+                collection_authority_record: None,
+            },
         )
         .await
         .unwrap();

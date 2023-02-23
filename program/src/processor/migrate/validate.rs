@@ -160,13 +160,9 @@ pub(crate) fn validate_eligibility(
     // so skip this check if that's the case.
     if ctx.token_owner_program_buffer_info.key != &crate::ID {
         // Do not migrate items owned by immutable programs.
-        let state: UpgradeableLoaderState = bincode::deserialize(
-            &ctx.token_owner_program_buffer_info.data.borrow(),
-        )
-        .map_err(|_| {
-            msg!("Failed to deserialize token owner program buffer");
-            MigrationError::IncorrectTokenOwnerProgramBuffer
-        })?;
+        let state: UpgradeableLoaderState =
+            bincode::deserialize(&ctx.token_owner_program_buffer_info.data.borrow())
+                .map_err(|_| MigrationError::IncorrectTokenOwnerProgramBuffer)?;
 
         match state {
             UpgradeableLoaderState::ProgramData {

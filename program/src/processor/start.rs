@@ -86,10 +86,40 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
         MigrationError::InvalidDelegateRecordDerivation,
     )?;
 
+    if !delegate_record_info.data_is_empty() {
+        // Check that the authority matches for the cases where we don't create the record.
+        let authority_record = CollectionAuthorityRecord::from_account_info(delegate_record_info)?;
+
+        // If it doesn't match we need to revoke the old delegate and create a new one.
+        // This is safe to do because we are still requiring the authority is a signer and matches
+        // the authority stored in the migration state.
+        if authority_record.update_authority != Some(*authority_info.key) {
+            let instruction = mpl_token_metadata::instruction::revoke_collection_authority(
+                mpl_token_metadata::ID,
+                *delegate_record_info.key,
+                PROGRAM_SIGNER,
+                *authority_info.key,
+                *collection_metadata_info.key,
+                *collection_mint_info.key,
+            );
+
+            let account_infos = vec![
+                delegate_record_info.clone(),
+                authority_info.clone(),
+                delegate_info.clone(),
+                collection_metadata_info.clone(),
+                collection_mint_info.clone(),
+                spl_token_program_info.clone(),
+                system_program_info.clone(),
+            ];
+
+            invoke_signed(&instruction, &account_infos, &[]).unwrap();
+        }
+    }
+
     // If the delegate record is unitialized, then we CPI into
     // the token metadata program to initialize it.
     if delegate_record_info.data_is_empty() {
-        msg!("Initializing delegate record");
         let instruction = mpl_token_metadata::instruction::approve_collection_authority(
             mpl_token_metadata::ID,
             *delegate_record_info.key,
@@ -113,24 +143,14 @@ pub fn start_migration(program_id: &Pubkey, accounts: &[AccountInfo]) -> Program
         invoke_signed(&instruction, &account_infos, &[]).unwrap();
     }
 
-    // Check that the authority matches for the cases where we don't create the record.
-    let authority_record = CollectionAuthorityRecord::from_account_info(delegate_record_info)?;
-
-    if authority_record.update_authority != Some(*authority_info.key) {
-        return Err(MigrationError::InvalidAuthority.into());
-    }
-
-    // Migration must not be in progress
-    if migration_state.status.in_progress {
-        return Err(MigrationError::MigrationInProgress.into());
-    }
-
     // Migration must be unlocked
     if migration_state.status.is_locked {
         return Err(MigrationError::MigrationLocked.into());
     }
 
-    // Redundant check
+    // Migration can be enabled, set to "in progress", as long as no items have been
+    // migrated yet. This allows people to reset the delegate record if they
+    // change their update authority.
     if migration_state.status.items_migrated > 0 {
         return Err(MigrationError::MigrationInProgress.into());
     }

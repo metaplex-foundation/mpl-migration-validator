@@ -1,5 +1,6 @@
 use mpl_token_metadata::{
-    id, instruction,
+    id,
+    instruction::{self, builders::UpdateBuilder, InstructionBuilder, UpdateArgs},
     pda::find_token_record_account,
     state::{
         Collection, CollectionDetails, Creator, ProgrammableConfig, TokenDelegateRole,
@@ -75,6 +76,11 @@ pub struct SetAndVerifyCollectionArgs {
     pub collection_authority_record: Option<Pubkey>,
 }
 
+pub struct SetNewUpdateAuthorityArgs {
+    pub update_authority: Keypair,
+    pub new_update_authority: Pubkey,
+}
+
 impl NfTest {
     pub fn new() -> Self {
         let mint = Keypair::new();
@@ -131,7 +137,7 @@ impl NfTest {
         context: &mut ProgramTestContext,
     ) -> mpl_token_metadata::state::Metadata {
         let account = get_account(context, &self.metadata).await;
-        try_from_slice_unchecked(&account.data).unwrap()
+        mpl_token_metadata::state::Metadata::safe_deserialize(&account.data).unwrap()
     }
 
     pub async fn mint(
@@ -255,6 +261,37 @@ impl NfTest {
             )],
             Some(&context.payer.pubkey()),
             &[&context.payer, &args.collection_authority],
+            context.last_blockhash,
+        );
+        context.banks_client.process_transaction(tx).await
+    }
+
+    pub async fn set_new_update_authority(
+        &self,
+        context: &mut ProgramTestContext,
+        args: SetNewUpdateAuthorityArgs,
+    ) -> Result<(), BanksClientError> {
+        let mut builder = UpdateBuilder::new();
+        builder
+            .authority(args.update_authority.pubkey())
+            .mint(self.mint.pubkey())
+            .metadata(self.metadata)
+            .edition(self.edition.unwrap())
+            .payer(args.update_authority.pubkey());
+
+        let mut update_args = UpdateArgs::default();
+        let UpdateArgs::V1 {
+            new_update_authority,
+            ..
+        } = &mut update_args;
+        *new_update_authority = Some(args.new_update_authority);
+
+        let update_ix = builder.build(update_args).unwrap().instruction();
+
+        let tx = Transaction::new_signed_with_payer(
+            &[update_ix],
+            Some(&args.update_authority.pubkey()),
+            &[&args.update_authority],
             context.last_blockhash,
         );
         context.banks_client.process_transaction(tx).await

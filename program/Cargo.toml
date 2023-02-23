@@ -47,3 +47,5 @@ features = ["precommit-hook", "user-hooks"]
 
 [profile.release]
 strip = true  # Automatically strip symbols from the binary.
+codegen-units = 1  # Optimize for small binary size.
+lto = true  # Use link-time optimization.

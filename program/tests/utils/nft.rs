@@ -30,6 +30,51 @@ pub struct NfTest {
     token_record: Option<TokenRecord>,
 }
 
+pub struct MintArgs {
+    authority: Keypair,
+    name: String,
+    symbol: String,
+    uri: String,
+    creators: Option<Vec<Creator>>,
+    seller_fee_basis_points: u16,
+    is_mutable: bool,
+    collection: Option<Collection>,
+    uses: Option<Uses>,
+    collection_details: Option<CollectionDetails>,
+}
+
+impl MintArgs {
+    pub fn new() -> Self {
+        MintArgs {
+            authority: Keypair::new(),
+            name: "name".to_string(),
+            symbol: "symbol".to_string(),
+            uri: "uri".to_string(),
+            creators: None,
+            seller_fee_basis_points: 0,
+            is_mutable: true,
+            collection: None,
+            uses: None,
+            collection_details: None,
+        }
+    }
+}
+
+impl Default for MintArgs {
+    fn default() -> Self {
+        MintArgs::new()
+    }
+}
+
+pub struct SetAndVerifyCollectionArgs {
+    pub collection_metadata: Pubkey,
+    pub collection_authority: Keypair,
+    pub nft_update_authority: Pubkey,
+    pub collection_mint: Pubkey,
+    pub collection_master_edition_account: Pubkey,
+    pub collection_authority_record: Option<Pubkey>,
+}
+
 impl NfTest {
     pub fn new() -> Self {
         let mint = Keypair::new();
@@ -92,22 +137,13 @@ impl NfTest {
     pub async fn mint(
         &self,
         context: &mut ProgramTestContext,
-        authority: &Keypair,
-        name: String,
-        symbol: String,
-        uri: String,
-        creators: Option<Vec<Creator>>,
-        seller_fee_basis_points: u16,
-        is_mutable: bool,
-        collection: Option<Collection>,
-        uses: Option<Uses>,
-        collection_details: Option<CollectionDetails>,
+        args: MintArgs,
     ) -> Result<(), BanksClientError> {
         create_mint(
             context,
             &self.mint,
-            &authority.pubkey(),
-            Some(&authority.pubkey()),
+            &args.authority.pubkey(),
+            Some(&args.authority.pubkey()),
             0,
         )
         .await?;
@@ -115,7 +151,7 @@ impl NfTest {
             context,
             &self.token,
             &self.mint.pubkey(),
-            &authority.pubkey(),
+            &args.authority.pubkey(),
         )
         .await?;
         mint_tokens(
@@ -123,7 +159,7 @@ impl NfTest {
             &self.mint.pubkey(),
             &self.token.pubkey(),
             1,
-            &authority,
+            &args.authority,
             None,
         )
         .await?;
@@ -133,22 +169,22 @@ impl NfTest {
                 id(),
                 self.metadata,
                 self.mint.pubkey(),
-                authority.pubkey(),
+                args.authority.pubkey(),
                 context.payer.pubkey(),
-                authority.pubkey(),
-                name,
-                symbol,
-                uri,
-                creators,
-                seller_fee_basis_points,
+                args.authority.pubkey(),
+                args.name,
+                args.symbol,
+                args.uri,
+                args.creators,
+                args.seller_fee_basis_points,
                 false,
-                is_mutable,
-                collection,
-                uses,
-                collection_details,
+                args.is_mutable,
+                args.collection,
+                args.uses,
+                args.collection_details,
             )],
-            Some(&authority.pubkey()),
-            &[&context.payer, authority],
+            Some(&args.authority.pubkey()),
+            &[&context.payer, &args.authority],
             context.last_blockhash,
         );
 
@@ -158,27 +194,17 @@ impl NfTest {
     pub async fn mint_default(
         &mut self,
         context: &mut ProgramTestContext,
-        authority: Option<&Keypair>,
+        authority: Option<Keypair>,
     ) -> Result<(), BanksClientError> {
-        self.mint(
-            context,
-            authority.unwrap_or(&context.payer.dirty_clone()),
-            "name".to_string(),
-            "symbol".to_string(),
-            "uri".to_string(),
-            None,
-            0,
-            true,
-            None,
-            None,
-            None,
-        )
-        .await
-        .unwrap();
+        let mut args = MintArgs::default();
+        let authority = authority.unwrap_or_else(|| context.payer.dirty_clone());
+        args.authority = authority.dirty_clone();
 
-        let master_edition = MasterEditionV2::new(&self);
+        self.mint(context, args).await.unwrap();
+
+        let master_edition = MasterEditionV2::new(self);
         master_edition
-            .create_v3(context, authority, Some(0))
+            .create_v3(context, Some(authority), Some(0))
             .await
             .unwrap();
 
@@ -190,28 +216,18 @@ impl NfTest {
     pub async fn mint_master_with_supply(
         &mut self,
         context: &mut ProgramTestContext,
-        authority: Option<&Keypair>,
+        authority: Option<Keypair>,
         supply: u64,
     ) -> Result<(), BanksClientError> {
-        self.mint(
-            context,
-            authority.unwrap_or(&context.payer.dirty_clone()),
-            "name".to_string(),
-            "symbol".to_string(),
-            "uri".to_string(),
-            None,
-            0,
-            true,
-            None,
-            None,
-            None,
-        )
-        .await
-        .unwrap();
+        let mut args = MintArgs::default();
+        let authority = authority.unwrap_or_else(|| context.payer.dirty_clone());
+        args.authority = authority.dirty_clone();
 
-        let master_edition = MasterEditionV2::new(&self);
+        self.mint(context, args).await.unwrap();
+
+        let master_edition = MasterEditionV2::new(self);
         master_edition
-            .create_v3(context, authority, Some(supply))
+            .create_v3(context, Some(authority), Some(supply))
             .await
             .unwrap();
 
@@ -223,27 +239,22 @@ impl NfTest {
     pub async fn set_and_verify_collection(
         &self,
         context: &mut ProgramTestContext,
-        collection_metadata: Pubkey,
-        collection_authority: &Keypair,
-        nft_update_authority: Pubkey,
-        collection_mint: Pubkey,
-        collection_master_edition_account: Pubkey,
-        collection_authority_record: Option<Pubkey>,
+        args: SetAndVerifyCollectionArgs,
     ) -> Result<(), BanksClientError> {
         let tx = Transaction::new_signed_with_payer(
             &[instruction::set_and_verify_collection(
                 id(),
                 self.metadata,
-                collection_authority.pubkey(),
+                args.collection_authority.pubkey(),
                 context.payer.pubkey(),
-                nft_update_authority,
-                collection_mint,
-                collection_metadata,
-                collection_master_edition_account,
-                collection_authority_record,
+                args.nft_update_authority,
+                args.collection_mint,
+                args.collection_metadata,
+                args.collection_master_edition_account,
+                args.collection_authority_record,
             )],
             Some(&context.payer.pubkey()),
-            &[&context.payer, collection_authority],
+            &[&context.payer, &args.collection_authority],
             context.last_blockhash,
         );
         context.banks_client.process_transaction(tx).await
@@ -259,7 +270,7 @@ impl NfTest {
             &[spl_token::instruction::approve(
                 &spl_token::id(),
                 &self.token.pubkey(),
-                &delegate,
+                delegate,
                 &authority.pubkey(),
                 &[],
                 1,
@@ -373,7 +384,7 @@ impl NfTest {
 
         // Token Account should have 1 token and should be frozen.
         assert_eq!(self.token_account.as_ref().unwrap().amount, 1);
-        assert_eq!(self.token_account.as_ref().unwrap().is_frozen(), true);
+        assert!(self.token_account.as_ref().unwrap().is_frozen());
 
         // Token Record should exist and have the correct delegate, role and state.
         if let Some(ref record) = self.token_record {
@@ -432,13 +443,13 @@ impl MasterEditionV2 {
     pub async fn create_v3(
         &self,
         context: &mut ProgramTestContext,
-        authority: Option<&Keypair>,
+        authority: Option<Keypair>,
         max_supply: Option<u64>,
     ) -> Result<(), BanksClientError> {
         let authority = if let Some(auth) = authority {
             auth
         } else {
-            &context.payer
+            context.payer.dirty_clone()
         };
 
         let tx = Transaction::new_signed_with_payer(
@@ -453,7 +464,7 @@ impl MasterEditionV2 {
                 max_supply,
             )],
             Some(&authority.pubkey()),
-            &[authority],
+            &[&authority],
             context.last_blockhash,
         );
 

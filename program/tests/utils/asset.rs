@@ -24,6 +24,12 @@ pub struct TestAsset {
     pub token_accounts: HashMap<Pubkey, TokenAccount>,
 }
 
+impl Default for TestAsset {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl TestAsset {
     pub fn new() -> Self {
         let mint = Keypair::new();
@@ -149,6 +155,7 @@ impl TestAsset {
         self.mint(context, authority, authority.pubkey(), 1).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn set_and_verify_collection(
         &self,
         context: &mut ProgramTestContext,

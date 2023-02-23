@@ -79,7 +79,7 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&payer.pubkey()),
-            &[&*payer],
+            &[payer],
             context.last_blockhash,
         );
 
@@ -99,7 +99,7 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&payer.pubkey()),
-            &[&*payer, &*authority],
+            &[payer, authority],
             context.last_blockhash,
         );
 
@@ -117,7 +117,7 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&authority.pubkey()),
-            &[&*authority],
+            &[authority],
             context.last_blockhash,
         );
 
@@ -136,13 +136,14 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&payer.pubkey()),
-            &[&*payer, &*authority],
+            &[payer, authority],
             context.last_blockhash,
         );
 
         context.banks_client.process_transaction(transaction).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn start_full(
         &self,
         context: &mut ProgramTestContext,
@@ -175,7 +176,7 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&payer.pubkey()),
-            &[&*payer, &*authority],
+            &[payer, authority],
             context.last_blockhash,
         );
 
@@ -193,7 +194,7 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&authority.pubkey()),
-            &[&*authority],
+            &[authority],
             context.last_blockhash,
         );
 
@@ -248,7 +249,7 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&payer.pubkey()),
-            &[&*payer],
+            &[payer],
             context.last_blockhash,
         );
 
@@ -304,7 +305,7 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&payer.pubkey()),
-            &[&*payer],
+            &[payer],
             context.last_blockhash,
         );
 
@@ -359,7 +360,7 @@ impl Migratorr {
         let transaction = Transaction::new_signed_with_payer(
             &[instruction],
             Some(&payer.pubkey()),
-            &[&*payer],
+            &[payer],
             context.last_blockhash,
         );
 
@@ -429,6 +430,6 @@ impl Migratorr {
             new_update_authority: None,
         };
 
-        self.update(context, &authority, update_args).await.unwrap();
+        self.update(context, authority, update_args).await.unwrap();
     }
 }

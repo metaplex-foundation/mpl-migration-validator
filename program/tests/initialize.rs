@@ -98,7 +98,7 @@ async fn init_migration_separate_authority() {
 
     // Create a default NFT to use as a collection.
     let mut nft = NfTest::new();
-    nft.mint_default(&mut context, Some(&authority))
+    nft.mint_default(&mut context, Some(authority.dirty_clone()))
         .await
         .unwrap();
 

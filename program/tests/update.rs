@@ -30,7 +30,7 @@ async fn update_rule_set() {
 
     // Create a default NFT to use as a collection.
     let mut nft = NfTest::new();
-    nft.mint_default(&mut context, Some(&authority))
+    nft.mint_default(&mut context, Some(authority.dirty_clone()))
         .await
         .unwrap();
 
@@ -90,7 +90,7 @@ async fn update_collection_size() {
 
     // Create a default NFT to use as a collection.
     let mut nft = NfTest::new();
-    nft.mint_default(&mut context, Some(&authority))
+    nft.mint_default(&mut context, Some(authority.dirty_clone()))
         .await
         .unwrap();
 
@@ -150,7 +150,7 @@ async fn update_authority() {
 
     // Create a default NFT to use as a collection.
     let mut nft = NfTest::new();
-    nft.mint_default(&mut context, Some(&authority))
+    nft.mint_default(&mut context, Some(authority.dirty_clone()))
         .await
         .unwrap();
 
@@ -204,6 +204,8 @@ async fn update_after_items_migrated() {
 
     // Create an authority that is separate from the payer.
     let authority = Keypair::new();
+    let authority_pubkey = authority.pubkey();
+
     authority
         .airdrop(&mut context, 1_000_000_000)
         .await
@@ -212,26 +214,28 @@ async fn update_after_items_migrated() {
     // Create a default NFT to use as a collection.
     let mut collection_nft = NfTest::new();
     collection_nft
-        .mint_default(&mut context, Some(&authority))
+        .mint_default(&mut context, Some(authority.dirty_clone()))
         .await
         .unwrap();
 
     // Create an item NFT and add it to our collection.
     let mut item_nft = NfTest::new();
     item_nft
-        .mint_default(&mut context, Some(&authority))
+        .mint_default(&mut context, Some(authority.dirty_clone()))
         .await
         .unwrap();
 
     item_nft
         .set_and_verify_collection(
             &mut context,
-            collection_nft.metadata_pubkey(),
-            &authority,
-            authority.pubkey(),
-            collection_nft.mint_pubkey(),
-            collection_nft.edition_pubkey().unwrap(),
-            None,
+            SetAndVerifyCollectionArgs {
+                collection_metadata: collection_nft.metadata_pubkey(),
+                collection_authority: authority.dirty_clone(),
+                nft_update_authority: authority_pubkey,
+                collection_mint: collection_nft.mint_pubkey(),
+                collection_master_edition_account: collection_nft.edition_pubkey().unwrap(),
+                collection_authority_record: None,
+            },
         )
         .await
         .unwrap();

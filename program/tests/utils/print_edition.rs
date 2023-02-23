@@ -170,6 +170,7 @@ impl TestPrintEdition {
         context.banks_client.process_transaction(transfer_tx).await
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub async fn set_and_verify_collection(
         &self,
         context: &mut ProgramTestContext,

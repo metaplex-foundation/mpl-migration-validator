@@ -624,6 +624,4 @@ async fn restart_migration() {
         delegate_record.update_authority.unwrap(),
         new_update_authority.pubkey(),
     );
-
-    // assert_custom_error_ix!(0, err, MigrationError::MigrationInProgress);
 }

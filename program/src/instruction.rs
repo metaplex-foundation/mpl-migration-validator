@@ -1,18 +1,11 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use mpl_token_metadata::pda::{
-    find_master_edition_account, find_metadata_account, find_token_record_account,
-};
 use shank::ShankInstruction;
 use solana_program::{
     instruction::{AccountMeta, Instruction},
     pubkey::Pubkey,
 };
 
-use crate::{
-    state::{UnlockMethod, SPL_TOKEN_ID},
-    utils::{find_delegate_record_pda, find_migration_state_pda},
-    MPL_TOKEN_AUTH_RULES_ID, PROGRAM_SIGNER,
-};
+use crate::state::UnlockMethod;
 
 #[repr(C)]
 #[derive(BorshSerialize, BorshDeserialize, PartialEq, Eq, Debug, Clone)]
@@ -95,41 +88,17 @@ pub enum MigrationInstruction {
     Migrate,
 }
 
-pub fn initialize(
-    payer: Pubkey,
-    authority: Pubkey,
-    collection_mint: Pubkey,
-    args: InitializeArgs,
-) -> Instruction {
-    let (collection_metadata, _) = find_metadata_account(&collection_mint);
-    let (migration_state, _) = find_migration_state_pda(&collection_mint);
-
-    let data = MigrationInstruction::Initialize(args).try_to_vec().unwrap();
-    Instruction {
-        program_id: crate::ID,
-        accounts: vec![
-            AccountMeta::new(payer, true),
-            AccountMeta::new_readonly(authority, true),
-            AccountMeta::new_readonly(collection_mint, false),
-            AccountMeta::new_readonly(collection_metadata, false),
-            AccountMeta::new(migration_state, false),
-            AccountMeta::new_readonly(solana_program::system_program::ID, false),
-        ],
-        data,
-    }
-}
-
-pub fn update(authority: Pubkey, migration_state: Pubkey, args: UpdateArgs) -> Instruction {
-    let data = MigrationInstruction::Update(args).try_to_vec().unwrap();
-    Instruction {
-        program_id: crate::ID,
-        accounts: vec![
-            AccountMeta::new(authority, true),
-            AccountMeta::new(migration_state, false),
-        ],
-        data,
-    }
-}
+// pub fn update(authority: Pubkey, migration_state: Pubkey, args: UpdateArgs) -> Instruction {
+//     let data = MigrationInstruction::Update(args).try_to_vec().unwrap();
+//     Instruction {
+//         program_id: crate::ID,
+//         accounts: vec![
+//             AccountMeta::new(authority, true),
+//             AccountMeta::new(migration_state, false),
+//         ],
+//         data,
+//     }
+// }
 
 pub fn close(authority: Pubkey, migration_state: Pubkey) -> Instruction {
     let data = MigrationInstruction::Close.try_to_vec().unwrap();
@@ -144,85 +113,15 @@ pub fn close(authority: Pubkey, migration_state: Pubkey) -> Instruction {
     }
 }
 
-pub fn init_signer(payer: Pubkey) -> Instruction {
-    let data = MigrationInstruction::InitSigner.try_to_vec().unwrap();
-    Instruction {
-        program_id: crate::ID,
-        accounts: vec![
-            AccountMeta::new(payer, true),
-            AccountMeta::new(PROGRAM_SIGNER, false),
-            AccountMeta::new_readonly(solana_program::system_program::ID, false),
-        ],
-        data,
-    }
-}
-
-pub fn start(payer: Pubkey, authority: Pubkey, collection_mint: Pubkey) -> Instruction {
-    let (collection_metadata, _) = find_metadata_account(&collection_mint);
-    let (delegate_record, _) = find_delegate_record_pda(&collection_mint);
-    let (migration_state, _) = find_migration_state_pda(&collection_mint);
-
-    let data = MigrationInstruction::Start.try_to_vec().unwrap();
-    Instruction {
-        program_id: crate::ID,
-        accounts: vec![
-            AccountMeta::new(payer, true),
-            AccountMeta::new(authority, true),
-            AccountMeta::new_readonly(collection_mint, false),
-            AccountMeta::new_readonly(collection_metadata, false),
-            AccountMeta::new_readonly(PROGRAM_SIGNER, false),
-            AccountMeta::new(delegate_record, false),
-            AccountMeta::new(migration_state, false),
-            AccountMeta::new_readonly(SPL_TOKEN_ID, false),
-            AccountMeta::new_readonly(solana_program::system_program::ID, false),
-            AccountMeta::new_readonly(mpl_token_metadata::ID, false),
-        ],
-        data,
-    }
-}
-
-#[allow(clippy::too_many_arguments)]
-pub fn migrate_item(
-    payer: Pubkey,
-    item_mint: Pubkey,
-    item_token: Pubkey,
-    token_owner: Pubkey,
-    token_owner_program: Pubkey,
-    token_owner_program_buffer: Option<Pubkey>,
-    collection_mint: Pubkey,
-    auth_rule_set: Pubkey,
-) -> Instruction {
-    let (item_metadata, _) = find_metadata_account(&item_mint);
-    let (item_edition, _) = find_master_edition_account(&item_mint);
-    let (collection_metadata, _) = find_metadata_account(&collection_mint);
-    let (delegate_record, _) = find_delegate_record_pda(&collection_mint);
-    let (token_record, _) = find_token_record_account(&item_mint, &item_token);
-    let (migration_state, _) = find_migration_state_pda(&collection_mint);
-
-    let data = MigrationInstruction::Migrate.try_to_vec().unwrap();
-    Instruction {
-        program_id: crate::ID,
-        accounts: vec![
-            AccountMeta::new(item_metadata, false),
-            AccountMeta::new(item_edition, false),
-            AccountMeta::new(item_token, false),
-            AccountMeta::new_readonly(token_owner, false),
-            AccountMeta::new_readonly(token_owner_program, false),
-            AccountMeta::new_readonly(token_owner_program_buffer.unwrap_or(crate::ID), false),
-            AccountMeta::new_readonly(item_mint, false),
-            AccountMeta::new(payer, true),
-            AccountMeta::new_readonly(PROGRAM_SIGNER, false),
-            AccountMeta::new_readonly(collection_metadata, false),
-            AccountMeta::new_readonly(delegate_record, false),
-            AccountMeta::new(token_record, false),
-            AccountMeta::new_readonly(solana_program::system_program::ID, false),
-            AccountMeta::new_readonly(solana_program::sysvar::instructions::ID, false),
-            AccountMeta::new_readonly(SPL_TOKEN_ID, false),
-            AccountMeta::new_readonly(MPL_TOKEN_AUTH_RULES_ID, false),
-            AccountMeta::new_readonly(auth_rule_set, false),
-            AccountMeta::new(migration_state, false),
-            AccountMeta::new_readonly(mpl_token_metadata::ID, false),
-        ],
-        data,
-    }
-}
+// pub fn init_signer(payer: Pubkey) -> Instruction {
+//     let data = MigrationInstruction::InitSigner.try_to_vec().unwrap();
+//     Instruction {
+//         program_id: crate::ID,
+//         accounts: vec![
+//             AccountMeta::new(payer, true),
+//             AccountMeta::new(PROGRAM_SIGNER, false),
+//             AccountMeta::new_readonly(solana_program::system_program::ID, false),
+//         ],
+//         data,
+//     }
+// }

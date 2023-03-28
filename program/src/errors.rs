@@ -8,25 +8,25 @@ use thiserror::Error;
 
 #[derive(Error, Clone, Copy, Debug, Eq, PartialEq, FromPrimitive)]
 pub enum MigrationError {
-    // 0, 0x0
-    // #[error("Overflow error")]
-    #[error("")]
-    Overflow,
+    // // 0, 0x0
+    // // #[error("Overflow error")]
+    // #[error("")]
+    // Overflow,
 
-    // 1, 0x1
-    // #[error("Failed to build Migrate instruction")]
-    #[error("")]
-    InvalidInstruction,
+    // // 1, 0x1
+    // // #[error("Failed to build Migrate instruction")]
+    // #[error("")]
+    // InvalidInstruction,
 
-    // 2, 0x2
-    // #[error("No rule set provided")]
-    #[error("")]
-    NoRuleSet,
+    // // 2, 0x2
+    // // #[error("No rule set provided")]
+    // #[error("")]
+    // NoRuleSet,
 
-    // 3, 0x3
-    // #[error("This feature is currently disabled")]
-    #[error("")]
-    FeatureDisabled,
+    // // 3, 0x3
+    // // #[error("This feature is currently disabled")]
+    // #[error("")]
+    // FeatureDisabled,
 
     // 4, 0x4
     // #[error("Invalid unlock method")]
@@ -45,35 +45,35 @@ pub enum MigrationError {
     #[error("")]
     MigrationAlreadyCompleted,
 
-    // 7, 0x7
-    // #[error("Program signer is already initialized")]
-    #[error("")]
-    AlreadyInitialized,
+    // // 7, 0x7
+    // // #[error("Program signer is already initialized")]
+    // #[error("")]
+    // AlreadyInitialized,
 
-    // 8, 0x8
-    // #[error("Migration state account is locked")]
-    #[error("")]
-    MigrationLocked,
+    // // 8, 0x8
+    // // #[error("Migration state account is locked")]
+    // #[error("")]
+    // MigrationLocked,
 
-    // 9, 0x9
-    // #[error("Immutable metadata cannot be migrated")]
-    #[error("")]
-    ImmutableMetadata,
+    // // 9, 0x9
+    // // #[error("Immutable metadata cannot be migrated")]
+    // #[error("")]
+    // ImmutableMetadata,
 
-    // 10, 0xA
-    // #[error("Incorrect freeze authority")]
-    #[error("")]
-    IncorrectFreezeAuthority,
+    // // 10, 0xA
+    // // #[error("Incorrect freeze authority")]
+    // #[error("")]
+    // IncorrectFreezeAuthority,
 
-    // 11, 0xB
-    // #[error("Incorrect token standard: must be NonFungible")]
-    #[error("")]
-    IncorrectTokenStandard,
+    // // 11, 0xB
+    // // #[error("Incorrect token standard: must be NonFungible")]
+    // #[error("")]
+    // IncorrectTokenStandard,
 
-    // 12, 0xC
-    // #[error("Cannot migrate an item owned by an immutable program")]
-    #[error("")]
-    ImmutableProgramOwner,
+    // // 12, 0xC
+    // // #[error("Cannot migrate an item owned by an immutable program")]
+    // #[error("")]
+    // ImmutableProgramOwner,
 
     // Validation Errors
 
@@ -223,6 +223,9 @@ pub enum MigrationError {
     // #[error("Authorization rules does not match the rule set stored on the state")]
     #[error("")]
     InvalidRuleSet,
+
+    #[error("The pNFT migration window has closed and this program is deprecated.")]
+    MigrationWindowClosed,
 }
 
 // Migration Error Impls

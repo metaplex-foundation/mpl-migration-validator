@@ -1,6 +1,6 @@
 use crate::utils::close_program_account;
 
-use super::*;
+use super::{validator::incoming_collection_authority_matches_stored, *};
 
 pub fn close_migration_state(program_id: &Pubkey, accounts: &[AccountInfo]) -> ProgramResult {
     // Fetch accounts

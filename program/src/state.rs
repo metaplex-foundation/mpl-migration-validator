@@ -3,7 +3,7 @@ use std::str::FromStr;
 use borsh::{BorshDeserialize, BorshSerialize};
 use shank::ShankAccount;
 use solana_program::{
-    account_info::AccountInfo, program_error::ProgramError, program_memory::sol_memcpy, pubkey,
+    account_info::AccountInfo, program_error::ProgramError, program_memory::sol_memcpy,
     pubkey::Pubkey,
 };
 
@@ -14,9 +14,6 @@ use {
 };
 
 use crate::errors::MigrationError;
-
-pub(crate) const MIGRATION_WAIT_PERIOD: i64 = 60 * 60 * 24 * 14; // 14 days
-pub(crate) const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]
 #[derive(Clone, BorshSerialize, BorshDeserialize, Debug, ShankAccount)]

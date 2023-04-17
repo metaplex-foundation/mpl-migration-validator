@@ -223,6 +223,10 @@ pub enum MigrationError {
     // #[error("Authorization rules does not match the rule set stored on the state")]
     #[error("")]
     InvalidRuleSet,
+
+    /// 42 0x2A
+    #[error("This instruction has been deprecated")]
+    DeprecatedInstruction,
 }
 
 // Migration Error Impls

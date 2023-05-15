@@ -15,7 +15,6 @@ use {
 
 use crate::errors::MigrationError;
 
-pub(crate) const MIGRATION_WAIT_PERIOD: i64 = 60 * 60 * 24 * 14; // 14 days
 pub(crate) const SPL_TOKEN_ID: Pubkey = pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA");
 
 #[cfg_attr(feature = "serde-feature", derive(Serialize, Deserialize))]

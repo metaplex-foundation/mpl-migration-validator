@@ -1,7 +1,7 @@
 use crate::{
     errors::MigrationError,
-    instruction::{InitializeArgs, MigrationInstruction, UpdateArgs},
-    state::{MigrationState, ProgramSigner, UnlockMethod, MIGRATION_WAIT_PERIOD, SPL_TOKEN_ID},
+    instruction::{MigrationInstruction, UpdateArgs},
+    state::{MigrationState, ProgramSigner, UnlockMethod, SPL_TOKEN_ID},
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use mpl_token_metadata::{
@@ -32,7 +32,6 @@ mod update;
 mod validators;
 
 use close::close_migration_state;
-use initialize::initialize_migration;
 use migrate::migrate_item;
 use misc::init_signer;
 use start::start_migration;
@@ -50,8 +49,8 @@ impl Processor {
             MigrationInstruction::try_from_slice(instruction_data)?;
 
         match instruction {
-            MigrationInstruction::Initialize(args) => {
-                initialize_migration(program_id, accounts, args)
+            MigrationInstruction::Initialize(_args) => {
+                Err(MigrationError::DeprecatedInstruction.into())
             }
             MigrationInstruction::Update(args) => update_state(program_id, accounts, args),
             MigrationInstruction::Close => close_migration_state(program_id, accounts),

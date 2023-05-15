@@ -411,7 +411,7 @@ impl Migratorr {
         let now = std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .unwrap()
-            .as_secs() as u64;
+            .as_secs();
 
         let mut state = self.state().clone();
         state.status.unlock_time = now as i64 - 2;

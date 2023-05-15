@@ -98,7 +98,7 @@ async fn cannot_close_in_progress_state() {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
-        .as_secs() as u64;
+        .as_secs();
     let mut state = migratorr.state().clone();
     state.status.unlock_time = now as i64 - 2;
 
@@ -186,7 +186,7 @@ async fn cannot_close_already_migrated() {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .unwrap()
-        .as_secs() as u64;
+        .as_secs();
     let mut state = migratorr.state().clone();
     state.status.unlock_time = now as i64 - 2;
     state.status.in_progress = false;
